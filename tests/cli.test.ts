@@ -1,0 +1,67 @@
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { afterEach, describe, expect, it } from 'vitest';
+import { runDoctor } from '../src/commands/doctor.js';
+import { runInit } from '../src/commands/init.js';
+import { runValidate } from '../src/commands/validate.js';
+import { integrationMentioned } from '../src/utils/fileSystem.js';
+
+const tempDirs: string[] = [];
+
+async function makeTempDir(): Promise<string> {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'arch-kit-'));
+  tempDirs.push(dir);
+  return dir;
+}
+
+afterEach(async () => {
+  while (tempDirs.length > 0) {
+    const dir = tempDirs.pop();
+    if (dir) {
+      await rm(dir, { recursive: true, force: true });
+    }
+  }
+});
+
+describe('integrationMentioned', () => {
+  it('detects integration names case-insensitively', () => {
+    const markdown = '| Contentful | CMS | Yes |';
+    expect(integrationMentioned(markdown, 'contentful')).toBe(true);
+    expect(integrationMentioned(markdown, 'Google Tag Manager')).toBe(false);
+  });
+});
+
+describe('init + validate + doctor', () => {
+  it('scaffolds generic docs and passes base validation', async () => {
+    const cwd = await makeTempDir();
+
+    await runInit({ type: 'generic', name: 'Demo Project', cwd });
+
+    const configRaw = await readFile(
+      path.join(cwd, 'architecture.config.json'),
+      'utf-8',
+    );
+    const config = JSON.parse(configRaw) as { project: { name: string; type: string } };
+    expect(config.project.name).toBe('Demo Project');
+    expect(config.project.type).toBe('generic');
+
+    const validateCode = await runValidate({ cwd, level: 'error' });
+    expect(validateCode).toBe(0);
+
+    const doctorCode = await runDoctor(cwd);
+    expect(doctorCode).toBe(0);
+  });
+
+  it('scaffolds nextjs template files', async () => {
+    const cwd = await makeTempDir();
+
+    await runInit({ type: 'nextjs', cwd });
+
+    const renderingModel = await readFile(
+      path.join(cwd, 'docs/architecture/rendering-model.md'),
+      'utf-8',
+    );
+    expect(renderingModel).toContain('Rendering Model');
+  });
+});

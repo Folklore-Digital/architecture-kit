@@ -1,0 +1,9 @@
+sequenceDiagram
+  participant Browser
+  participant App as Next.js Runtime
+  participant CMS as Content Source
+
+  Browser->>App: Request page
+  App->>CMS: Fetch content
+  CMS-->>App: Content payload
+  App-->>Browser: Rendered response
