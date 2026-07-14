@@ -19,8 +19,10 @@ npx architecture-kit init --type nextjs
 npx architecture-kit validate
 npx architecture-kit validate --ci
 npx architecture-kit doctor
-npx architecture-kit dev    # coming soon
-npx architecture-kit build  # coming soon
+npx architecture-kit dev
+npx architecture-kit build
+npx architecture-kit detect
+npx architecture-kit detect --apply
 ```
 
 ## Project Types
@@ -88,6 +90,29 @@ jobs:
       - run: npx architecture-kit validate --ci
 ```
 
+## Local docs site
+
+`build` renders `docs/` to a static site (Markdown + Mermaid) with sidebar navigation.
+
+```bash
+npx architecture-kit build
+npx architecture-kit build --out ./site
+
+npx architecture-kit dev
+npx architecture-kit dev --port 4321
+```
+
+Default output: `.architecture-kit/site` (gitignored). `dev` rebuilds on start and serves at `http://127.0.0.1:4321`.
+
+## Project type detection
+
+```bash
+npx architecture-kit detect
+npx architecture-kit detect --apply
+```
+
+Inspects `package.json`, `composer.json`, and common CMS folder layouts to suggest a template type. Use `--apply` to sync `architecture.config.json` `project.type` when it differs.
+
 ## Doctor
 
 ```bash
@@ -114,9 +139,9 @@ Missing: None
 ## Roadmap
 
 - [x] Phase 1 — Static docs scaffold (`init`)
+- [x] Phase 2 — Local docs site (`dev`, `build`)
 - [x] Phase 3 — Validation (`validate`, `doctor`)
-- [ ] Phase 2 — Local docs site (`dev`, `build`)
-- [ ] Phase 4 — Project type detection
+- [x] Phase 4 — Project type detection (`detect`)
 - [ ] Phase 5 — PR change awareness
 - [ ] Phase 6 — AI tooling files (`AGENTS.md`, Cursor rules)
 

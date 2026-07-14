@@ -1,0 +1,128 @@
+import { readdir, readFile } from 'node:fs/promises';
+import path from 'node:path';
+import type { ArchitectureConfig } from '../config/schema.js';
+import { pathExists } from '../utils/fileSystem.js';
+import type { DocPage, DocSection } from './types.js';
+
+function titleFromMarkdown(content: string, fallback: string): string {
+  const match = content.match(/^#\s+(.+)$/m);
+  return match?.[1]?.trim() ?? fallback;
+}
+
+function titleFromFilename(filename: string): string {
+  const base = filename.replace(/\.(md|mmd)$/i, '');
+  return base
+    .replace(/^\d+-/, '')
+    .split(/[-_]/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function prefixUnderDocs(configPath: string, docsPath: string): string {
+  const normalized = configPath.replace(/\\/g, '/');
+  const docs = docsPath.replace(/\\/g, '/');
+  if (normalized === docs) {
+    return '';
+  }
+  if (normalized.startsWith(`${docs}/`)) {
+    return normalized.slice(docs.length + 1);
+  }
+  return normalized;
+}
+
+function sectionForRelativePath(
+  relativePath: string,
+  config: ArchitectureConfig,
+): DocSection {
+  const normalized = relativePath.replace(/\\/g, '/');
+  const arch = prefixUnderDocs(config.paths.architectureDocs, config.paths.docs);
+  const adr = prefixUnderDocs(config.paths.adr, config.paths.docs);
+  const diagrams = prefixUnderDocs(config.paths.diagrams, config.paths.docs);
+
+  if (arch && (normalized === arch || normalized.startsWith(`${arch}/`))) {
+    return 'architecture';
+  }
+  if (adr && (normalized === adr || normalized.startsWith(`${adr}/`))) {
+    return 'adr';
+  }
+  if (
+    diagrams &&
+    (normalized === diagrams || normalized.startsWith(`${diagrams}/`))
+  ) {
+    return 'diagram';
+  }
+  if (normalized.endsWith('.mmd')) {
+    return 'diagram';
+  }
+  return 'other';
+}
+
+async function walkMarkdown(
+  dir: string,
+  docsRoot: string,
+  config: ArchitectureConfig,
+  pages: DocPage[],
+): Promise<void> {
+  const entries = await readdir(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      await walkMarkdown(fullPath, docsRoot, config, pages);
+      continue;
+    }
+
+    if (!entry.name.endsWith('.md') && !entry.name.endsWith('.mmd')) {
+      continue;
+    }
+
+    const relativePath = path.relative(docsRoot, fullPath);
+    const raw = await readFile(fullPath, 'utf-8');
+    const title =
+      entry.name.endsWith('.md')
+        ? titleFromMarkdown(raw, titleFromFilename(entry.name))
+        : titleFromFilename(entry.name);
+
+    const normalized = relativePath.replace(/\\/g, '/');
+    const outputPath = normalized.endsWith('.md')
+      ? `${normalized.replace(/\.md$/i, '')}.html`
+      : `${normalized.replace(/\.mmd$/i, '')}.html`;
+
+    pages.push({
+      section: sectionForRelativePath(relativePath, config),
+      relativePath: relativePath.replace(/\\/g, '/'),
+      sourcePath: fullPath,
+      title,
+      outputPath,
+    });
+  }
+}
+
+export async function collectPages(
+  cwd: string,
+  config: ArchitectureConfig,
+): Promise<DocPage[]> {
+  const docsRoot = path.join(cwd, config.paths.docs);
+  if (!(await pathExists(docsRoot))) {
+    throw new Error(`Docs directory not found: ${config.paths.docs}`);
+  }
+
+  const pages: DocPage[] = [];
+  await walkMarkdown(docsRoot, docsRoot, config, pages);
+
+  pages.sort((a, b) => {
+    const sectionOrder: Record<DocSection, number> = {
+      architecture: 0,
+      adr: 1,
+      diagram: 2,
+      other: 3,
+    };
+    const sectionDiff = sectionOrder[a.section] - sectionOrder[b.section];
+    if (sectionDiff !== 0) {
+      return sectionDiff;
+    }
+    return a.relativePath.localeCompare(b.relativePath);
+  });
+
+  return pages;
+}
