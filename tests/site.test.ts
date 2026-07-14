@@ -39,7 +39,7 @@ describe('build site', () => {
     const indexHtml = await readFile(indexPath, 'utf-8');
     expect(indexHtml).toContain('Architecture');
 
-    const overviewPath = path.join(outDir, 'architecture/overview.html');
+    const overviewPath = path.join(outDir, 'overview.html');
     await access(overviewPath);
     const overviewHtml = await readFile(overviewPath, 'utf-8');
     expect(overviewHtml).toContain('Project Overview');

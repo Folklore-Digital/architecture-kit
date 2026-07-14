@@ -48,10 +48,7 @@ function navHref(fromOutputPath: string, targetOutputPath: string): string {
   return `${prefix}${suffix}`;
 }
 
-function renderNav(
-  pages: DocPage[],
-  current: DocPage,
-): string {
+function renderNav(pages: DocPage[], current: DocPage): string {
   const sections: DocSection[] = ['architecture', 'adr', 'diagram', 'other'];
   const blocks: string[] = [];
 
@@ -64,7 +61,8 @@ function renderNav(
     const links = sectionPages
       .map((page) => {
         const href = navHref(current.outputPath, page.outputPath);
-        const active = page.outputPath === current.outputPath ? ' class="active"' : '';
+        const active =
+          page.outputPath === current.outputPath ? ' class="active"' : '';
         return `<li><a href="${href}"${active}>${escapeHtml(page.title)}</a></li>`;
       })
       .join('\n');
@@ -88,6 +86,12 @@ export function renderPageShell(options: {
   const root = depthToRoot(page.outputPath);
   const homeHref = root ? `${root}index.html` : 'index.html';
   const nav = renderNav(pages, page);
+  const sourceLink =
+    page.sourcePath && page.relativePath.endsWith('.md')
+      ? `<p class="source-link"><a href="${navHref(page.outputPath, page.outputPath.replace(/\.html$/i, '.md'))}">View Markdown source</a></p>`
+      : page.sourcePath && page.relativePath.endsWith('.mmd')
+        ? `<p class="source-link"><a href="${navHref(page.outputPath, page.outputPath.replace(/\.html$/i, '.mmd'))}">View Mermaid source</a></p>`
+        : '';
   const mermaidInit = includeMermaid
     ? `<script src="${MERMAID_SCRIPT}"></script>
 <script>mermaid.initialize({ startOnLoad: true, theme: 'neutral' });</script>`
@@ -179,6 +183,7 @@ export function renderPageShell(options: {
     th, td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; }
     a { color: var(--accent); }
     .mermaid { background: transparent; }
+    .source-link { margin-top: 2rem; font-size: 0.85rem; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -189,6 +194,7 @@ export function renderPageShell(options: {
     </aside>
     <main>
       ${bodyHtml}
+      ${sourceLink}
     </main>
   </div>
   ${mermaidInit}

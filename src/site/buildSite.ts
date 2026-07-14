@@ -1,4 +1,4 @@
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { ArchitectureConfig } from '../config/schema.js';
 import { projectTypeLabels } from '../config/schema.js';
@@ -28,9 +28,7 @@ export async function buildSite(
     const html = renderPageShell({
       projectName: config.project.name,
       page,
-      bodyHtml: isMermaid
-        ? bodyHtml
-        : bodyHtml,
+      bodyHtml,
       pages,
       includeMermaid: isMermaid,
     });
@@ -38,6 +36,16 @@ export async function buildSite(
     const target = path.join(outDir, page.outputPath);
     await mkdir(path.dirname(target), { recursive: true });
     await writeFile(target, html, 'utf-8');
+
+    const sourceOut = page.outputPath.replace(/\.html$/i, '.md');
+    if (page.relativePath.endsWith('.md')) {
+      await cp(page.sourcePath, path.join(outDir, sourceOut));
+    } else if (page.relativePath.endsWith('.mmd')) {
+      await cp(
+        page.sourcePath,
+        path.join(outDir, page.outputPath.replace(/\.html$/i, '.mmd')),
+      );
+    }
   }
 
   const homeHtml = renderHomePage({

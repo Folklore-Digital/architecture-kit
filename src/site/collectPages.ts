@@ -83,19 +83,35 @@ async function walkMarkdown(
         ? titleFromMarkdown(raw, titleFromFilename(entry.name))
         : titleFromFilename(entry.name);
 
-    const normalized = relativePath.replace(/\\/g, '/');
-    const outputPath = normalized.endsWith('.md')
-      ? `${normalized.replace(/\.md$/i, '')}.html`
-      : `${normalized.replace(/\.mmd$/i, '')}.html`;
-
     pages.push({
       section: sectionForRelativePath(relativePath, config),
       relativePath: relativePath.replace(/\\/g, '/'),
       sourcePath: fullPath,
       title,
-      outputPath,
+      outputPath: outputPathFor(relativePath, config),
     });
   }
+}
+
+function outputPathFor(
+  relativePath: string,
+  config: ArchitectureConfig,
+): string {
+  const normalized = relativePath.replace(/\\/g, '/');
+  const archPrefix = prefixUnderDocs(
+    config.paths.architectureDocs,
+    config.paths.docs,
+  );
+
+  let webPath = normalized;
+  if (archPrefix && normalized.startsWith(`${archPrefix}/`)) {
+    webPath = normalized.slice(archPrefix.length + 1);
+  }
+
+  if (webPath.endsWith('.md')) {
+    return `${webPath.replace(/\.md$/i, '')}.html`;
+  }
+  return `${webPath.replace(/\.mmd$/i, '')}.html`;
 }
 
 export async function collectPages(

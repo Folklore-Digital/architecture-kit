@@ -110,10 +110,3 @@ export async function validateBase(
 
   return createResult(issues);
 }
-
-export async function validateProject(
-  cwd: string,
-  config: ArchitectureConfig,
-): Promise<ValidationResult> {
-  return validateBase(cwd, config);
-}
