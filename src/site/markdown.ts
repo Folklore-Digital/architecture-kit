@@ -1,25 +1,55 @@
 import { readFile } from 'node:fs/promises';
 import { marked } from 'marked';
 import type { DocPage } from './types.js';
+import { navHref, resolveDocLink } from './paths.js';
 
 marked.setOptions({
   gfm: true,
   breaks: false,
 });
 
-function rewriteInternalLinks(html: string): string {
+function outputPathByDocPath(pages: DocPage[]): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const page of pages) {
+    map.set(page.relativePath.replace(/\\/g, '/'), page.outputPath);
+  }
+  return map;
+}
+
+function rewriteInternalLinks(
+  html: string,
+  page: DocPage,
+  pages: DocPage[],
+): string {
+  const outputs = outputPathByDocPath(pages);
+
   return html.replace(
     /href="([^"]+\.md)(#[^"]*)?"/gi,
-    (_match, file: string, hash = '') => {
-      const htmlFile = file.replace(/\.md$/i, '.html');
-      return `href="${htmlFile}${hash}"`;
+    (match, file: string, hash = '') => {
+      const resolved = resolveDocLink(page.relativePath, `${file}${hash}`);
+      if (!resolved) {
+        const htmlFile = file.replace(/\.md$/i, '.html');
+        return `href="${htmlFile}${hash}"`;
+      }
+
+      const targetOutput = outputs.get(resolved.docPath);
+      if (!targetOutput) {
+        const htmlFile = file.replace(/\.md$/i, '.html');
+        return `href="${htmlFile}${resolved.hash}"`;
+      }
+
+      return `href="${navHref(page.outputPath, targetOutput)}${resolved.hash}"`;
     },
   );
 }
 
-export async function renderMarkdownPage(page: DocPage): Promise<string> {
+export async function renderMarkdownPage(
+  page: DocPage,
+  pages: DocPage[],
+): Promise<string> {
   const raw = await readFile(page.sourcePath, 'utf-8');
-  const body = rewriteInternalLinks(await marked.parse(raw));
+  const parsed = await marked.parse(raw);
+  const body = rewriteInternalLinks(parsed, page, pages);
   return body;
 }
 

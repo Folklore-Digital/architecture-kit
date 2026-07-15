@@ -44,6 +44,14 @@ describe('build site', () => {
     await access(overviewPath);
     const overviewHtml = await readFile(overviewPath, 'utf-8');
     expect(overviewHtml).toContain('Project Overview');
+    expect(overviewHtml).not.toContain('architecture/architecture');
+
+    const readmePath = path.join(outDir, 'README.html');
+    await access(readmePath);
+    const readmeHtml = await readFile(readmePath, 'utf-8');
+    expect(readmeHtml).toContain('href="overview.html"');
+    expect(readmeHtml).not.toContain('architecture/architecture');
+    expect(readmeHtml).not.toContain('href="architecture/overview.html"');
   });
 });
 

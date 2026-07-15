@@ -1,5 +1,6 @@
 import type { DocPage, DocSection } from './types.js';
 import { MERMAID_SETUP_SCRIPTS } from './mermaidInitScript.js';
+import { navHref } from './paths.js';
 
 const SECTION_LABELS: Record<DocSection, string> = {
   architecture: 'Architecture',
@@ -19,31 +20,6 @@ function escapeHtml(text: string): string {
 function depthToRoot(outputPath: string): string {
   const depth = outputPath.split('/').length - 1;
   return depth === 0 ? '' : '../'.repeat(depth);
-}
-
-function navHref(fromOutputPath: string, targetOutputPath: string): string {
-  const fromDir = fromOutputPath.includes('/')
-    ? fromOutputPath.slice(0, fromOutputPath.lastIndexOf('/') + 1)
-    : '';
-  const fromParts = fromDir ? fromDir.split('/').filter(Boolean) : [];
-  const targetParts = targetOutputPath.split('/');
-  const targetFile = targetParts.pop() ?? 'index.html';
-  const targetDirParts = targetParts;
-
-  let shared = 0;
-  while (
-    shared < fromParts.length &&
-    shared < targetDirParts.length &&
-    fromParts[shared] === targetDirParts[shared]
-  ) {
-    shared += 1;
-  }
-
-  const up = fromParts.length - shared;
-  const prefix = up === 0 ? '' : '../'.repeat(up);
-  const down = targetDirParts.slice(shared).join('/');
-  const suffix = down ? `${down}/${targetFile}` : targetFile;
-  return `${prefix}${suffix}`;
 }
 
 function renderNav(pages: DocPage[], current: DocPage): string {

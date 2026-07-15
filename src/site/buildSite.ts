@@ -23,7 +23,7 @@ export async function buildSite(
     const isMermaid = page.relativePath.endsWith('.mmd');
     const bodyHtml = isMermaid
       ? await renderMermaidPage(page)
-      : `<article>${await renderMarkdownPage(page)}</article>`;
+      : `<article>${await renderMarkdownPage(page, pages)}</article>`;
 
     const html = renderPageShell({
       projectName: config.project.name,
