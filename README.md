@@ -111,17 +111,22 @@ Keep `system-overview.mmd` (components + infra) and `data-flow.mmd` (request/dat
 
 - `architecture.config.json` schema (Zod)
 - Required folders and architecture markdown files
+- Key docs: `overview.md`, `deployment.md`, `ai-context.md`
 - `ai-context.md` present
-- ADR and diagram presence
+- ADR and diagram presence (`system-overview.mmd`, `data-flow.mmd`)
 - Integrations in config appear in `integrations.md`
+- **Governance**: integration ADR mentions, `.env.example` keys in `environments.md`
+- **AI tooling**: `.cursor/rules/architecture-kit.mdc`, `AGENTS.md` or `CLAUDE.md`
+- **Diff awareness** (`--since origin/develop`): code changes without matching doc updates
 - **Placeholder content** in docs (`_TBD_`, `_Example_`, unfilled scaffold text) — warns
 
-Future (roadmap): PR change awareness, component convention lint rules, cross-doc link integrity.
+Future (roadmap): component convention lint rules, cross-doc link integrity.
 
 ```bash
 npx architecture-kit validate --level warn   # show warnings
 npx architecture-kit validate --level error    # errors only
 npx architecture-kit validate --ci
+npx architecture-kit validate --since origin/develop   # diff-aware warnings
 ```
 
 ### CI example
@@ -134,12 +139,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: Folklore-Digital/architecture-kit
+          path: vendor/architecture-kit
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - run: npm ci && npm run build
+        working-directory: vendor/architecture-kit
       - run: npm ci
-      - run: npx architecture-kit validate --ci
+      - run: npm run architecture:validate -- --ci --since origin/develop
 ```
+
+For private kit repos, checkout the kit to `vendor/architecture-kit` (matches host resolver) or use GitHub Packages (see below).
 
 ---
 
@@ -171,16 +186,16 @@ This keeps the package reusable across WordPress, Next.js, static sites, etc.
 
 Machine-readable metadata: project type, stack, integrations, governance flags, doc paths.
 
-Governance flags (document intent; validation expands over time):
+Governance flags (enforced where noted):
 
-| Flag | Meaning |
-| --- | --- |
-| `newIntegrationRequiresDocs` | Must update `integrations.md` |
-| `newIntegrationRequiresAdr` | Significant integrations need an ADR |
-| `newEnvVarRequiresDocs` | Must update `environments.md` |
-| `newExternalScriptRequiresDocs` | Must update `scripts-and-load-order.md` |
-| `newClientComponentRequiresReason` | Client boundaries documented |
-| `newPackageRequiresReview` | New npm deps need review |
+| Flag | Meaning | Enforced |
+| --- | --- | --- |
+| `newIntegrationRequiresDocs` | Must update `integrations.md` | Yes |
+| `newIntegrationRequiresAdr` | Significant integrations need an ADR mention | Yes (warn) |
+| `newEnvVarRequiresDocs` | Must update `environments.md` | Yes (warn, when `.env.example` exists) |
+| `newExternalScriptRequiresDocs` | Must update `scripts-and-load-order.md` | Planned |
+| `newClientComponentRequiresReason` | Client boundaries documented | Planned |
+| `newPackageRequiresReview` | New npm deps need review | Planned |
 
 ---
 
@@ -199,9 +214,31 @@ Roadmap: optional ESLint or custom rules wired through config.
 - [x] Phase 2 — Docs site (`dev`, `build`, Markdown sources)
 - [x] Phase 3 — Validation (`validate`, `doctor`, placeholder detection)
 - [x] Phase 4 — Project type detection (`detect`)
-- [ ] Phase 5 — PR change awareness (validate docs touched by diff)
-- [ ] Phase 6 — AI tooling sync (`AGENTS.md`, Cursor rules templates)
+- [x] Phase 5 — PR change awareness (`validate --since`)
+- [x] Phase 6 — AI tooling sync (`AGENTS.md`, Cursor rules templates)
 - [ ] Phase 7 — Convention checks (component registry, custom lint rules)
+
+---
+
+## Publishing (GitHub Packages)
+
+Private install without a sibling clone:
+
+1. Copy `.npmrc.example` to `.npmrc` and set a GitHub PAT with `read:packages` / `write:packages`
+2. Publish from maintainers:
+
+```bash
+npm run build
+npm publish
+```
+
+3. In host repos:
+
+```bash
+npm install -D @folklore/architecture-kit
+```
+
+Or keep using `vendor/architecture-kit` / `../architecture-kit` (recommended for monorepo-style local dev).
 
 ---
 

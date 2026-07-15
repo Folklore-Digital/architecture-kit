@@ -1,0 +1,29 @@
+---
+description: Architecture Kit docs and validation for this project
+alwaysApply: true
+---
+
+# Architecture Kit ({{projectName}})
+
+This repo uses **@folklore/architecture-kit**. Resolves from `../architecture-kit`, `vendor/architecture-kit`, or optional `node_modules` install.
+
+- Config: `architecture.config.json`
+- Docs source: `docs/architecture/`, `docs/adr/`, `docs/diagrams/`
+- AI entrypoint: `docs/architecture/ai-context.md`
+
+## Commands
+
+```bash
+npx architecture-kit validate
+npx architecture-kit doctor
+npx architecture-kit build
+npx architecture-kit dev
+```
+
+Host-app embedding (mount path, link rewriting) is **project-side only** — the kit builds a standalone site.
+
+## Scope hints for agents
+
+- Kit/template/validator changes → **architecture-kit** repo
+- Application code → **this project** repo
+- Say explicitly when a task is docs-only vs code-only

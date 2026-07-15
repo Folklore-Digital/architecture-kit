@@ -1,4 +1,4 @@
-import { access, cp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, appendFile, cp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -95,6 +95,32 @@ export async function scaffoldProject(
   const config = createDefaultConfig(type, name);
   await writeJson(configPath, config);
   created.push('architecture.config.json');
+
+  const cursorRuleSource = path.join(getTemplatesDir(), 'cursor/architecture-kit.mdc');
+  const cursorRuleTarget = path.join(cwd, '.cursor/rules/architecture-kit.mdc');
+  if (await pathExists(cursorRuleSource)) {
+    await ensureDir(path.dirname(cursorRuleTarget));
+    const cursorTemplate = await readFile(cursorRuleSource, 'utf-8');
+    const cursorRule = cursorTemplate.replaceAll('{{projectName}}', name);
+    await writeFile(cursorRuleTarget, cursorRule, 'utf-8');
+    created.push('.cursor/rules/architecture-kit.mdc');
+  }
+
+  const agentsSnippetSource = path.join(getTemplatesDir(), 'AGENTS.snippet.md');
+  const agentsPath = path.join(cwd, 'AGENTS.md');
+  if (await pathExists(agentsSnippetSource)) {
+    const snippet = await readFile(agentsSnippetSource, 'utf-8');
+    if (await pathExists(agentsPath)) {
+      const existing = await readFile(agentsPath, 'utf-8');
+      if (!existing.includes('architecture-kit')) {
+        await appendFile(agentsPath, `\n${snippet}`, 'utf-8');
+        created.push('AGENTS.md (appended architecture section)');
+      }
+    } else {
+      await writeFile(agentsPath, `${snippet.trim()}\n`, 'utf-8');
+      created.push('AGENTS.md');
+    }
+  }
 
   return created;
 }

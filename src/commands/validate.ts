@@ -6,6 +6,7 @@ export type ValidateOptions = {
   cwd?: string;
   ci?: boolean;
   level?: ValidationLevel;
+  since?: string;
 };
 
 function formatIssue(level: ValidationLevel, message: string): string {
@@ -25,7 +26,7 @@ export async function runValidate(options: ValidateOptions = {}): Promise<number
     return 1;
   }
 
-  const result = await runValidation(cwd, config);
+  const result = await runValidation(cwd, config, { since: options.since });
   const visibleIssues = result.issues.filter((issue) => {
     if (level === 'error') {
       return issue.level === 'error';

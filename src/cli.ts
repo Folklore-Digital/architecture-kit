@@ -94,7 +94,11 @@ program
   .description('Validate architecture docs and config')
   .option('--ci', 'CI mode: fail on errors only, stricter exit codes')
   .option('--level <level>', 'Validation level: warn | error')
-  .action(async (options: { ci?: boolean; level?: string }) => {
+  .option(
+    '--since <ref>',
+    'Git ref for diff-aware checks (e.g. origin/develop)',
+  )
+  .action(async (options: { ci?: boolean; level?: string; since?: string }) => {
     const level =
       options.level === 'error' || options.level === 'warn'
         ? options.level
@@ -104,6 +108,7 @@ program
     const code = await runValidate({
       ci: options.ci,
       level,
+      since: options.since,
     });
     process.exit(code);
   });

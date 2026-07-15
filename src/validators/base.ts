@@ -8,7 +8,9 @@ import {
   type ValidationResult,
 } from './types.js';
 
-const REQUIRED_DIAGRAMS = ['system-overview.mmd'];
+const REQUIRED_DIAGRAMS = ['system-overview.mmd', 'data-flow.mmd'];
+
+const REQUIRED_KEY_DOCS = ['overview.md', 'deployment.md'];
 
 export async function validateBase(
   cwd: string,
@@ -46,6 +48,17 @@ export async function validateBase(
         code: 'missing-architecture-docs',
         message: `No architecture markdown files found in ${paths.architectureDocs}`,
       });
+    }
+
+    for (const doc of REQUIRED_KEY_DOCS) {
+      const docPath = path.join(architectureDir, doc);
+      if (!(await pathExists(docPath))) {
+        issues.push({
+          level: 'warn',
+          code: 'missing-key-doc',
+          message: `Recommended architecture doc missing: ${paths.architectureDocs}/${doc}`,
+        });
+      }
     }
 
     const aiContextPath = path.join(cwd, paths.aiContext);
@@ -102,6 +115,60 @@ export async function validateBase(
             level: 'error',
             code: 'integration-not-documented',
             message: `Integration "${integration.name}" listed in config but not found in integrations.md`,
+          });
+        }
+      }
+    }
+  }
+
+  if (
+    config.governance.newIntegrationRequiresAdr &&
+    config.integrations.length > 0 &&
+    (await pathExists(adrDir))
+  ) {
+    const adrFiles = (await readdir(adrDir)).filter((file) =>
+      file.endsWith('.md'),
+    );
+    const adrContents = await Promise.all(
+      adrFiles.map((file) => readFile(path.join(adrDir, file), 'utf-8')),
+    );
+    const allAdrText = adrContents.join('\n');
+
+    for (const integration of config.integrations) {
+      if (!integrationMentioned(allAdrText, integration.name)) {
+        issues.push({
+          level: 'warn',
+          code: 'integration-missing-adr',
+          message: `Integration "${integration.name}" has no ADR mention (governance: newIntegrationRequiresAdr)`,
+        });
+      }
+    }
+  }
+
+  if (config.governance.newEnvVarRequiresDocs) {
+    const envExamplePath = path.join(cwd, '.env.example');
+    const environmentsPath = path.join(
+      cwd,
+      paths.architectureDocs,
+      'environments.md',
+    );
+
+    if (
+      (await pathExists(envExamplePath)) &&
+      (await pathExists(environmentsPath))
+    ) {
+      const envExample = await readFile(envExamplePath, 'utf-8');
+      const environmentsMarkdown = await readFile(environmentsPath, 'utf-8');
+      const envKeys = [...envExample.matchAll(/^([A-Z_][A-Z0-9_]*)=/gm)].map(
+        (match) => match[1],
+      );
+
+      for (const key of envKeys) {
+        if (!environmentsMarkdown.includes(key)) {
+          issues.push({
+            level: 'warn',
+            code: 'env-var-not-documented',
+            message: `Environment variable "${key}" in .env.example but not mentioned in environments.md`,
           });
         }
       }

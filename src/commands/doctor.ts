@@ -66,6 +66,21 @@ export async function runDoctor(cwd: string = process.cwd()): Promise<number> {
   console.log(`Docs health: ${health}%`);
   console.log('');
 
+  const aiToolingIssues = result.issues.filter((issue) =>
+    ['missing-cursor-rule', 'missing-agents-md', 'agents-missing-architecture-section'].includes(
+      issue.code,
+    ),
+  );
+
+  console.log('AI tooling');
+  console.log(
+    `  Cursor rule: ${aiToolingIssues.some((i) => i.code === 'missing-cursor-rule') ? 'missing' : 'present'}`,
+  );
+  console.log(
+    `  Agent docs: ${aiToolingIssues.some((i) => i.code === 'missing-agents-md' || i.code === 'agents-missing-architecture-section') ? 'needs update' : 'ok'}`,
+  );
+  console.log('');
+
   const missing = [...errors, ...warnings].map((issue) => issue.message);
   if (missing.length === 0) {
     console.log('Missing: None');

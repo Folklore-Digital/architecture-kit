@@ -25,4 +25,5 @@ export async function runInit(options: InitOptions): Promise<void> {
   console.log('  2. Fill in docs/architecture/*.md');
   console.log('  3. Run: npx architecture-kit validate');
   console.log('  4. Run: npx architecture-kit doctor');
+  console.log('  5. Review .cursor/rules/architecture-kit.mdc and AGENTS.md');
 }

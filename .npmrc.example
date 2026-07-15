@@ -1,0 +1,5 @@
+# GitHub Packages (private install)
+# Copy to .npmrc and replace YOUR_GITHUB_TOKEN with a PAT that has read:packages
+
+@folklore:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
