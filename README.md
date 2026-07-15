@@ -93,7 +93,7 @@ Read **overview** and browse **diagrams/** on the docs site. No repo access requ
 
 ### For leads / DevOps
 
-Read **deployment**, **environments**, **integrations**, **quality-gates**. Wire `validate --ci` into GitHub Actions.
+Read **deployment**, **environments**, **integrations**, **quality-gates**. Optionally add `validate` to each repo's existing CI pipeline.
 
 ### ADRs
 
@@ -129,32 +129,15 @@ npx architecture-kit validate --ci
 npx architecture-kit validate --since origin/develop   # diff-aware warnings
 ```
 
-### CI example
+### CI example (optional — per repo)
+
+Each host repo chooses whether and how to run validation. Example step for an existing workflow:
 
 ```yaml
-name: Architecture Docs
-on: [pull_request]
-jobs:
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/checkout@v4
-        with:
-          repository: Folklore-Digital/architecture-kit
-          path: vendor/architecture-kit
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm ci && npm run build
-        working-directory: vendor/architecture-kit
-      - run: npm ci
-      - run: npm run architecture:validate -- --ci --since origin/develop
+- run: npm run architecture:validate -- --ci --since origin/develop
 ```
 
-For private kit repos, checkout the kit to `vendor/architecture-kit` (matches host resolver) or use GitHub Packages (see below).
+If the kit is private, checkout it to `vendor/architecture-kit` in the same job (see rock-em-sock-em `scripts/lib/resolve-kit.mjs`). Tune governance in each repo's `architecture.config.json`.
 
 ---
 
