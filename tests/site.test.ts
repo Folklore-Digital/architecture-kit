@@ -38,6 +38,7 @@ describe('build site', () => {
     await access(indexPath);
     const indexHtml = await readFile(indexPath, 'utf-8');
     expect(indexHtml).toContain('Architecture');
+    expect(indexHtml).toContain('nav-accordion');
 
     const overviewPath = path.join(outDir, 'overview.html');
     await access(overviewPath);

@@ -30,5 +30,16 @@ export async function renderMermaidPage(page: DocPage): Promise<string> {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  return `<pre class="mermaid">${escaped}</pre>`;
+  return `<div class="diagram-viewer" data-diagram-viewer>
+  <div class="diagram-toolbar" role="toolbar" aria-label="Diagram zoom controls">
+    <button type="button" data-zoom-out aria-label="Zoom out">−</button>
+    <span class="diagram-zoom-level" data-zoom-level>100%</span>
+    <button type="button" data-zoom-in aria-label="Zoom in">+</button>
+    <button type="button" data-zoom-reset>Reset</button>
+    <button type="button" data-zoom-fit>Fit width</button>
+  </div>
+  <div class="diagram-stage">
+    <pre class="mermaid">${escaped}</pre>
+  </div>
+</div>`;
 }
