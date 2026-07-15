@@ -10,13 +10,15 @@ This project uses the generic architecture-kit template. Update this section wit
 - Do not add environment variables without updating `environments.md`
 - Prefer existing patterns and folder structure
 - Update architecture docs when making structural changes
+- For spec-driven work: read ticket spec (if any) → this file → relevant architecture doc → code
 
 ## Source of Truth
 
-- Architecture config: `/architecture.config.json`
-- Architecture docs: `/docs/architecture`
-- ADRs: `/docs/adr`
-- Diagrams: `/docs/diagrams`
+- Documentation layers: [documentation-map.md](./documentation-map.md)
+- Architecture config: `architecture.config.json`
+- Architecture docs: `docs/architecture/`
+- ADRs: `docs/adr`
+- Diagrams: `docs/diagrams`
 
 ## Files to Treat Carefully
 

@@ -11,13 +11,15 @@ This is a Next.js App Router project. Update with CMS, hosting, and key integrat
 - Do not add environment variables without updating environments.md
 - Use existing data models and schemas when possible
 - Keep CMS content model changes documented
+- For spec-driven work: read ticket spec (if any) → this file → relevant architecture doc → code
 
 ## Source of Truth
 
-- Architecture config: `/architecture.config.json`
-- Architecture docs: `/docs/architecture`
-- ADRs: `/docs/adr`
-- App routes: `/app`
+- Documentation layers: [documentation-map.md](./documentation-map.md)
+- Architecture config: `architecture.config.json`
+- Architecture docs: `docs/architecture/`
+- ADRs: `docs/adr`
+- App routes: `src/app` or `/app`
 
 ## Files to Treat Carefully
 

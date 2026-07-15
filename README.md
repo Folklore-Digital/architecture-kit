@@ -1,10 +1,12 @@
 # @folklore/architecture-kit
 
-Repo-native architecture documentation and governance for Folklore projects.
+Repo-native **system architecture** documentation and governance for Folklore projects.
 
 **Storybook documents components. Architecture Kit documents how the system is built.**
 
-Use it to give developers, designers, and clients one consistent place to understand structure, deployment, patterns, and decisions — then **validate** that docs stay current.
+This kit covers **structure, boundaries, deployment, integrations, and decisions** — not every feature spec or ticket. Feature specs, API contracts, and design files live elsewhere and are **linked**, not duplicated. See [Documentation layers](#documentation-layers) below.
+
+Use it to give developers, designers, and clients one consistent place to understand how the system fits together — then **validate** that those docs stay current.
 
 ---
 
@@ -69,6 +71,7 @@ docs/
     server-vs-client.md
     scripts-and-load-order.md
     ai-context.md               ← AI assistant rules
+    documentation-map.md        ← where specs live; SDD layering
   adr/
     0001-initial-architecture.md
   diagrams/
@@ -81,11 +84,45 @@ Not every doc applies to every project — replace scaffold text with real conte
 
 ---
 
+## Documentation layers
+
+Architecture Kit is **one layer** in a larger documentation stack. Multiple doc sources are intentional — each layer has a different owner and lifecycle.
+
+| Layer | Owner | Typical location | Changes when |
+| --- | --- | --- | --- |
+| Feature / ticket specs | PM / ticket | Monday, `specs/`, PR | Every sprint |
+| **System architecture** (this kit) | Engineering | `docs/architecture/`, ADRs, diagrams | System shape changes |
+| Component / API reference | Engineering / design | Storybook, OpenAPI, module READMEs | API or UI contract changes |
+| Code + tests | Engineering | `src/` | Every change |
+
+**One fact, one owner.** Do not copy ticket acceptance criteria into `overview.md`. Link from `docs/architecture/documentation-map.md` (scaffolded on `init`) instead.
+
+### What this kit is not
+
+- Not a replacement for Monday, Notion, or feature `specs/` folders
+- Not a CMS or wiki for sprint-level requirements
+- Not Storybook or OpenAPI — though it should **link** to them
+
+### Spec-driven development
+
+For spec-driven or AI-assisted work, recommended read order:
+
+1. Ticket / feature spec (when the task is ticket-scoped)
+2. `docs/architecture/ai-context.md`
+3. Relevant architecture page (rendering model, integrations, etc.)
+4. Code
+
+The kit **validates system architecture completeness** (integrations documented, placeholders filled, ADRs for major decisions). Per-feature spec quality stays in your ticket process.
+
+Each repo tunes strictness via `architecture.config.json` governance flags.
+
+---
+
 ## Documentation guide
 
 ### For developers
 
-Read **overview → project-structure → rendering-model → ai-context**. Run `validate` before opening a PR.
+Read **overview → project-structure → rendering-model → ai-context → documentation-map**. Run `validate` before opening a PR.
 
 ### For designers / clients
 

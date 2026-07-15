@@ -10,9 +10,11 @@ Custom WordPress theme project. Update with theme framework, ACF usage, and buil
 - Sync ACF JSON changes with documentation
 - Document new Ajax/REST endpoints
 - Keep JS enqueue/load order docs current
+- For spec-driven work: read ticket spec (if any) → this file → relevant architecture doc → code
 
 ## Source of Truth
 
-- Architecture config: `/architecture.config.json`
-- Theme docs: `/docs/architecture`
+- Documentation layers: [documentation-map.md](./documentation-map.md)
+- Architecture config: `architecture.config.json`
+- Theme docs: `docs/architecture/`
 - ACF JSON: theme `acf-json/` directory
