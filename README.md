@@ -22,16 +22,55 @@ Use it to give developers, designers, and clients one consistent place to unders
 
 ---
 
-## Quick start
+## Quick start (new Next.js project)
+
+```bash
+npm install -D "git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^0.3.0"
+npx architecture-kit detect                    # optional: suggest project type
+npx architecture-kit init --type nextjs --embed nextjs
+npm install
+# Fill in architecture.config.json and docs/architecture/*.md
+npm run architecture:validate
+npm run dev                                    # game/app + docs at /architecture/
+```
+
+**`init` never overwrites existing docs** — safe to re-run; it only adds missing scaffold files.
+
+### What `--embed nextjs` adds
+
+| Item | Purpose |
+| --- | --- |
+| `docs/` | Architecture markdown, ADRs, diagrams (skip-if-exists) |
+| `architecture.config.json` | Project metadata + governance (skip-if-exists) |
+| `scripts/build-architecture-site.mjs` | Build + embed docs to `public/architecture/` |
+| `scripts/embed-architecture-site.mjs` | Rewrite links for `/architecture/` mount |
+| `scripts/run-architecture-kit.mjs` | Run validate/doctor/build via installed kit |
+| `package.json` scripts | `predev`, `build-dev`, `architecture:*` (merge only) |
+| `.cursor/rules/architecture-kit.mdc` | Agent entrypoint (skip-if-exists) |
+
+One manual step: add `/architecture` redirect — see `docs/architecture/_embed-host-setup.md`.
+
+### Updating the kit (all host projects)
+
+In **architecture-kit** only:
+
+```bash
+npm version patch && git push origin main --tags
+```
+
+In host projects: `npm install` or `npm run build-dev` — no repo changes needed while semver range matches.
+
+Local kit hacking: `export ARCHITECTURE_KIT_LOCAL=1` then `npm run dev`.
+
+---
+
+## Quick start (standalone docs, no app embed)
 
 ```bash
 npm install -D @folklore/architecture-kit
-npx architecture-kit detect          # optional: suggest project type
 npx architecture-kit init --type nextjs
-# Edit architecture.config.json and docs/architecture/*.md
 npx architecture-kit validate
-npx architecture-kit doctor
-npx architecture-kit dev               # local site at http://127.0.0.1:4321
+npx architecture-kit dev               # http://127.0.0.1:4321
 ```
 
 ---
@@ -40,7 +79,8 @@ npx architecture-kit dev               # local site at http://127.0.0.1:4321
 
 | Command | Purpose |
 | --- | --- |
-| `init --type <type>` | Scaffold `docs/`, ADRs, diagrams, `architecture.config.json` |
+| `init --type <type>` | Scaffold `docs/`, ADRs, diagrams, `architecture.config.json` (skip existing files) |
+| `init --embed nextjs` | Also copy host scripts + merge `package.json` for Next.js at `/architecture/` |
 | `validate` | Check config schema, required docs, integrations, placeholder content |
 | `validate --ci` | CI mode — fail on errors |
 | `doctor` | Human-readable docs health summary |

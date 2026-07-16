@@ -42,7 +42,7 @@ npm install -D @folklore/architecture-kit
 Or install from git with semver tags (no registry token required when using SSH):
 
 ```bash
-npm install -D "git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^0.2.0"
+npm install -D "git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^0.3.0"
 ```
 
 Host repos run `npm update @folklore/architecture-kit` before docs builds so new tags are picked up automatically. See [VERSIONING.md](./VERSIONING.md).

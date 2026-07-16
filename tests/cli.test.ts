@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -42,7 +42,9 @@ describe('init + validate + doctor', () => {
       path.join(cwd, 'architecture.config.json'),
       'utf-8',
     );
-    const config = JSON.parse(configRaw) as { project: { name: string; type: string } };
+    const config = JSON.parse(configRaw) as {
+      project: { name: string; type: string };
+    };
     expect(config.project.name).toBe('Demo Project');
     expect(config.project.type).toBe('generic');
 
@@ -63,5 +65,69 @@ describe('init + validate + doctor', () => {
       'utf-8',
     );
     expect(renderingModel).toContain('Rendering Model');
+  });
+
+  it('does not overwrite existing docs on re-init', async () => {
+    const cwd = await makeTempDir();
+
+    await runInit({ type: 'nextjs', cwd, name: 'First' });
+
+    const overviewPath = path.join(cwd, 'docs/architecture/overview.md');
+    await writeFile(overviewPath, '# Custom Overview\n\nKEEP_THIS_MARKER\n', 'utf-8');
+
+    await runInit({ type: 'nextjs', cwd, name: 'Second' });
+
+    const overview = await readFile(overviewPath, 'utf-8');
+    expect(overview).toContain('KEEP_THIS_MARKER');
+
+    const configRaw = await readFile(
+      path.join(cwd, 'architecture.config.json'),
+      'utf-8',
+    );
+    const config = JSON.parse(configRaw) as { project: { name: string } };
+    expect(config.project.name).toBe('First');
+  });
+
+  it('scaffolds nextjs embed scripts and merges package.json', async () => {
+    const cwd = await makeTempDir();
+
+    await writeFile(
+      path.join(cwd, 'package.json'),
+      `${JSON.stringify(
+        {
+          name: 'demo-next-app',
+          private: true,
+          scripts: { dev: 'next dev', build: 'next build' },
+          devDependencies: { next: '16.0.0' },
+        },
+        null,
+        2,
+      )}\n`,
+      'utf-8',
+    );
+
+    await runInit({ type: 'nextjs', cwd, embed: 'nextjs' });
+
+    await readFile(
+      path.join(cwd, 'scripts/build-architecture-site.mjs'),
+      'utf-8',
+    );
+    await readFile(path.join(cwd, 'scripts/lib/resolve-kit.mjs'), 'utf-8');
+
+    const pkg = JSON.parse(
+      await readFile(path.join(cwd, 'package.json'), 'utf-8'),
+    ) as {
+      scripts: Record<string, string>;
+      devDependencies: Record<string, string>;
+    };
+
+    expect(pkg.scripts['architecture:site:build']).toContain(
+      'build-architecture-site.mjs',
+    );
+    expect(pkg.scripts['predev']).toBe('npm run architecture:site:build');
+    expect(pkg.devDependencies['@folklore/architecture-kit']).toContain(
+      'semver:',
+    );
+    expect(pkg.scripts.dev).toBe('next dev');
   });
 });

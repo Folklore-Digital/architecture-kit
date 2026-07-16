@@ -5,25 +5,30 @@ alwaysApply: true
 
 # Architecture Kit ({{projectName}})
 
-This repo uses **@folklore/architecture-kit**. Resolves from `../architecture-kit`, `vendor/architecture-kit`, or optional `node_modules` install.
+This repo uses **@folklore/architecture-kit** (private, versioned git dependency).
+
+- **Default:** `node_modules/@folklore/architecture-kit` — updated on `npm run dev` / `build-dev`
+- **Local kit dev:** `export ARCHITECTURE_KIT_LOCAL=1` → uses `../architecture-kit` first
 
 - Config: `architecture.config.json`
 - Docs source: `docs/architecture/`, `docs/adr/`, `docs/diagrams/`
+- Docs site (built): `public/architecture/` → served at `/architecture/` (Next.js embed)
 - AI entrypoint: `docs/architecture/ai-context.md`
 
 ## Commands
 
 ```bash
-npx architecture-kit validate
-npx architecture-kit doctor
-npx architecture-kit build
-npx architecture-kit dev
+npm run dev                    # predev rebuilds docs site
+npm run build-dev              # docs + production Next build
+npm run architecture:validate
+npm run architecture:doctor
+npm run architecture:site:build
 ```
 
-Host-app embedding (mount path, link rewriting) is **project-side only** — the kit builds a standalone site.
+Kit releases: bump version + tag in **architecture-kit** only. Host repos pick up new tags via semver on build.
 
 ## Scope hints for agents
 
-- Kit/template/validator changes → **architecture-kit** repo
+- Kit/template/validator changes → **architecture-kit** repo (release new version)
 - Application code → **this project** repo
 - Say explicitly when a task is docs-only vs code-only

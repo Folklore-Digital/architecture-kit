@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Command } from 'commander';
 import { runBuild } from './commands/build.js';
 import { runDetect } from './commands/detect.js';
@@ -7,6 +10,14 @@ import { runDoctor } from './commands/doctor.js';
 import { runInit } from './commands/init.js';
 import { runValidate } from './commands/validate.js';
 import type { ProjectType } from './config/schema.js';
+
+const PACKAGE_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+);
+const kitPkg = JSON.parse(
+  readFileSync(path.join(PACKAGE_ROOT, 'package.json'), 'utf-8'),
+) as { version: string };
 
 const PROJECT_TYPES: ProjectType[] = [
   'nextjs',
@@ -23,7 +34,7 @@ program
   .description(
     'Repo-native architecture documentation and governance for any project',
   )
-  .version('0.1.0');
+  .version(kitPkg.version);
 
 program
   .command('init')
@@ -33,10 +44,20 @@ program
     `Project template (${PROJECT_TYPES.join(', ')})`,
   )
   .option('--name <name>', 'Project name for architecture.config.json')
-  .action(async (options: { type: string; name?: string }) => {
+  .option(
+    '--embed <target>',
+    'Copy host embed scripts (nextjs: public/architecture/ at /architecture/)',
+  )
+  .action(async (options: { type: string; name?: string; embed?: string }) => {
     if (!PROJECT_TYPES.includes(options.type as ProjectType)) {
       console.error(`Invalid project type: ${options.type}`);
       console.error(`Valid types: ${PROJECT_TYPES.join(', ')}`);
+      process.exit(1);
+    }
+
+    if (options.embed && options.embed !== 'nextjs') {
+      console.error(`Invalid embed target: ${options.embed}`);
+      console.error('Valid embed targets: nextjs');
       process.exit(1);
     }
 
@@ -44,6 +65,7 @@ program
       await runInit({
         type: options.type as ProjectType,
         name: options.name,
+        embed: options.embed as 'nextjs' | undefined,
       });
     } catch (error) {
       console.error(error instanceof Error ? error.message : String(error));

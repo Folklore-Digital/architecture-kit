@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "predev": "npm run architecture:site:build",
+    "build-dev": "npm run architecture:site:build && next build",
+    "architecture:site:build": "node scripts/build-architecture-site.mjs",
+    "architecture:validate": "node scripts/run-architecture-kit.mjs validate",
+    "architecture:doctor": "node scripts/run-architecture-kit.mjs doctor",
+    "architecture:build": "node scripts/run-architecture-kit.mjs build",
+    "architecture:dev": "node scripts/run-architecture-kit.mjs dev",
+    "architecture:detect": "node scripts/run-architecture-kit.mjs detect"
+  },
+  "devDependencies": {
+    "@folklore/architecture-kit": "git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:{{kitVersionRange}}"
+  }
+}

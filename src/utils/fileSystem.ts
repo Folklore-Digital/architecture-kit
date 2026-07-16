@@ -1,10 +1,16 @@
-import { access, appendFile, cp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, appendFile, cp, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   createDefaultConfig,
   type ProjectType,
 } from '../config/schema.js';
+import {
+  getEmbedDir,
+  nextConfigNeedsEmbedReminder,
+  readKitVersionRange,
+  type EmbedTarget,
+} from './embed.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = path.resolve(__dirname, '../..');
@@ -44,13 +50,142 @@ export function getTemplateDir(type: ProjectType): string {
 export async function copyTemplate(
   type: ProjectType,
   targetDir: string,
+  created: string[],
 ): Promise<void> {
   const source = getTemplateDir(type);
   if (!(await pathExists(source))) {
     throw new Error(`Template "${type}" not found at ${source}`);
   }
 
-  await cp(source, targetDir, { recursive: true, force: false });
+  await copyTreeSkipExisting(source, targetDir, created, '');
+}
+
+async function copyTreeSkipExisting(
+  source: string,
+  target: string,
+  created: string[],
+  relativePrefix: string,
+): Promise<void> {
+  const entries = await readdir(source, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const srcPath = path.join(source, entry.name);
+    const destPath = path.join(target, entry.name);
+    const rel = relativePrefix
+      ? `${relativePrefix}/${entry.name}`.replace(/\\/g, '/')
+      : entry.name;
+
+    if (entry.isDirectory()) {
+      if (!(await pathExists(destPath))) {
+        await mkdir(destPath, { recursive: true });
+      }
+      await copyTreeSkipExisting(srcPath, destPath, created, rel);
+      continue;
+    }
+
+    if (await pathExists(destPath)) {
+      continue;
+    }
+
+    await ensureDir(path.dirname(destPath));
+    await cp(srcPath, destPath);
+    created.push(relativePrefix ? rel : entry.name);
+  }
+}
+
+async function mergePackageJsonFromEmbed(
+  cwd: string,
+  embedDir: string,
+  created: string[],
+): Promise<void> {
+  const mergePath = path.join(embedDir, 'package.merge.json');
+  if (!(await pathExists(mergePath))) {
+    return;
+  }
+
+  const pkgPath = path.join(cwd, 'package.json');
+  if (!(await pathExists(pkgPath))) {
+    throw new Error(
+      'package.json not found. Run init --embed from your project root.',
+    );
+  }
+
+  const versionRange = await readKitVersionRange(PACKAGE_ROOT);
+  const mergeRaw = await readFile(mergePath, 'utf-8');
+  const merge = JSON.parse(
+    mergeRaw.replaceAll('{{kitVersionRange}}', versionRange),
+  ) as {
+    scripts?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+  };
+
+  const pkg = JSON.parse(await readFile(pkgPath, 'utf-8')) as {
+    scripts?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+  };
+
+  let changed = false;
+  pkg.scripts ??= {};
+  for (const [key, value] of Object.entries(merge.scripts ?? {})) {
+    if (!(key in pkg.scripts)) {
+      pkg.scripts[key] = value;
+      created.push(`package.json (script: ${key})`);
+      changed = true;
+    }
+  }
+
+  pkg.devDependencies ??= {};
+  for (const [key, value] of Object.entries(merge.devDependencies ?? {})) {
+    if (!(key in pkg.devDependencies)) {
+      pkg.devDependencies[key] = value;
+      created.push(`package.json (devDependency: ${key})`);
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, 'utf-8');
+  }
+}
+
+export async function scaffoldEmbed(
+  cwd: string,
+  target: EmbedTarget,
+): Promise<string[]> {
+  const created: string[] = [];
+  const embedDir = getEmbedDir(PACKAGE_ROOT, target);
+
+  if (!(await pathExists(embedDir))) {
+    throw new Error(`Embed template "${target}" not found at ${embedDir}`);
+  }
+
+  const scriptsSource = path.join(embedDir, 'scripts');
+  if (await pathExists(scriptsSource)) {
+    await copyTreeSkipExisting(
+      scriptsSource,
+      path.join(cwd, 'scripts'),
+      created,
+      'scripts',
+    );
+  }
+
+  await mergePackageJsonFromEmbed(cwd, embedDir, created);
+
+  const embedGuideSource = path.join(embedDir, 'EMBED.md');
+  const embedGuideTarget = path.join(
+    cwd,
+    'docs/architecture/_embed-host-setup.md',
+  );
+  if (
+    (await pathExists(embedGuideSource)) &&
+    !(await pathExists(embedGuideTarget))
+  ) {
+    await ensureDir(path.dirname(embedGuideTarget));
+    await cp(embedGuideSource, embedGuideTarget);
+    created.push('docs/architecture/_embed-host-setup.md');
+  }
+
+  return created;
 }
 
 export async function resolveProjectName(cwd: string): Promise<string> {
@@ -71,39 +206,45 @@ export async function scaffoldProject(
   cwd: string,
   type: ProjectType,
   projectName?: string,
-): Promise<string[]> {
+  options?: { embed?: EmbedTarget },
+): Promise<{ created: string[]; skipped: string[]; warnings: string[] }> {
   const created: string[] = [];
+  const skipped: string[] = [];
+  const warnings: string[] = [];
   const name = projectName ?? (await resolveProjectName(cwd));
   const docsDir = path.join(cwd, 'docs');
   const configPath = path.join(cwd, 'architecture.config.json');
 
-  if (await pathExists(docsDir)) {
-    throw new Error(
-      'docs/ already exists. Remove it or run init in a fresh directory.',
-    );
+  const docsExisted = await pathExists(docsDir);
+  if (!docsExisted) {
+    await mkdir(docsDir, { recursive: true });
   }
 
-  if (await pathExists(configPath)) {
-    throw new Error(
-      'architecture.config.json already exists. Remove it before re-initializing.',
-    );
+  await copyTemplate(type, docsDir, created);
+  if (docsExisted) {
+    skipped.push('docs/ (existing files left unchanged)');
   }
 
-  await copyTemplate(type, docsDir);
-  created.push('docs/');
-
-  const config = createDefaultConfig(type, name);
-  await writeJson(configPath, config);
-  created.push('architecture.config.json');
+  if (!(await pathExists(configPath))) {
+    const config = createDefaultConfig(type, name);
+    await writeJson(configPath, config);
+    created.push('architecture.config.json');
+  } else {
+    skipped.push('architecture.config.json');
+  }
 
   const cursorRuleSource = path.join(getTemplatesDir(), 'cursor/architecture-kit.mdc');
   const cursorRuleTarget = path.join(cwd, '.cursor/rules/architecture-kit.mdc');
   if (await pathExists(cursorRuleSource)) {
-    await ensureDir(path.dirname(cursorRuleTarget));
-    const cursorTemplate = await readFile(cursorRuleSource, 'utf-8');
-    const cursorRule = cursorTemplate.replaceAll('{{projectName}}', name);
-    await writeFile(cursorRuleTarget, cursorRule, 'utf-8');
-    created.push('.cursor/rules/architecture-kit.mdc');
+    if (await pathExists(cursorRuleTarget)) {
+      skipped.push('.cursor/rules/architecture-kit.mdc');
+    } else {
+      await ensureDir(path.dirname(cursorRuleTarget));
+      const cursorTemplate = await readFile(cursorRuleSource, 'utf-8');
+      const cursorRule = cursorTemplate.replaceAll('{{projectName}}', name);
+      await writeFile(cursorRuleTarget, cursorRule, 'utf-8');
+      created.push('.cursor/rules/architecture-kit.mdc');
+    }
   }
 
   const agentsSnippetSource = path.join(getTemplatesDir(), 'AGENTS.snippet.md');
@@ -115,6 +256,8 @@ export async function scaffoldProject(
       if (!existing.includes('architecture-kit')) {
         await appendFile(agentsPath, `\n${snippet}`, 'utf-8');
         created.push('AGENTS.md (appended architecture section)');
+      } else {
+        skipped.push('AGENTS.md (already references architecture-kit)');
       }
     } else {
       await writeFile(agentsPath, `${snippet.trim()}\n`, 'utf-8');
@@ -122,7 +265,17 @@ export async function scaffoldProject(
     }
   }
 
-  return created;
+  if (options?.embed) {
+    const embedCreated = await scaffoldEmbed(cwd, options.embed);
+    created.push(...embedCreated);
+    if (options.embed === 'nextjs' && (await nextConfigNeedsEmbedReminder(cwd))) {
+      warnings.push(
+        'Add /architecture redirect to next.config — see docs/architecture/_embed-host-setup.md',
+      );
+    }
+  }
+
+  return { created, skipped, warnings };
 }
 
 export function integrationMentioned(
