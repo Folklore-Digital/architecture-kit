@@ -116,6 +116,8 @@ The kit **validates system architecture completeness** (integrations documented,
 
 Each repo tunes strictness via `architecture.config.json` governance flags.
 
+**Releasing the kit:** bump version, tag `vX.Y.Z`, push — see [VERSIONING.md](./VERSIONING.md).
+
 ---
 
 ## Documentation guide
