@@ -71,8 +71,8 @@ export function printKitSetupHelp() {
   console.error("");
   console.error("Install the version pinned in package.json:");
   console.error("");
-  console.error("  npm install");
-  console.error("  npm run build-dev");
+  console.error("  npm install   # or: yarn install / pnpm install");
+  console.error("  npm run build-dev   # or: yarn build-dev");
   console.error("");
   console.error(
     "The dependency uses git semver tags — bump the kit version and tag",
@@ -84,6 +84,6 @@ export function printKitSetupHelp() {
   console.error("Local kit development (two repos side by side):");
   console.error("");
   console.error("  export ARCHITECTURE_KIT_LOCAL=1");
-  console.error("  npm run dev");
+  console.error("  yarn dev   # or: npm run dev");
   console.error("");
 }

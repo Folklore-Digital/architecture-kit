@@ -2,6 +2,10 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { ensureKitDependency } from "./ensure-kit-install.mjs";
 import {
+  kitInstallInKitRoot,
+  kitRunBuildInKitRoot,
+} from "./lib/package-manager.mjs";
+import {
   findKitCli,
   findKitRoot,
   isInstalledKitPackage,
@@ -20,17 +24,16 @@ function run(command, args, cwd) {
 
 async function buildKitAt(kitRoot, label) {
   console.log(`Building @folklore/architecture-kit (${label})...`);
-  if (await pathExists(`${kitRoot}/package-lock.json`)) {
-    if (run("npm", ["ci"], kitRoot) !== 0) return false;
-  } else if (run("npm", ["install"], kitRoot) !== 0) {
-    return false;
-  }
-  return run("npm", ["run", "build"], kitRoot) === 0;
+  const install = await kitInstallInKitRoot(kitRoot);
+  if (run(install.command, install.args, kitRoot) !== 0) return false;
+  const build = await kitRunBuildInKitRoot(kitRoot);
+  return run(build.command, build.args, kitRoot) === 0;
 }
 
 async function recompileKitAt(kitRoot, label) {
   console.log(`Recompiling @folklore/architecture-kit (${label})...`);
-  return run("npm", ["run", "build"], kitRoot) === 0;
+  const build = await kitRunBuildInKitRoot(kitRoot);
+  return run(build.command, build.args, kitRoot) === 0;
 }
 
 async function ensureKitCompiled(kitRootPath, label) {

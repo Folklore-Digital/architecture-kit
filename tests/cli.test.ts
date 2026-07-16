@@ -124,7 +124,7 @@ describe('init + validate + doctor', () => {
     expect(pkg.scripts['architecture:site:build']).toContain(
       'build-architecture-site.mjs',
     );
-    expect(pkg.scripts['predev']).toBe('npm run architecture:site:build');
+    expect(pkg.scripts['predev']).toBe('node scripts/build-architecture-site.mjs');
     expect(pkg.devDependencies['@folklore/architecture-kit']).toContain(
       'semver:',
     );

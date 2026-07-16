@@ -52,7 +52,7 @@ export async function runInit(options: InitOptions): Promise<void> {
   }
 
   console.log('Next steps:');
-  console.log('  1. npm install');
+  console.log(`  1. ${options.embed ? 'yarn install / npm install' : 'npm install'}`);
   console.log('  2. Edit architecture.config.json and docs/architecture/*.md');
   console.log('  3. Run: npm run architecture:validate');
   console.log('  4. Run: npm run architecture:doctor');

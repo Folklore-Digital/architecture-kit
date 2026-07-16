@@ -2,6 +2,10 @@ import { readFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  detectPackageManager,
+  kitUpdateCommand,
+} from "./lib/package-manager.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -25,10 +29,13 @@ export async function ensureKitDependency() {
     return;
   }
 
+  const pm = await detectPackageManager(root);
+  const { command, args } = await kitUpdateCommand(root, pm);
+
   console.log(
-    "Updating @folklore/architecture-kit to latest matching semver...",
+    `Updating @folklore/architecture-kit (${pm}, latest matching semver)...`,
   );
-  const result = spawnSync("npm", ["update", "@folklore/architecture-kit"], {
+  const result = spawnSync(command, args, {
     cwd: root,
     stdio: "inherit",
     shell: process.platform === "win32",
@@ -36,7 +43,7 @@ export async function ensureKitDependency() {
 
   if (result.status !== 0) {
     console.warn(
-      "Warning: could not update @folklore/architecture-kit (tag not published yet?). Using installed copy.",
+      `Warning: could not update @folklore/architecture-kit via ${pm}. Using installed copy.`,
     );
   }
 }

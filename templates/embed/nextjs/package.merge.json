@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "predev": "npm run architecture:site:build",
-    "build-dev": "npm run architecture:site:build && next build",
+    "predev": "node scripts/build-architecture-site.mjs",
+    "build-dev": "node scripts/build-architecture-site.mjs && next build",
     "architecture:site:build": "node scripts/build-architecture-site.mjs",
     "architecture:validate": "node scripts/run-architecture-kit.mjs validate",
     "architecture:doctor": "node scripts/run-architecture-kit.mjs doctor",

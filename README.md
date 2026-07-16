@@ -58,9 +58,34 @@ In **architecture-kit** only:
 npm version patch && git push origin main --tags
 ```
 
-In host projects: `npm install` or `npm run build-dev` — no repo changes needed while semver range matches.
+In host projects: `npm install` / `yarn install` / `pnpm install`, or `npm run build-dev` — no repo changes needed while semver range matches.
 
-Local kit hacking: `export ARCHITECTURE_KIT_LOCAL=1` then `npm run dev`.
+Local kit hacking: `export ARCHITECTURE_KIT_LOCAL=1` then `npm run dev` or `yarn dev`.
+
+### Yarn / pnpm host repos
+
+Embed scripts **auto-detect** the lockfile (`yarn.lock`, `pnpm-lock.yaml`, `package-lock.json`) and run `yarn up`, `pnpm update`, or `npm update` accordingly.
+
+Install the kit with your package manager:
+
+```bash
+# Yarn Classic (Sage/Bud projects)
+yarn add -D "@folklore/architecture-kit@git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^0.3.0"
+
+# Yarn Berry (v2+)
+yarn add -D "@folklore/architecture-kit@git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^0.3.0"
+
+npx architecture-kit init --type wordpress-custom
+yarn install
+yarn architecture:validate
+```
+
+Requirements:
+- SSH deploy key with **read access to architecture-kit** (private git dependency)
+- Git tag `v0.3.x` published on the kit repo (semver resolution)
+- Do **not** mix `npm install` in a Yarn repo (creates `package-lock.json` and confuses detection)
+
+If install fails with `ENOVERSIONS` or "No versions available", the git tag is missing — verify `v0.3.0+` exists on GitHub.
 
 ---
 
