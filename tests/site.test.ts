@@ -45,6 +45,8 @@ describe('build site', () => {
     await access(helpPath);
     const helpHtml = await readFile(helpPath, 'utf-8');
     expect(helpHtml).toContain('npx architecture-kit validate');
+    expect(helpHtml).toContain('paths.docs');
+    expect(helpHtml).toContain('architecture.config.json');
 
     const searchIndexPath = path.join(outDir, 'search-index.json');
     await access(searchIndexPath);

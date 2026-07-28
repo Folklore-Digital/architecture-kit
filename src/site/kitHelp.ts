@@ -3,6 +3,10 @@ export const KIT_HELP_OUTPUT = 'help.html';
 
 export type KitHelpOptions = {
   kitVersion: string;
+  docsRoot: string;
+  architectureDocs: string;
+  adr: string;
+  diagrams: string;
 };
 
 function esc(text: string): string {
@@ -29,7 +33,7 @@ export function renderKitHelpSummary(helpHref: string): string {
 
 /** Full help page body (embedded in site shell). */
 export function renderKitHelpBody(options: KitHelpOptions): string {
-  const { kitVersion } = options;
+  const { kitVersion, docsRoot, architectureDocs, adr, diagrams } = options;
 
   return `<article class="kit-help">
   <h1>Help — Architecture Kit</h1>
@@ -44,7 +48,7 @@ export function renderKitHelpBody(options: KitHelpOptions): string {
     <thead><tr><th>Layer</th><th>Typical location</th><th>Changes when</th></tr></thead>
     <tbody>
       <tr><td>Feature / ticket specs</td><td>Monday, <code>specs/</code>, PR</td><td>Every sprint</td></tr>
-      <tr><td><strong>System architecture</strong> (this site)</td><td><code>docs/architecture/</code>, ADRs, diagrams</td><td>System shape changes</td></tr>
+      <tr><td><strong>System architecture</strong> (this site)</td><td><code>${esc(docsRoot)}/</code> (see paths below)</td><td>System shape changes</td></tr>
       <tr><td>Component / API reference</td><td>Storybook, OpenAPI, module READMEs</td><td>UI or API contracts change</td></tr>
       <tr><td>Code + tests</td><td><code>src/</code></td><td>Every change</td></tr>
     </tbody>
@@ -75,12 +79,27 @@ export function renderKitHelpBody(options: KitHelpOptions): string {
   </table>
 
   <h2>Editing documentation</h2>
+  <p>
+    The site is built from <strong>all</strong> Markdown (<code>.md</code>) and Mermaid
+    (<code>.mmd</code>) files under your docs root. You can add folders and pages anywhere
+    inside that tree — they are picked up on the next build. Folder roles and sidebar grouping
+    are configured in <code>architecture.config.json</code> → <code>paths</code>.
+  </p>
+  <table>
+    <thead><tr><th>Path key</th><th>This project</th><th>Typical use</th></tr></thead>
+    <tbody>
+      <tr><td><code>paths.docs</code></td><td><code>${esc(docsRoot)}/</code></td><td>Root scanned for every <code>.md</code> / <code>.mmd</code> file</td></tr>
+      <tr><td><code>paths.architectureDocs</code></td><td><code>${esc(architectureDocs)}/</code></td><td>System architecture pages (overview, deployment, …)</td></tr>
+      <tr><td><code>paths.adr</code></td><td><code>${esc(adr)}/</code></td><td>Architecture decision records</td></tr>
+      <tr><td><code>paths.diagrams</code></td><td><code>${esc(diagrams)}/</code></td><td>Mermaid diagrams (<code>.mmd</code>)</td></tr>
+    </tbody>
+  </table>
   <ul>
-    <li>Source files live under <code>docs/architecture/</code>, <code>docs/adr/</code>, and <code>docs/diagrams/</code>.</li>
-    <li>Edit Markdown (or Mermaid <code>.mmd</code>) in git — not the generated HTML.</li>
-    <li>Each page shows a <em>View Markdown source</em> link when sources are copied into the site output.</li>
-    <li>Rebuild after edits: <code>npx architecture-kit build</code> or your project&rsquo;s <code>architecture:site:build</code> script.</li>
-    <li>Run <code>validate</code> before opening a PR when structure, env vars, or integrations change.</li>
+    <li><strong>Add content</strong> — create new <code>.md</code> or <code>.mmd</code> files under <code>${esc(docsRoot)}/</code> (new subfolders are fine). Link them from <em>Documentation Map</em> or <code>${esc(docsRoot)}/README.md</code> so people can find them.</li>
+    <li><strong>Edit in git</strong> — change source files only, not generated HTML under <code>public/architecture/</code> or <code>.architecture-kit/site/</code>.</li>
+    <li><strong>Rebuild</strong> after edits: <code>npx architecture-kit build</code> or your project&rsquo;s <code>architecture:site:build</code> script.</li>
+    <li><strong>Validate</strong> before PRs when structure, links, env vars, or integrations change: <code>npx architecture-kit validate</code>.</li>
+    <li>Pages copied into the site output include a <em>View Markdown source</em> link next to the HTML.</li>
   </ul>
 
   <h2>Optional frontmatter</h2>
@@ -111,7 +130,7 @@ reviewed: 2026-07-28
 export function kitHelpSearchText(): string {
   return [
     'Help Architecture Kit validate doctor scan bootstrap build dev',
-    'editing documentation markdown ADR mermaid AI context agent',
-    'commands CLI how to use documentation layers',
+    'editing documentation markdown ADR mermaid folders paths architecture.config',
+    'commands CLI how to use documentation layers add pages',
   ].join(' ');
 }

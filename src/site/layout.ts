@@ -503,7 +503,13 @@ export function renderHelpPage(options: {
   return renderPageShell({
     projectName,
     page: fakePage,
-    bodyHtml: renderKitHelpBody({ kitVersion }),
+    bodyHtml: renderKitHelpBody({
+      kitVersion,
+      docsRoot: config.paths.docs,
+      architectureDocs: config.paths.architectureDocs,
+      adr: config.paths.adr,
+      diagrams: config.paths.diagrams,
+    }),
     pages,
     includeMermaid: false,
     config,
