@@ -40,6 +40,8 @@ describe('build site', () => {
     expect(indexHtml).toContain('Architecture');
     expect(indexHtml).toContain('About this site');
     expect(indexHtml).toContain('Help · Architecture Kit');
+    expect(indexHtml).toContain('AI setup prompt');
+    expect(indexHtml).toContain('nav-scaffold');
 
     const helpPath = path.join(outDir, 'help.html');
     await access(helpPath);

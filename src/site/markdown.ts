@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { marked } from 'marked';
+import { stripFrontmatter } from '../utils/scaffoldFrontmatter.js';
 import type { DocPage } from './types.js';
 import { navHref, resolveDocLink } from './paths.js';
 
@@ -48,13 +49,14 @@ export async function renderMarkdownPage(
   pages: DocPage[],
 ): Promise<string> {
   const raw = await readFile(page.sourcePath, 'utf-8');
-  const parsed = await marked.parse(raw);
+  const parsed = await marked.parse(stripFrontmatter(raw));
   const body = rewriteInternalLinks(parsed, page, pages);
   return body;
 }
 
 export async function renderMermaidPage(page: DocPage): Promise<string> {
-  const source = await readFile(page.sourcePath, 'utf-8');
+  const raw = await readFile(page.sourcePath, 'utf-8');
+  const source = stripFrontmatter(raw);
   const escaped = source
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

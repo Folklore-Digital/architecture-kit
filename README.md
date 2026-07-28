@@ -238,7 +238,8 @@ Keep `system-overview.mmd` (components + infra) and `data-flow.mmd` (request/dat
 - **Governance**: integration ADR mentions, `.env.example` keys in `environments.md`
 - **AI tooling**: `.cursor/rules/architecture-kit.mdc`, `AGENTS.md` or `CLAUDE.md`
 - **Diff awareness** (`--since origin/develop`): code changes without matching doc updates
-- **Placeholder content** in docs (`_TBD_`, `_Example_`, unfilled scaffold text) — warns
+- **Scaffold mode** — `init` tags new markdown with `status: scaffold` frontmatter; site shows a banner; `validate --ci` fails until docs are reviewed and `project.documentationStatus` is `"active"`
+- **Placeholder content** in docs (`_TBD_`, `_Example_`, unfilled scaffold text) — warns (errors in CI when `governance.scaffoldBlocksCi` is true)
 
 ```bash
 npx architecture-kit validate --level warn   # show warnings

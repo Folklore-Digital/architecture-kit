@@ -4,6 +4,7 @@ import type { DocPage, DocSection } from './types.js';
 import { MERMAID_SETUP_SCRIPTS } from './mermaidInitScript.js';
 import { buildNavBlocks, findStartHerePages } from './navGroups.js';
 import { KIT_HELP_OUTPUT, renderKitHelpBody, renderKitHelpSummary } from './kitHelp.js';
+import { renderGreenfieldPromptBlock } from '../utils/scaffoldFrontmatter.js';
 import { navHref } from './paths.js';
 import { SEARCH_SCRIPT } from './search.js';
 
@@ -37,9 +38,19 @@ function renderNav(
     const links = block.pages
       .map((page) => {
         const href = navHref(current.outputPath, page.outputPath);
-        const active =
-          page.outputPath === current.outputPath ? ' class="active"' : '';
-        return `<li><a href="${href}"${active}>${escapeHtml(page.title)}</a></li>`;
+        const classes: string[] = [];
+        if (page.isScaffold) {
+          classes.push('nav-scaffold');
+        }
+        if (page.outputPath === current.outputPath) {
+          classes.push('active');
+        }
+        const classAttr =
+          classes.length > 0 ? ` class="${classes.join(' ')}"` : '';
+        const titleAttr = page.isScaffold
+          ? ' title="Scaffold — not yet reviewed"'
+          : '';
+        return `<li><a href="${href}"${classAttr}${titleAttr}>${escapeHtml(page.title)}</a></li>`;
       })
       .join('\n');
 
@@ -74,7 +85,7 @@ function renderStorybookLink(config: ArchitectureConfig): string {
 }
 
 function renderScaffoldBanner(): string {
-  return `<p class="scaffold-banner" role="status"><strong>Scaffold template</strong> — this page has not been reviewed for this project. Edit the Markdown source and remove <code>status: scaffold</code> from frontmatter.</p>`;
+  return `<p class="scaffold-banner" role="status"><strong>Scaffold template</strong> — this page has not been reviewed for this project. Edit the source file and remove <code>status: scaffold</code> from frontmatter.</p>`;
 }
 
 function renderDateMeta(
@@ -231,6 +242,33 @@ export function renderPageShell(options: {
       color: var(--accent);
       font-weight: 600;
       border-left-color: var(--accent);
+    }
+    .nav-accordion a.nav-scaffold {
+      color: #c9a227;
+      font-style: italic;
+    }
+    .nav-accordion a.nav-scaffold::after {
+      content: ' ◦';
+      font-size: 0.65rem;
+      opacity: 0.85;
+      font-style: normal;
+    }
+    .nav-accordion a.nav-scaffold.active {
+      color: var(--accent);
+      font-weight: 600;
+      border-left-color: var(--accent);
+    }
+    .nav-scaffold-demo {
+      color: #c9a227;
+      font-style: italic;
+    }
+    @media (prefers-color-scheme: light) {
+      .nav-accordion a.nav-scaffold {
+        color: #9a7b0a;
+      }
+      .nav-scaffold-demo {
+        color: #9a7b0a;
+      }
     }
     main {
       padding: 2rem 2.5rem;
@@ -403,6 +441,17 @@ export function renderPageShell(options: {
     .home-help-link { font-weight: 600; }
     .kit-help h2 { margin-top: 2rem; }
     .kit-help pre { margin: 0.75rem 0 1rem; }
+    .agent-prompt {
+      margin: 0.75rem 0 1rem;
+      padding: 1rem 1.1rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+    }
     .scaffold-banner {
       margin: 0 0 1.25rem;
       padding: 0.65rem 0.85rem;
@@ -600,6 +649,9 @@ export function renderHomePage(options: {
     navHref('index.html', KIT_HELP_OUTPUT),
   );
 
+  const hasScaffoldPages = pages.some((p) => p.isScaffold);
+  const greenfieldPrompt = hasScaffoldPages ? renderGreenfieldPromptBlock() : '';
+
   const body = `<h1>${escapeHtml(projectName)}</h1>
 <p class="home-lede">${escapeHtml(description || `System architecture documentation (${projectTypeLabel}).`)}</p>
 <div class="home-meta">
@@ -640,6 +692,8 @@ ${
 }
 
 ${docsIndexLink}
+
+${greenfieldPrompt}
 
 ${helpSummary}
 

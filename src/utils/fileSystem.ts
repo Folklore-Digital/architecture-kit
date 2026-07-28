@@ -99,7 +99,7 @@ async function copyTreeSkipExisting(
     }
 
     await ensureDir(path.dirname(destPath));
-    if (entry.name.endsWith('.md')) {
+    if (entry.name.endsWith('.md') || entry.name.endsWith('.mmd')) {
       const raw = await readFile(srcPath, 'utf-8');
       const kitVersion = await readKitVersion();
       await writeFile(destPath, wrapScaffoldFrontmatter(raw, kitVersion), 'utf-8');

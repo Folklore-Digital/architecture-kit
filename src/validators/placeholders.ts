@@ -1,7 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { ArchitectureConfig } from '../config/schema.js';
-import { hasScaffoldFrontmatter } from '../utils/scaffoldFrontmatter.js';
+import { hasScaffoldFrontmatter, stripFrontmatter } from '../utils/scaffoldFrontmatter.js';
 import { pathExists } from '../utils/fileSystem.js';
 import type { ValidationIssue } from './types.js';
 
@@ -21,7 +21,7 @@ const CONFIG_PLACEHOLDER_DESCRIPTIONS = [
   'Describe what this',
 ];
 
-async function walkMarkdown(
+async function walkDocFiles(
   dir: string,
   files: string[] = [],
 ): Promise<string[]> {
@@ -29,8 +29,8 @@ async function walkMarkdown(
   for (const entry of entries) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      await walkMarkdown(full, files);
-    } else if (entry.name.endsWith('.md')) {
+      await walkDocFiles(full, files);
+    } else if (entry.name.endsWith('.md') || entry.name.endsWith('.mmd')) {
       files.push(full);
     }
   }
@@ -41,7 +41,7 @@ function issueLevel(
   config: ArchitectureConfig,
   options?: { ci?: boolean },
 ): 'warn' | 'error' {
-  if (config.governance.scaffoldBlocksCi && options?.ci) {
+  if (config.governance?.scaffoldBlocksCi !== false && options?.ci) {
     return 'error';
   }
   return 'warn';
@@ -69,13 +69,15 @@ export async function validatePlaceholders(
     return issues;
   }
 
-  const files = await walkMarkdown(docsRoot);
+  const files = await walkDocFiles(docsRoot);
 
+  let scaffoldFileCount = 0;
   for (const filePath of files) {
     const content = await readFile(filePath, 'utf-8');
     const relative = path.relative(cwd, filePath).replace(/\\/g, '/');
 
     if (hasScaffoldFrontmatter(content)) {
+      scaffoldFileCount += 1;
       issues.push({
         level,
         code: 'scaffold-doc-not-reviewed',
@@ -84,8 +86,9 @@ export async function validatePlaceholders(
       continue;
     }
 
+    const body = stripFrontmatter(content);
     for (const { pattern, label } of PLACEHOLDER_PATTERNS) {
-      if (pattern.test(content)) {
+      if (pattern.test(body)) {
         issues.push({
           level,
           code: 'placeholder-doc-content',
@@ -94,6 +97,17 @@ export async function validatePlaceholders(
         break;
       }
     }
+  }
+
+  if (
+    config.project.documentationStatus === 'active' &&
+    scaffoldFileCount > 0
+  ) {
+    issues.push({
+      level,
+      code: 'active-with-scaffold-files',
+      message: `project.documentationStatus is "active" but ${scaffoldFileCount} file(s) still have status: scaffold frontmatter`,
+    });
   }
 
   const configPath = path.join(cwd, 'architecture.config.json');
@@ -124,7 +138,7 @@ export async function countScaffoldDocs(
   if (!(await pathExists(docsRoot))) {
     return 0;
   }
-  const files = await walkMarkdown(docsRoot);
+  const files = await walkDocFiles(docsRoot);
   let count = 0;
   for (const filePath of files) {
     const content = await readFile(filePath, 'utf-8');

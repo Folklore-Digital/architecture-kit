@@ -296,8 +296,11 @@ export function formatAgentContext(
     '3. Fill `docs/architecture/ai-context.md` — folder map, conventions, what not to change.',
     '4. Fill `docs/architecture/documentation-map.md` — link specs, Storybook, Figma, tickets.',
     '5. Document integrations in `docs/architecture/integrations.md`.',
-    '6. Add/update Mermaid diagrams in `docs/diagrams/`.',
-    '7. Run `npx architecture-kit validate` and fix reported issues.',
+    '6. Replace **every** generic `docs/diagrams/*.mmd` with diagrams that match this codebase (remove CMS/Analytics placeholders).',
+    '7. Fill remaining scaffold pages (deployment, environments, quality-gates, ADRs, …).',
+    '8. Remove `status: scaffold` from each `.md` and `.mmd` file you review.',
+    '9. Only then set `project.documentationStatus` to `"active"`.',
+    '10. Run `npx architecture-kit validate` and fix reported issues.',
     '',
     '**Do not overwrite existing feature notes** — link to them from `documentation-map.md`.',
   );

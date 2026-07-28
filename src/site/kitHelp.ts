@@ -1,4 +1,4 @@
-/** Output path for the generated kit help page (site root). */
+import { renderAgentPromptPre } from '../utils/scaffoldFrontmatter.js';
 export const KIT_HELP_OUTPUT = 'help.html';
 
 export type KitHelpOptions = {
@@ -106,12 +106,18 @@ export function renderKitHelpBody(options: KitHelpOptions): string {
   <p>
     Files created by <code>init</code> or <code>bootstrap --apply</code> include
     <code>status: scaffold</code> in frontmatter until you review them. The docs site shows a
-    banner on those pages. Run <code>validate --ci</code> to block merges while scaffold content
+    banner on those pages and marks them in the sidebar with a gold <span class="nav-scaffold-demo">◦</span> tint.
+    Run <code>validate --ci</code> to block merges while scaffold content
     remains (when <code>governance.scaffoldBlocksCi</code> is true, the default).
   </p>
-  <p>When docs are project-specific: remove scaffold frontmatter, set
+  <p>When docs are project-specific: remove scaffold frontmatter from every <code>.md</code> and
+    <code>.mmd</code> file, then set
     <code>project.documentationStatus</code> to <code>"active"</code> in
     <code>architecture.config.json</code>.</p>
+
+  <h2>Greenfield AI prompt</h2>
+  <p>After <code>scan</code> or <code>bootstrap --apply</code>, paste this into Cursor or your agent:</p>
+  ${renderAgentPromptPre()}
 
   <h2>Optional frontmatter</h2>
   <p>Control sidebar grouping and review dates in any Markdown file:</p>

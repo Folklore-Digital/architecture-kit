@@ -3,6 +3,7 @@ import path from 'node:path';
 import type { ArchitectureConfig } from '../config/schema.js';
 import { getGitLastModified, getFileModifiedIso } from '../scan/projectScan.js';
 import { parseFrontmatter } from './frontmatter.js';
+import { hasScaffoldFrontmatter } from '../utils/scaffoldFrontmatter.js';
 import { pathExists } from '../utils/fileSystem.js';
 import { plainTextFromMarkdown } from './search.js';
 import type { DocPage, DocSection } from './types.js';
@@ -114,10 +115,7 @@ async function walkMarkdown(
         ? titleFromMarkdown(raw, titleFromFilename(entry.name))
         : titleFromFilename(entry.name);
 
-    const dates =
-      entry.name.endsWith('.md')
-        ? await resolveDocDates(cwd, fullPath, raw, dateSource)
-        : { lastReviewed: fm.lastReviewed, lastUpdated: fm.lastUpdated };
+    const dates = await resolveDocDates(cwd, fullPath, raw, dateSource);
 
     const page: DocPage = {
       section: sectionForRelativePath(relativePath, config),
@@ -129,7 +127,7 @@ async function walkMarkdown(
       lastReviewed: dates.lastReviewed,
       navGroup: fm.navGroup,
       navOrder: fm.navOrder,
-      isScaffold: fm.status === 'scaffold',
+      isScaffold: fm.status === 'scaffold' || hasScaffoldFrontmatter(raw),
     };
 
     if (entry.name.endsWith('.md')) {
