@@ -2,15 +2,9 @@ import type { ArchitectureConfig } from '../config/schema.js';
 import { formatDisplayDate } from '../scan/projectScan.js';
 import type { DocPage, DocSection } from './types.js';
 import { MERMAID_SETUP_SCRIPTS } from './mermaidInitScript.js';
+import { buildNavBlocks, findStartHerePages } from './navGroups.js';
 import { navHref } from './paths.js';
 import { SEARCH_SCRIPT } from './search.js';
-
-const SECTION_LABELS: Record<DocSection, string> = {
-  architecture: 'Architecture',
-  adr: 'ADRs',
-  diagram: 'Diagrams',
-  other: 'Docs',
-};
 
 function escapeHtml(text: string): string {
   return text
@@ -25,22 +19,21 @@ function depthToRoot(outputPath: string): string {
   return depth === 0 ? '' : '../'.repeat(depth);
 }
 
-function renderNav(pages: DocPage[], current: DocPage): string {
-  const sections: DocSection[] = ['architecture', 'adr', 'diagram', 'other'];
-  const blocks: string[] = [];
+function renderNav(
+  pages: DocPage[],
+  current: DocPage,
+  config: ArchitectureConfig,
+): string {
+  const blocks = buildNavBlocks(pages, config);
+  const htmlBlocks: string[] = [];
 
-  for (const section of sections) {
-    const sectionPages = pages.filter((page) => page.section === section);
-    if (sectionPages.length === 0) {
-      continue;
-    }
-
+  for (const block of blocks) {
     const isOpen =
-      sectionPages.some((page) => page.outputPath === current.outputPath) ||
-      (current.outputPath === 'index.html' && section === 'architecture');
+      block.pages.some((page) => page.outputPath === current.outputPath) ||
+      (current.outputPath === 'index.html' && block.id === 'start');
     const openAttr = isOpen ? ' open' : '';
 
-    const links = sectionPages
+    const links = block.pages
       .map((page) => {
         const href = navHref(current.outputPath, page.outputPath);
         const active =
@@ -49,12 +42,12 @@ function renderNav(pages: DocPage[], current: DocPage): string {
       })
       .join('\n');
 
-    blocks.push(
-      `<details class="nav-accordion"${openAttr}><summary>${SECTION_LABELS[section]}</summary><ul>${links}</ul></details>`,
+    htmlBlocks.push(
+      `<details class="nav-accordion"${openAttr}><summary>${escapeHtml(block.label)}</summary><ul>${links}</ul></details>`,
     );
   }
 
-  return blocks.join('\n');
+  return htmlBlocks.join('\n');
 }
 
 function renderSearchBox(): string {
@@ -103,7 +96,7 @@ export function renderPageShell(options: {
   const { projectName, page, bodyHtml, pages, includeMermaid, config } = options;
   const root = depthToRoot(page.outputPath);
   const homeHref = root ? `${root}index.html` : 'index.html';
-  const nav = renderNav(pages, page);
+  const nav = renderNav(pages, page, config);
   const search = renderSearchBox();
   const storybook = renderStorybookLink(config);
   const showDates = config.site?.showDates !== false;
@@ -374,6 +367,70 @@ export function renderPageShell(options: {
       font-size: 0.85rem;
     }
     .external-nav a { font-weight: 600; }
+    .home-lede { color: var(--muted); font-size: 1.05rem; max-width: 42rem; }
+    .home-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.25rem;
+      margin: 1.25rem 0 2rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .home-section { margin: 2rem 0; }
+    .home-section h2 {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 0 0 0.75rem;
+    }
+    .home-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+      gap: 0.75rem;
+    }
+    .home-card {
+      display: block;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s ease;
+    }
+    .home-card:hover {
+      border-color: var(--accent);
+    }
+    .home-card strong {
+      display: block;
+      color: var(--accent);
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+    .home-card span {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .home-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 0.35rem;
+    }
+    .home-links a { text-decoration: none; }
+    .home-links a:hover { text-decoration: underline; }
+    .home-footer {
+      margin-top: 2.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
   </style>
 </head>
 <body data-site-root="${root}">
@@ -403,19 +460,105 @@ export function renderHomePage(options: {
   config: ArchitectureConfig;
 }): string {
   const { projectName, projectTypeLabel, pages, config } = options;
-  const overview = pages.find((page) =>
-    page.relativePath.endsWith('architecture/overview.md'),
-  );
-  const overviewLink = overview
-    ? navHref('index.html', overview.outputPath)
-    : pages[0]
-      ? navHref('index.html', pages[0].outputPath)
-      : '#';
+  const startPages = findStartHerePages(pages, config);
+  const adrPages = pages.filter((p) => p.section === 'adr');
+  const diagramPages = pages.filter((p) => p.section === 'diagram');
+  const docsReadme = pages.find((p) => p.relativePath === 'README.md');
+  const description = config.project.description?.trim();
+
+  const stackBits = [
+    config.stack.frontend,
+    config.stack.hosting,
+  ].filter(Boolean);
+
+  const startCards = startPages
+    .map((page) => {
+      const href = navHref('index.html', page.outputPath);
+      const blurb =
+        page.relativePath.endsWith('overview.md')
+          ? 'Purpose, stack, and boundaries'
+          : page.relativePath.endsWith('documentation-map.md')
+            ? 'Where specs and docs live'
+            : page.relativePath.endsWith('ai-context.md')
+              ? 'Rules for AI-assisted work'
+              : 'Architecture documentation';
+      return `<a class="home-card" href="${href}"><strong>${escapeHtml(page.title)}</strong><span>${escapeHtml(blurb)}</span></a>`;
+    })
+    .join('\n');
+
+  const opsPages = buildNavBlocks(pages, config)
+    .find((b) => b.id === 'operations')
+    ?.pages.slice(0, 4);
+
+  const opsLinks =
+    opsPages
+      ?.map((page) => {
+        const href = navHref('index.html', page.outputPath);
+        return `<li><a href="${href}">${escapeHtml(page.title)}</a></li>`;
+      })
+      .join('\n') ?? '';
+
+  const adrLinks = adrPages
+    .slice(0, 5)
+    .map((page) => {
+      const href = navHref('index.html', page.outputPath);
+      return `<li><a href="${href}">${escapeHtml(page.title)}</a></li>`;
+    })
+    .join('\n');
+
+  const diagramLinks = diagramPages
+    .map((page) => {
+      const href = navHref('index.html', page.outputPath);
+      return `<li><a href="${href}">${escapeHtml(page.title)}</a></li>`;
+    })
+    .join('\n');
+
+  const docsIndexLink = docsReadme
+    ? `<p><a href="${navHref('index.html', docsReadme.outputPath)}">Full documentation index (roles &amp; maintenance) →</a></p>`
+    : '';
 
   const body = `<h1>${escapeHtml(projectName)}</h1>
-<p>Architecture documentation (${escapeHtml(projectTypeLabel)}).</p>
-<p><a href="${overviewLink}">Open project overview →</a></p>
-<p class="muted">Generated by <strong>@folklore/architecture-kit</strong></p>`;
+<p class="home-lede">${escapeHtml(description || `System architecture documentation (${projectTypeLabel}).`)}</p>
+<div class="home-meta">
+  <span>${escapeHtml(projectTypeLabel)}</span>
+  ${stackBits.map((bit) => `<span>${escapeHtml(String(bit))}</span>`).join('\n  ')}
+</div>
+
+<section class="home-section">
+  <h2>Start here</h2>
+  <div class="home-cards">${startCards}</div>
+</section>
+
+${
+  opsLinks
+    ? `<section class="home-section">
+  <h2>Deploy &amp; process</h2>
+  <ul class="home-links">${opsLinks}</ul>
+</section>`
+    : ''
+}
+
+${
+  diagramLinks
+    ? `<section class="home-section">
+  <h2>Diagrams</h2>
+  <ul class="home-links">${diagramLinks}</ul>
+</section>`
+    : ''
+}
+
+${
+  adrLinks
+    ? `<section class="home-section">
+  <h2>Architecture decisions</h2>
+  <ul class="home-links">${adrLinks}</ul>
+</section>`
+    : ''
+}
+
+${docsIndexLink}
+
+<p class="home-footer">Generated by <strong>@folklore/architecture-kit</strong></p>`;
 
   const fakePage: DocPage = {
     section: 'other',

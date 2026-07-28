@@ -1,10 +1,8 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { ArchitectureConfig } from '../config/schema.js';
-import {
-  parseFrontmatterDates,
-  resolveDocDates,
-} from '../scan/projectScan.js';
+import { getGitLastModified, getFileModifiedIso } from '../scan/projectScan.js';
+import { parseFrontmatter } from './frontmatter.js';
 import { pathExists } from '../utils/fileSystem.js';
 import { plainTextFromMarkdown } from './search.js';
 import type { DocPage, DocSection } from './types.js';
@@ -62,6 +60,31 @@ function sectionForRelativePath(
   return 'other';
 }
 
+async function resolveDocDates(
+  cwd: string,
+  filePath: string,
+  raw: string,
+  source: 'git' | 'file',
+): Promise<{ lastUpdated?: string; lastReviewed?: string }> {
+  const fromFm = parseFrontmatter(raw);
+
+  let lastUpdated = fromFm.lastUpdated;
+  if (!lastUpdated) {
+    if (source === 'git') {
+      lastUpdated =
+        (await getGitLastModified(cwd, filePath)) ??
+        (await getFileModifiedIso(filePath));
+    } else {
+      lastUpdated = await getFileModifiedIso(filePath);
+    }
+  }
+
+  return {
+    lastUpdated,
+    lastReviewed: fromFm.lastReviewed,
+  };
+}
+
 async function walkMarkdown(
   dir: string,
   docsRoot: string,
@@ -85,6 +108,7 @@ async function walkMarkdown(
 
     const relativePath = path.relative(docsRoot, fullPath);
     const raw = await readFile(fullPath, 'utf-8');
+    const fm = parseFrontmatter(raw);
     const title =
       entry.name.endsWith('.md')
         ? titleFromMarkdown(raw, titleFromFilename(entry.name))
@@ -92,8 +116,8 @@ async function walkMarkdown(
 
     const dates =
       entry.name.endsWith('.md')
-        ? await resolveDocDates(cwd, fullPath, dateSource)
-        : parseFrontmatterDates(raw);
+        ? await resolveDocDates(cwd, fullPath, raw, dateSource)
+        : { lastReviewed: fm.lastReviewed, lastUpdated: fm.lastUpdated };
 
     const page: DocPage = {
       section: sectionForRelativePath(relativePath, config),
@@ -103,6 +127,8 @@ async function walkMarkdown(
       outputPath: outputPathFor(relativePath, config),
       lastUpdated: dates.lastUpdated,
       lastReviewed: dates.lastReviewed,
+      navGroup: fm.navGroup,
+      navOrder: fm.navOrder,
     };
 
     if (entry.name.endsWith('.md')) {
@@ -146,20 +172,6 @@ export async function collectPages(
   const pages: DocPage[] = [];
   const dateSource = config.site?.dateSource ?? 'git';
   await walkMarkdown(docsRoot, docsRoot, config, pages, cwd, dateSource);
-
-  pages.sort((a, b) => {
-    const sectionOrder: Record<DocSection, number> = {
-      architecture: 0,
-      adr: 1,
-      diagram: 2,
-      other: 3,
-    };
-    const sectionDiff = sectionOrder[a.section] - sectionOrder[b.section];
-    if (sectionDiff !== 0) {
-      return sectionDiff;
-    }
-    return a.relativePath.localeCompare(b.relativePath);
-  });
 
   return pages;
 }

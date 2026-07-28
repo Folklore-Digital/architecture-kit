@@ -24,6 +24,16 @@ export const siteSchema = z.object({
   showDates: z.boolean().default(true),
   /** Prefer git commit date for "last updated"; fall back to file mtime. */
   dateSource: z.enum(['git', 'file']).default('git'),
+  /** Override architecture sidebar groups (optional). */
+  navGroups: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        label: z.string().min(1),
+        files: z.array(z.string()).default([]),
+      }),
+    )
+    .optional(),
 });
 
 export const architectureConfigSchema = z.object({

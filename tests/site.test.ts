@@ -38,8 +38,8 @@ describe('build site', () => {
     await access(indexPath);
     const indexHtml = await readFile(indexPath, 'utf-8');
     expect(indexHtml).toContain('Architecture');
-    expect(indexHtml).toContain('nav-accordion');
-    expect(indexHtml).toContain('doc-search');
+    expect(indexHtml).toContain('Start here');
+    expect(indexHtml).toContain('home-cards');
 
     const searchIndexPath = path.join(outDir, 'search-index.json');
     await access(searchIndexPath);

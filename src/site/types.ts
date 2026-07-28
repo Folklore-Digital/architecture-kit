@@ -14,6 +14,10 @@ export type DocPage = {
   lastReviewed?: string;
   /** Plain text excerpt for search (markdown only) */
   searchText?: string;
+  /** Sidebar group id or custom label from frontmatter / config */
+  navGroup?: string;
+  /** Sort order within nav group */
+  navOrder?: number;
 };
 
 export type SearchIndexEntry = {
