@@ -38,8 +38,13 @@ describe('build site', () => {
     await access(indexPath);
     const indexHtml = await readFile(indexPath, 'utf-8');
     expect(indexHtml).toContain('Architecture');
-    expect(indexHtml).toContain('Start here');
-    expect(indexHtml).toContain('home-cards');
+    expect(indexHtml).toContain('About this site');
+    expect(indexHtml).toContain('Help · Architecture Kit');
+
+    const helpPath = path.join(outDir, 'help.html');
+    await access(helpPath);
+    const helpHtml = await readFile(helpPath, 'utf-8');
+    expect(helpHtml).toContain('npx architecture-kit validate');
 
     const searchIndexPath = path.join(outDir, 'search-index.json');
     await access(searchIndexPath);

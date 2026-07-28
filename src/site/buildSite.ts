@@ -1,12 +1,29 @@
-import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { ArchitectureConfig } from '../config/schema.js';
 import { projectTypeLabels } from '../config/schema.js';
 import { collectPages } from './collectPages.js';
-import { renderHomePage, renderPageShell } from './layout.js';
+import { renderHelpPage, renderHomePage, renderPageShell } from './layout.js';
+import { KIT_HELP_OUTPUT, kitHelpSearchText } from './kitHelp.js';
 import { renderMarkdownPage, renderMermaidPage } from './markdown.js';
 import { buildSearchIndex } from './search.js';
 import type { BuildSiteResult } from './types.js';
+
+const PACKAGE_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../..',
+);
+
+async function readKitVersion(): Promise<string> {
+  try {
+    const raw = await readFile(path.join(PACKAGE_ROOT, 'package.json'), 'utf-8');
+    const pkg = JSON.parse(raw) as { version?: string };
+    return pkg.version ?? 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
 
 export const DEFAULT_SITE_DIR = '.architecture-kit/site';
 
@@ -16,6 +33,7 @@ export async function buildSite(
   outDir = path.join(cwd, DEFAULT_SITE_DIR),
 ): Promise<BuildSiteResult> {
   const pages = await collectPages(cwd, config);
+  const kitVersion = await readKitVersion();
 
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
@@ -55,10 +73,27 @@ export async function buildSite(
     projectTypeLabel: projectTypeLabels[config.project.type],
     pages,
     config,
+    kitVersion,
   });
   await writeFile(path.join(outDir, 'index.html'), homeHtml, 'utf-8');
 
-  const searchIndex = buildSearchIndex(pages);
+  const helpHtml = renderHelpPage({
+    projectName: config.project.name,
+    pages,
+    config,
+    kitVersion,
+  });
+  await writeFile(path.join(outDir, KIT_HELP_OUTPUT), helpHtml, 'utf-8');
+
+  const searchIndex = [
+    ...buildSearchIndex(pages),
+    {
+      title: 'Help — Architecture Kit',
+      path: KIT_HELP_OUTPUT,
+      section: 'other' as const,
+      excerpt: kitHelpSearchText().slice(0, 160),
+    },
+  ];
   await writeFile(
     path.join(outDir, 'search-index.json'),
     `${JSON.stringify(searchIndex, null, 2)}\n`,
