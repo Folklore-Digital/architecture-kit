@@ -9,7 +9,7 @@ Feature specs, tickets, and API references live elsewhere. See [architecture/doc
 | Audience | Start here |
 | --- | --- |
 | New developers | [architecture/overview.md](./architecture/overview.md) → [project-structure.md](./architecture/project-structure.md) |
-| Designers / PMs | [architecture/overview.md](./architecture/overview.md) → [diagrams/system-overview.md](./diagrams/system-overview.md) |
+| Designers / PMs | [architecture/overview.md](./architecture/overview.md) → [diagrams/system-overview.mmd](./diagrams/system-overview.mmd) |
 | DevOps / leads | [architecture/deployment.md](./architecture/deployment.md) → [environments.md](./architecture/environments.md) |
 | AI tools | [architecture/ai-context.md](./architecture/ai-context.md) → [documentation-map.md](./architecture/documentation-map.md) |
 
