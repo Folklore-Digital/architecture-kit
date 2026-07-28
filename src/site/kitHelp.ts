@@ -102,6 +102,17 @@ export function renderKitHelpBody(options: KitHelpOptions): string {
     <li>Pages copied into the site output include a <em>View Markdown source</em> link next to the HTML.</li>
   </ul>
 
+  <h2>Scaffold vs reviewed docs</h2>
+  <p>
+    Files created by <code>init</code> or <code>bootstrap --apply</code> include
+    <code>status: scaffold</code> in frontmatter until you review them. The docs site shows a
+    banner on those pages. Run <code>validate --ci</code> to block merges while scaffold content
+    remains (when <code>governance.scaffoldBlocksCi</code> is true, the default).
+  </p>
+  <p>When docs are project-specific: remove scaffold frontmatter, set
+    <code>project.documentationStatus</code> to <code>"active"</code> in
+    <code>architecture.config.json</code>.</p>
+
   <h2>Optional frontmatter</h2>
   <p>Control sidebar grouping and review dates in any Markdown file:</p>
   <pre><code>---

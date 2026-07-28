@@ -1,6 +1,7 @@
 import type { EmbedTarget } from '../utils/embed.js';
 import type { ProjectType } from '../config/schema.js';
 import { projectTypeLabels } from '../config/schema.js';
+import { SCAFFOLD_NEXT_STEPS } from '../utils/scaffoldFrontmatter.js';
 import { scaffoldProject } from '../utils/fileSystem.js';
 
 export type InitOptions = {
@@ -32,6 +33,8 @@ export async function runInit(options: InitOptions): Promise<void> {
     for (const item of created) {
       console.log(`  - ${item}`);
     }
+    console.log('');
+    console.log(SCAFFOLD_NEXT_STEPS);
     console.log('');
   }
 

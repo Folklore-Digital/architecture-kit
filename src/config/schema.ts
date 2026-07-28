@@ -49,6 +49,8 @@ export const architectureConfigSchema = z.object({
     ]),
     description: z.string().optional(),
     owners: z.array(z.string()).default([]),
+    /** scaffold = generic init templates; active = reviewed project docs */
+    documentationStatus: z.enum(['scaffold', 'active']).optional(),
   }),
   stack: z.object({
     frontend: z.string().nullable().optional(),
@@ -74,6 +76,8 @@ export const architectureConfigSchema = z.object({
       newExternalScriptRequiresDocs: z.boolean().default(true),
       newClientComponentRequiresReason: z.boolean().default(false),
       newPackageRequiresReview: z.boolean().default(false),
+      /** When true, validate --ci fails on scaffold frontmatter / placeholder content */
+      scaffoldBlocksCi: z.boolean().default(true),
     })
     .default({}),
   paths: z
@@ -113,6 +117,7 @@ export function createDefaultConfig(
       type,
       description: 'Short project description',
       owners: [],
+      documentationStatus: 'scaffold',
     },
     stack: {
       frontend: null,
@@ -135,6 +140,7 @@ export function createDefaultConfig(
       newExternalScriptRequiresDocs: true,
       newClientComponentRequiresReason: false,
       newPackageRequiresReview: false,
+      scaffoldBlocksCi: true,
     },
     paths: {
       docs: 'docs',

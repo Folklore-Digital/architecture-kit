@@ -73,6 +73,10 @@ function renderStorybookLink(config: ArchitectureConfig): string {
   return `<p class="external-nav"><a href="${escapeHtml(sb.url)}" target="_blank" rel="noopener noreferrer">Storybook ↗</a></p>`;
 }
 
+function renderScaffoldBanner(): string {
+  return `<p class="scaffold-banner" role="status"><strong>Scaffold template</strong> — this page has not been reviewed for this project. Edit the Markdown source and remove <code>status: scaffold</code> from frontmatter.</p>`;
+}
+
 function renderDateMeta(
   page: DocPage,
   showDates: boolean,
@@ -110,6 +114,7 @@ export function renderPageShell(options: {
   const storybook = renderStorybookLink(config);
   const showDates = config.site?.showDates !== false;
   const dateMeta = renderDateMeta(page, showDates);
+  const scaffoldBanner = page.isScaffold ? renderScaffoldBanner() : '';
   const mainClass = page.section === 'diagram' ? ' class="main--diagram"' : '';
   const sourceLink =
     page.sourcePath && page.relativePath.endsWith('.md')
@@ -398,6 +403,15 @@ export function renderPageShell(options: {
     .home-help-link { font-weight: 600; }
     .kit-help h2 { margin-top: 2rem; }
     .kit-help pre { margin: 0.75rem 0 1rem; }
+    .scaffold-banner {
+      margin: 0 0 1.25rem;
+      padding: 0.65rem 0.85rem;
+      border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
     .home-lede { color: var(--muted); font-size: 1.05rem; max-width: 42rem; }
     .home-meta {
       display: flex;
@@ -474,6 +488,7 @@ export function renderPageShell(options: {
       ${nav}
     </aside>
     <main${mainClass}>
+      ${scaffoldBanner}
       ${dateMeta}
       ${bodyHtml}
       ${sourceLink}

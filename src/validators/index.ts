@@ -10,6 +10,7 @@ import { createResult, mergeResults, type ValidationResult } from './types.js';
 
 export type ValidateOptions = {
   since?: string;
+  ci?: boolean;
 };
 
 export async function runValidation(
@@ -26,7 +27,9 @@ export async function validateProject(
   options: ValidateOptions = {},
 ): Promise<ValidationResult> {
   const base = await validateBase(cwd, config);
-  const placeholderIssues = await validatePlaceholders(cwd, config);
+  const placeholderIssues = await validatePlaceholders(cwd, config, {
+    ci: options.ci,
+  });
   const aiTooling = await validateAiTooling(cwd, config);
   const linkIssues = await validateLinks(cwd, config);
   const mermaidIssues = await validateMermaid(cwd, config);

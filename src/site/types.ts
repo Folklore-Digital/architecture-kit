@@ -18,6 +18,8 @@ export type DocPage = {
   navGroup?: string;
   /** Sort order within nav group */
   navOrder?: number;
+  /** True when frontmatter status: scaffold */
+  isScaffold?: boolean;
 };
 
 export type SearchIndexEntry = {

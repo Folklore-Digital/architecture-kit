@@ -129,6 +129,7 @@ async function walkMarkdown(
       lastReviewed: dates.lastReviewed,
       navGroup: fm.navGroup,
       navOrder: fm.navOrder,
+      isScaffold: fm.status === 'scaffold',
     };
 
     if (entry.name.endsWith('.md')) {

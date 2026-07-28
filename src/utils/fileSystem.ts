@@ -11,9 +11,20 @@ import {
   readKitVersionRange,
   type EmbedTarget,
 } from './embed.js';
+import { wrapScaffoldFrontmatter } from './scaffoldFrontmatter.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = path.resolve(__dirname, '../..');
+
+async function readKitVersion(): Promise<string> {
+  try {
+    const raw = await readFile(path.join(PACKAGE_ROOT, 'package.json'), 'utf-8');
+    const pkg = JSON.parse(raw) as { version?: string };
+    return pkg.version ?? '0.0.0';
+  } catch {
+    return '0.0.0';
+  }
+}
 
 export async function pathExists(target: string): Promise<boolean> {
   try {
@@ -88,7 +99,13 @@ async function copyTreeSkipExisting(
     }
 
     await ensureDir(path.dirname(destPath));
-    await cp(srcPath, destPath);
+    if (entry.name.endsWith('.md')) {
+      const raw = await readFile(srcPath, 'utf-8');
+      const kitVersion = await readKitVersion();
+      await writeFile(destPath, wrapScaffoldFrontmatter(raw, kitVersion), 'utf-8');
+    } else {
+      await cp(srcPath, destPath);
+    }
     created.push(relativePrefix ? rel : entry.name);
   }
 }

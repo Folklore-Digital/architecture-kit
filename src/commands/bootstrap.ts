@@ -8,6 +8,7 @@ import {
   type ProjectScanResult,
 } from '../scan/projectScan.js';
 import { ensureDir, writeJson } from '../utils/fileSystem.js';
+import { SCAFFOLD_NEXT_STEPS } from '../utils/scaffoldFrontmatter.js';
 
 export type RunScanOptions = {
   cwd?: string;
@@ -105,14 +106,17 @@ export async function runBootstrap(
     return 0;
   }
 
-  const hasDocs = scan.existingDocs.hasArchitectureDocs;
-  if (!hasDocs || scan.existingDocs.architectureDocCount === 0) {
+  const needsScaffold = scan.existingDocs.architectureDocCount === 0;
+  if (needsScaffold) {
     console.log(`\nScaffolding docs (--type ${projectType})...`);
     await runInit({
       type: projectType,
       cwd,
       name: scan.projectName,
     });
+    console.log('');
+    console.log(SCAFFOLD_NEXT_STEPS);
+    console.log('');
   } else {
     console.log('\nExisting docs found — skipping init (non-destructive).');
   }

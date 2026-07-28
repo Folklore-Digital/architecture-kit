@@ -3,6 +3,7 @@ import path from 'node:path';
 import { loadConfig } from '../config/loadConfig.js';
 import { projectTypeLabels } from '../config/schema.js';
 import { runValidation } from '../validators/index.js';
+import { countScaffoldDocs } from '../validators/placeholders.js';
 
 function formatStackValue(value: string | null | undefined): string {
   return value ?? '—';
@@ -63,6 +64,14 @@ export async function runDoctor(cwd: string = process.cwd()): Promise<number> {
     }`,
   );
   console.log(`ADRs: ${adrCount}`);
+  const scaffoldCount = await countScaffoldDocs(cwd, config);
+  if (config.project.documentationStatus === 'scaffold' || scaffoldCount > 0) {
+    console.log(
+      `Documentation status: SCAFFOLD (${scaffoldCount} unreviewed file(s); run scan + customize docs)`,
+    );
+  } else if (config.project.documentationStatus === 'active') {
+    console.log('Documentation status: active');
+  }
   console.log(`Docs health: ${health}%`);
   console.log('');
 

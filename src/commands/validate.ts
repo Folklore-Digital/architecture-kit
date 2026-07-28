@@ -26,7 +26,10 @@ export async function runValidate(options: ValidateOptions = {}): Promise<number
     return 1;
   }
 
-  const result = await runValidation(cwd, config, { since: options.since });
+  const result = await runValidation(cwd, config, {
+    since: options.since,
+    ci: options.ci,
+  });
   const visibleIssues = result.issues.filter((issue) => {
     if (level === 'error') {
       return issue.level === 'error';
