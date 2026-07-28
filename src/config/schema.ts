@@ -10,6 +10,22 @@ export const integrationSchema = z.object({
   owner: z.string().optional(),
 });
 
+/** Optional Storybook integration — only enable when the project uses Storybook. */
+export const storybookSchema = z.object({
+  enabled: z.boolean().default(false),
+  /** Public URL when deployed, or local dev URL (e.g. http://localhost:6006). */
+  url: z.string().url().optional(),
+  /** Path to Storybook docs or README in the repo, for validation cross-links. */
+  docsPath: z.string().optional(),
+});
+
+export const siteSchema = z.object({
+  /** Show last-updated / last-reviewed dates on doc pages. Default true. */
+  showDates: z.boolean().default(true),
+  /** Prefer git commit date for "last updated"; fall back to file mtime. */
+  dateSource: z.enum(['git', 'file']).default('git'),
+});
+
 export const architectureConfigSchema = z.object({
   schemaVersion: z.literal(SCHEMA_VERSION),
   project: z.object({
@@ -59,6 +75,10 @@ export const architectureConfigSchema = z.object({
       aiContext: z.string().default('docs/architecture/ai-context.md'),
     })
     .default({}),
+  /** Optional — set when the project uses Storybook for UI documentation. */
+  storybook: storybookSchema.optional(),
+  /** Docs site presentation options. */
+  site: siteSchema.optional(),
 });
 
 export type ArchitectureConfig = z.infer<typeof architectureConfigSchema>;

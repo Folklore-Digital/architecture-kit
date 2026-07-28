@@ -275,6 +275,16 @@ export async function scaffoldProject(
     }
   }
 
+  const prChecklistSource = path.join(getTemplatesDir(), 'PR-CHECKLIST.md');
+  const prChecklistTarget = path.join(cwd, 'docs/PR-CHECKLIST.md');
+  if (
+    (await pathExists(prChecklistSource)) &&
+    !(await pathExists(prChecklistTarget))
+  ) {
+    await cp(prChecklistSource, prChecklistTarget);
+    created.push('docs/PR-CHECKLIST.md');
+  }
+
   return { created, skipped, warnings };
 }
 

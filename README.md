@@ -100,17 +100,32 @@ npx architecture-kit dev               # http://127.0.0.1:4321
 
 ---
 
+## Quick start (existing project — bootstrap for AI)
+
+Already have code but no architecture docs? Scan the repo and hand context to your AI agent:
+
+```bash
+npx architecture-kit scan                    # → .architecture-kit/agent-context.md
+npx architecture-kit bootstrap --apply       # scaffold missing docs + merge detected stack
+# Give agent-context.md to Cursor / your agent to fill docs/architecture/*.md
+npx architecture-kit validate
+```
+
+---
+
 ## Commands
 
 | Command | Purpose |
 | --- | --- |
 | `init --type <type>` | Scaffold `docs/`, ADRs, diagrams, `architecture.config.json` (skip existing files) |
 | `init --embed nextjs` | Also copy host scripts + merge `package.json` for Next.js at `/architecture/` |
-| `validate` | Check config schema, required docs, integrations, placeholder content |
+| `scan` | Detect stack, integrations, doc gaps; write `.architecture-kit/agent-context.md` for AI agents |
+| `bootstrap [--apply]` | Scan + write JSON context; `--apply` scaffolds missing docs and merges config |
+| `validate` | Config, docs, **broken links**, **Mermaid syntax**, placeholders, integrations, optional Storybook |
 | `validate --ci` | CI mode — fail on errors |
 | `doctor` | Human-readable docs health summary |
 | `detect` | Infer project type from repo signals |
-| `build` | Static HTML site + copied Markdown sources |
+| `build` | Static HTML site with **search** and **last-updated dates** + copied Markdown sources |
 | `dev` | Build and serve docs locally |
 
 Project types: `nextjs`, `wordpress-custom`, `wordpress-builder`, `craft`, `generic`
@@ -211,20 +226,19 @@ Keep `system-overview.mmd` (components + infra) and `data-flow.mmd` (request/dat
 
 ## Validation
 
-`validate` currently checks:
+`validate` checks:
 
 - `architecture.config.json` schema (Zod)
 - Required folders and architecture markdown files
 - Key docs: `overview.md`, `deployment.md`, `ai-context.md`
-- `ai-context.md` present
-- ADR and diagram presence (`system-overview.mmd`, `data-flow.mmd`)
+- **Broken internal doc links** across `docs/**/*.md`
+- **Mermaid syntax** (balanced brackets, diagram type) in `docs/diagrams/*.mmd`
 - Integrations in config appear in `integrations.md`
+- **Optional Storybook** — when `storybook.enabled`, warns if URL or documentation-map link missing
 - **Governance**: integration ADR mentions, `.env.example` keys in `environments.md`
 - **AI tooling**: `.cursor/rules/architecture-kit.mdc`, `AGENTS.md` or `CLAUDE.md`
 - **Diff awareness** (`--since origin/develop`): code changes without matching doc updates
 - **Placeholder content** in docs (`_TBD_`, `_Example_`, unfilled scaffold text) — warns
-
-Future (roadmap): component convention lint rules, cross-doc link integrity.
 
 ```bash
 npx architecture-kit validate --level warn   # show warnings
@@ -253,7 +267,8 @@ npx architecture-kit build --out ./site
 npx architecture-kit dev --port 4321
 ```
 
-- Builds HTML with sidebar navigation
+- Builds HTML with sidebar navigation and **client-side search** (`search-index.json`)
+- Shows **last updated** (git or file mtime) and optional **last reviewed** (YAML frontmatter: `reviewed:` / `lastReviewed:`)
 - **Copies Markdown sources** next to HTML — each page has a “View Markdown source” link
 - Default output: `.architecture-kit/site` (standalone, relative links)
 
@@ -284,6 +299,35 @@ Governance flags (enforced where noted):
 | `newClientComponentRequiresReason` | Client boundaries documented | Planned |
 | `newPackageRequiresReview` | New npm deps need review | Planned |
 
+### Optional Storybook (only when used)
+
+```json
+"storybook": {
+  "enabled": true,
+  "url": "http://localhost:6006",
+  "docsPath": ".storybook/README.md"
+}
+```
+
+When enabled, the docs site sidebar links to Storybook and `validate` checks that `documentation-map.md` references it. Projects without Storybook omit this block entirely.
+
+### Site options
+
+```json
+"site": {
+  "showDates": true,
+  "dateSource": "git"
+}
+```
+
+Use YAML frontmatter on any doc for explicit review dates:
+
+```yaml
+---
+reviewed: 2026-07-28
+---
+```
+
 ---
 
 ## Component conventions (philosophy)
@@ -303,7 +347,9 @@ Roadmap: optional ESLint or custom rules wired through config.
 - [x] Phase 4 — Project type detection (`detect`)
 - [x] Phase 5 — PR change awareness (`validate --since`)
 - [x] Phase 6 — AI tooling sync (`AGENTS.md`, Cursor rules templates)
-- [ ] Phase 7 — Convention checks (component registry, custom lint rules)
+- [x] Phase 7 — Link + Mermaid validation, docs search, dates, `scan` / `bootstrap`
+- [ ] Phase 8 — Convention checks (component registry, custom lint rules)
+- [ ] Phase 9 — `--embed wordpress-custom` (Sage/Bud static embed)
 
 ---
 

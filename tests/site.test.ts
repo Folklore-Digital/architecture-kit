@@ -39,6 +39,10 @@ describe('build site', () => {
     const indexHtml = await readFile(indexPath, 'utf-8');
     expect(indexHtml).toContain('Architecture');
     expect(indexHtml).toContain('nav-accordion');
+    expect(indexHtml).toContain('doc-search');
+
+    const searchIndexPath = path.join(outDir, 'search-index.json');
+    await access(searchIndexPath);
 
     const overviewPath = path.join(outDir, 'overview.html');
     await access(overviewPath);

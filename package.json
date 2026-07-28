@@ -1,6 +1,6 @@
 {
   "name": "@folklore/architecture-kit",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Repo-native architecture documentation and governance layer for any project",
   "type": "module",
   "bin": {

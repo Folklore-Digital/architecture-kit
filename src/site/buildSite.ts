@@ -5,6 +5,7 @@ import { projectTypeLabels } from '../config/schema.js';
 import { collectPages } from './collectPages.js';
 import { renderHomePage, renderPageShell } from './layout.js';
 import { renderMarkdownPage, renderMermaidPage } from './markdown.js';
+import { buildSearchIndex } from './search.js';
 import type { BuildSiteResult } from './types.js';
 
 export const DEFAULT_SITE_DIR = '.architecture-kit/site';
@@ -31,6 +32,7 @@ export async function buildSite(
       bodyHtml,
       pages,
       includeMermaid: isMermaid,
+      config,
     });
 
     const target = path.join(outDir, page.outputPath);
@@ -52,8 +54,16 @@ export async function buildSite(
     projectName: config.project.name,
     projectTypeLabel: projectTypeLabels[config.project.type],
     pages,
+    config,
   });
   await writeFile(path.join(outDir, 'index.html'), homeHtml, 'utf-8');
+
+  const searchIndex = buildSearchIndex(pages);
+  await writeFile(
+    path.join(outDir, 'search-index.json'),
+    `${JSON.stringify(searchIndex, null, 2)}\n`,
+    'utf-8',
+  );
 
   return { outDir, pages };
 }

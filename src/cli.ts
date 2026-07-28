@@ -8,6 +8,7 @@ import { runDetect } from './commands/detect.js';
 import { runDev } from './commands/dev.js';
 import { runDoctor } from './commands/doctor.js';
 import { runInit } from './commands/init.js';
+import { runBootstrap, runScan } from './commands/bootstrap.js';
 import { runValidate } from './commands/validate.js';
 import type { ProjectType } from './config/schema.js';
 
@@ -108,6 +109,36 @@ program
   .option('--apply', 'Update architecture.config.json project.type when it differs')
   .action(async (options: { apply?: boolean }) => {
     const code = await runDetect({ apply: options.apply });
+    process.exit(code);
+  });
+
+program
+  .command('scan')
+  .description(
+    'Scan an existing project and write AI-agent bootstrap context (.architecture-kit/agent-context.md)',
+  )
+  .option('--json', 'Print scan results as JSON to stdout')
+  .option('--out <path>', 'Custom output path for agent context markdown')
+  .action(async (options: { json?: boolean; out?: string }) => {
+    const code = await runScan({ json: options.json, out: options.out });
+    process.exit(code);
+  });
+
+program
+  .command('bootstrap')
+  .description(
+    'Scan project, write agent context, and optionally scaffold missing docs (--apply)',
+  )
+  .option('--apply', 'Scaffold missing docs and merge detected values into config')
+  .option(
+    '--type <type>',
+    'Project template for scaffold (default: auto-detect)',
+  )
+  .action(async (options: { apply?: boolean; type?: string }) => {
+    const code = await runBootstrap({
+      apply: options.apply,
+      type: options.type,
+    });
     process.exit(code);
   });
 

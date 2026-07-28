@@ -1,6 +1,9 @@
+import type { ArchitectureConfig } from '../config/schema.js';
+import { formatDisplayDate } from '../scan/projectScan.js';
 import type { DocPage, DocSection } from './types.js';
 import { MERMAID_SETUP_SCRIPTS } from './mermaidInitScript.js';
 import { navHref } from './paths.js';
+import { SEARCH_SCRIPT } from './search.js';
 
 const SECTION_LABELS: Record<DocSection, string> = {
   architecture: 'Architecture',
@@ -54,17 +57,57 @@ function renderNav(pages: DocPage[], current: DocPage): string {
   return blocks.join('\n');
 }
 
+function renderSearchBox(): string {
+  return `<div class="doc-search-wrap">
+  <input type="search" id="doc-search" placeholder="Search docs…" autocomplete="off" aria-label="Search documentation" />
+  <div id="doc-search-results" class="doc-search-results" hidden></div>
+</div>`;
+}
+
+function renderStorybookLink(config: ArchitectureConfig): string {
+  const sb = config.storybook;
+  if (!sb?.enabled || !sb.url) {
+    return '';
+  }
+  return `<p class="external-nav"><a href="${escapeHtml(sb.url)}" target="_blank" rel="noopener noreferrer">Storybook ↗</a></p>`;
+}
+
+function renderDateMeta(
+  page: DocPage,
+  showDates: boolean,
+): string {
+  if (!showDates || page.outputPath === 'index.html') {
+    return '';
+  }
+  const parts: string[] = [];
+  if (page.lastUpdated) {
+    parts.push(`Updated ${escapeHtml(formatDisplayDate(page.lastUpdated))}`);
+  }
+  if (page.lastReviewed) {
+    parts.push(`Reviewed ${escapeHtml(formatDisplayDate(page.lastReviewed))}`);
+  }
+  if (parts.length === 0) {
+    return '';
+  }
+  return `<p class="doc-dates">${parts.join(' · ')}</p>`;
+}
+
 export function renderPageShell(options: {
   projectName: string;
   page: DocPage;
   bodyHtml: string;
   pages: DocPage[];
   includeMermaid: boolean;
+  config: ArchitectureConfig;
 }): string {
-  const { projectName, page, bodyHtml, pages, includeMermaid } = options;
+  const { projectName, page, bodyHtml, pages, includeMermaid, config } = options;
   const root = depthToRoot(page.outputPath);
   const homeHref = root ? `${root}index.html` : 'index.html';
   const nav = renderNav(pages, page);
+  const search = renderSearchBox();
+  const storybook = renderStorybookLink(config);
+  const showDates = config.site?.showDates !== false;
+  const dateMeta = renderDateMeta(page, showDates);
   const mainClass = page.section === 'diagram' ? ' class="main--diagram"' : '';
   const sourceLink =
     page.sourcePath && page.relativePath.endsWith('.md')
@@ -272,20 +315,83 @@ export function renderPageShell(options: {
     }
     .mermaid { background: transparent; }
     .source-link { margin-top: 2rem; font-size: 0.85rem; color: var(--muted); }
+    .doc-dates {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: 0 0 1.25rem;
+    }
+    .doc-search-wrap {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    #doc-search {
+      width: 100%;
+      padding: 0.45rem 0.65rem;
+      font: inherit;
+      font-size: 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .doc-search-results {
+      position: absolute;
+      z-index: 10;
+      left: 0;
+      right: 0;
+      top: calc(100% + 0.25rem);
+      max-height: 16rem;
+      overflow-y: auto;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .search-hit {
+      display: block;
+      padding: 0.5rem 0.65rem;
+      text-decoration: none;
+      color: inherit;
+      border-bottom: 1px solid var(--border);
+    }
+    .search-hit:last-child { border-bottom: none; }
+    .search-hit strong { display: block; font-size: 0.9rem; color: var(--accent); }
+    .search-hit span {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.15rem;
+      line-height: 1.35;
+    }
+    .search-empty {
+      margin: 0;
+      padding: 0.65rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .external-nav {
+      margin: 0.75rem 0 0;
+      font-size: 0.85rem;
+    }
+    .external-nav a { font-weight: 600; }
   </style>
 </head>
-<body>
+<body data-site-root="${root}">
   <div class="layout">
     <aside>
       <h1><a href="${homeHref}">${escapeHtml(projectName)}</a></h1>
+      ${search}
+      ${storybook}
       ${nav}
     </aside>
     <main${mainClass}>
+      ${dateMeta}
       ${bodyHtml}
       ${sourceLink}
     </main>
   </div>
   ${mermaidInit}
+  <script>${SEARCH_SCRIPT}</script>
 </body>
 </html>`;
 }
@@ -294,8 +400,9 @@ export function renderHomePage(options: {
   projectName: string;
   projectTypeLabel: string;
   pages: DocPage[];
+  config: ArchitectureConfig;
 }): string {
-  const { projectName, projectTypeLabel, pages } = options;
+  const { projectName, projectTypeLabel, pages, config } = options;
   const overview = pages.find((page) =>
     page.relativePath.endsWith('architecture/overview.md'),
   );
@@ -324,5 +431,6 @@ export function renderHomePage(options: {
     bodyHtml: body,
     pages,
     includeMermaid: false,
+    config,
   });
 }

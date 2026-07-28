@@ -1,7 +1,12 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { ArchitectureConfig } from '../config/schema.js';
+import {
+  parseFrontmatterDates,
+  resolveDocDates,
+} from '../scan/projectScan.js';
 import { pathExists } from '../utils/fileSystem.js';
+import { plainTextFromMarkdown } from './search.js';
 import type { DocPage, DocSection } from './types.js';
 
 function titleFromMarkdown(content: string, fallback: string): string {
@@ -62,13 +67,15 @@ async function walkMarkdown(
   docsRoot: string,
   config: ArchitectureConfig,
   pages: DocPage[],
+  cwd: string,
+  dateSource: 'git' | 'file',
 ): Promise<void> {
   const entries = await readdir(dir, { withFileTypes: true });
 
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      await walkMarkdown(fullPath, docsRoot, config, pages);
+      await walkMarkdown(fullPath, docsRoot, config, pages, cwd, dateSource);
       continue;
     }
 
@@ -83,13 +90,26 @@ async function walkMarkdown(
         ? titleFromMarkdown(raw, titleFromFilename(entry.name))
         : titleFromFilename(entry.name);
 
-    pages.push({
+    const dates =
+      entry.name.endsWith('.md')
+        ? await resolveDocDates(cwd, fullPath, dateSource)
+        : parseFrontmatterDates(raw);
+
+    const page: DocPage = {
       section: sectionForRelativePath(relativePath, config),
       relativePath: relativePath.replace(/\\/g, '/'),
       sourcePath: fullPath,
       title,
       outputPath: outputPathFor(relativePath, config),
-    });
+      lastUpdated: dates.lastUpdated,
+      lastReviewed: dates.lastReviewed,
+    };
+
+    if (entry.name.endsWith('.md')) {
+      page.searchText = plainTextFromMarkdown(raw);
+    }
+
+    pages.push(page);
   }
 }
 
@@ -124,7 +144,8 @@ export async function collectPages(
   }
 
   const pages: DocPage[] = [];
-  await walkMarkdown(docsRoot, docsRoot, config, pages);
+  const dateSource = config.site?.dateSource ?? 'git';
+  await walkMarkdown(docsRoot, docsRoot, config, pages, cwd, dateSource);
 
   pages.sort((a, b) => {
     const sectionOrder: Record<DocSection, number> = {

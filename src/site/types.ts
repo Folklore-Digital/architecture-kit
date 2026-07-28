@@ -9,6 +9,18 @@ export type DocPage = {
   title: string;
   /** Output path relative to site root, e.g. architecture/overview.html */
   outputPath: string;
+  /** ISO date strings for display */
+  lastUpdated?: string;
+  lastReviewed?: string;
+  /** Plain text excerpt for search (markdown only) */
+  searchText?: string;
+};
+
+export type SearchIndexEntry = {
+  title: string;
+  path: string;
+  section: DocSection;
+  excerpt: string;
 };
 
 export type BuildSiteOptions = {
