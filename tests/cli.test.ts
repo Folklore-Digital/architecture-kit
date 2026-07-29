@@ -138,5 +138,9 @@ describe('init + validate + doctor', () => {
       'semver:',
     );
     expect(pkg.scripts.dev).toBe('next dev');
+
+    const gitignore = await readFile(path.join(cwd, '.gitignore'), 'utf-8');
+    expect(gitignore).toContain('/public/architecture/');
+    expect(gitignore).toContain('/.architecture-kit/');
   });
 });

@@ -3,8 +3,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   createDefaultConfig,
+  type ArchitectureConfig,
   type ProjectType,
 } from '../config/schema.js';
+import {
+  resolveAgentOutputDir,
+  resolveSiteOutputDir,
+} from '../config/sitePaths.js';
 import {
   getEmbedDir,
   nextConfigNeedsEmbedReminder,
@@ -165,6 +170,57 @@ async function mergePackageJsonFromEmbed(
   }
 }
 
+/** Append gitignore patterns for generated architecture-kit output (idempotent). */
+export async function appendGitignoreEntries(
+  cwd: string,
+  entries: string[],
+): Promise<string[]> {
+  if (entries.length === 0) {
+    return [];
+  }
+
+  const gitignorePath = path.join(cwd, '.gitignore');
+  let existing = '';
+  if (await pathExists(gitignorePath)) {
+    existing = await readFile(gitignorePath, 'utf-8');
+  }
+
+  const patterns = entries.map((entry) => {
+    const trimmed = entry.replace(/\\/g, '/').replace(/^\.\//, '');
+    const withLeading = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+    return withLeading.endsWith('/') ? withLeading : `${withLeading}/`;
+  });
+
+  const toAdd = patterns.filter(
+    (pattern) =>
+      !existing.includes(pattern) &&
+      !existing.includes(pattern.replace(/\/$/, '')),
+  );
+
+  if (toAdd.length === 0) {
+    return [];
+  }
+
+  const block = `\n# architecture-kit generated output (do not commit)\n${toAdd.join('\n')}\n`;
+  await writeFile(gitignorePath, `${existing.trimEnd()}${block}`, 'utf-8');
+  return toAdd;
+}
+
+async function loadConfigFromCwd(
+  cwd: string,
+): Promise<ArchitectureConfig | null> {
+  const configPath = path.join(cwd, 'architecture.config.json');
+  if (!(await pathExists(configPath))) {
+    return null;
+  }
+  try {
+    const raw = await readFile(configPath, 'utf-8');
+    return JSON.parse(raw) as ArchitectureConfig;
+  } catch {
+    return null;
+  }
+}
+
 export async function scaffoldEmbed(
   cwd: string,
   target: EmbedTarget,
@@ -319,6 +375,14 @@ export async function scaffoldProject(
   if (options?.embed) {
     const embedCreated = await scaffoldEmbed(cwd, options.embed);
     created.push(...embedCreated);
+    const configForIgnore = await loadConfigFromCwd(cwd);
+    const gitignoreAdded = await appendGitignoreEntries(cwd, [
+      resolveSiteOutputDir(configForIgnore),
+      resolveAgentOutputDir(configForIgnore),
+    ]);
+    for (const pattern of gitignoreAdded) {
+      created.push(`.gitignore (${pattern})`);
+    }
     if (options.embed === 'nextjs' && (await nextConfigNeedsEmbedReminder(cwd))) {
       warnings.push(
         'Add /architecture redirect to next.config — see docs/architecture/_embed-host-setup.md',

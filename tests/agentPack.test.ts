@@ -51,6 +51,15 @@ describe('agent pack', () => {
 
     expect(pack.searchIndexPath).toBe('.architecture-kit/search-index.json');
     expect(pack.docs.length).toBeGreaterThan(0);
+
+    const manifest = JSON.parse(
+      await readFile(
+        path.join(cwd, '.architecture-kit/embed-manifest.json'),
+        'utf-8',
+      ),
+    ) as { mountPath: string; outputDir: string };
+    expect(manifest.mountPath).toBe('/architecture/');
+    expect(manifest.outputDir).toBe('public/architecture');
   });
 
   it('writeAgentPack works without config using scan fallback', async () => {

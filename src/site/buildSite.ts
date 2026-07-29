@@ -2,8 +2,9 @@ import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { writeAgentPack } from '../agent/writeAgentPack.js';
 import type { ArchitectureConfig } from '../config/schema.js';
+import { buildEmbedManifest, resolveAgentOutputDir } from '../config/sitePaths.js';
 import { projectTypeLabels } from '../config/schema.js';
-import { readKitVersion } from '../utils/fileSystem.js';
+import { ensureDir, writeJson, readKitVersion } from '../utils/fileSystem.js';
 import { collectPages } from './collectPages.js';
 import { renderHelpPage, renderHomePage, renderPageShell } from './layout.js';
 import { KIT_HELP_OUTPUT, kitHelpSearchText } from './kitHelp.js';
@@ -93,6 +94,13 @@ export async function buildSite(
     pages,
     searchIndex,
   });
+
+  const agentDir = path.join(cwd, resolveAgentOutputDir(config));
+  await ensureDir(agentDir);
+  await writeJson(
+    path.join(agentDir, 'embed-manifest.json'),
+    buildEmbedManifest(config, kitVersion),
+  );
 
   return { outDir, pages, agentPackPath: packPath };
 }

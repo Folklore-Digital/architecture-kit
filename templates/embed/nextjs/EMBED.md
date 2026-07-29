@@ -25,15 +25,30 @@ const nextConfig = {
 export default nextConfig;
 ```
 
-Must match `ARCHITECTURE_MOUNT` in `scripts/embed-architecture-site.mjs`.
+Must match `site.mountPath` in `architecture.config.json` (default `/architecture/`). Embed scripts read `architecture.config.json` or `.architecture-kit/embed-manifest.json` after build.
 
-## 2. Gitignore built docs (optional)
+## 2. Gitignore built docs
 
+`init --embed nextjs` appends generated output paths to `.gitignore` automatically:
+
+- `site.outputDir` (default `public/architecture/`)
+- `paths.agentOutput` (default `.architecture-kit/`)
+
+Override in config when needed:
+
+```json
+{
+  "site": {
+    "mountPath": "/internal/architecture/",
+    "outputDir": "public/internal-architecture"
+  },
+  "paths": {
+    "agentOutput": ".architecture-kit"
+  }
+}
 ```
-/public/architecture/
-```
 
-Built output is regenerated on `npm run dev` / `build-dev`.
+Built output is regenerated on `npm run dev` / `build-dev`. Run `validate` to warn if built HTML is still tracked in git.
 
 ## 3. Deploy command
 

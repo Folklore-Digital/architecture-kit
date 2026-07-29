@@ -1,6 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { ArchitectureConfig } from '../config/schema.js';
+import { resolveAgentOutputDir } from '../config/sitePaths.js';
 import type { ProjectScanResult } from '../scan/projectScan.js';
 import type { DocPage, SearchIndexEntry } from '../site/types.js';
 import { ensureDir, writeJson } from '../utils/fileSystem.js';
@@ -72,6 +73,7 @@ function buildPack(options: WriteAgentPackOptions): AgentPack {
 
   const aiContextPath =
     config?.paths.aiContext ?? 'docs/architecture/ai-context.md';
+  const agentDir = resolveAgentOutputDir(config);
 
   const pack: AgentPack = {
     schemaVersion: AGENT_PACK_SCHEMA,
@@ -86,13 +88,13 @@ function buildPack(options: WriteAgentPackOptions): AgentPack {
     governance: config?.governance,
     entrypoints: {
       aiContext: aiContextPath,
-      agentContext: `${AGENT_PACK_DIR}/agent-context.md`,
+      agentContext: `${agentDir}/agent-context.md`,
       config: 'architecture.config.json',
-      agentPack: `${AGENT_PACK_DIR}/agent-pack.json`,
+      agentPack: `${agentDir}/agent-pack.json`,
     },
     prompts: {
-      greenfield: `${AGENT_PACK_DIR}/prompts/greenfield.md`,
-      brownfieldDocUpdate: `${AGENT_PACK_DIR}/prompts/brownfield-doc-update.md`,
+      greenfield: `${agentDir}/prompts/greenfield.md`,
+      brownfieldDocUpdate: `${agentDir}/prompts/brownfield-doc-update.md`,
     },
     docs: docEntriesFromPages(pages),
   };
@@ -107,7 +109,7 @@ function buildPack(options: WriteAgentPackOptions): AgentPack {
   }
 
   if (searchIndex && searchIndex.length > 0) {
-    pack.searchIndexPath = `${AGENT_PACK_DIR}/search-index.json`;
+    pack.searchIndexPath = `${agentDir}/search-index.json`;
   }
 
   return pack;
@@ -117,8 +119,8 @@ function buildPack(options: WriteAgentPackOptions): AgentPack {
 export async function writeAgentPack(
   options: WriteAgentPackOptions,
 ): Promise<string> {
-  const { cwd, searchIndex } = options;
-  const baseDir = path.join(cwd, AGENT_PACK_DIR);
+  const { cwd, config, searchIndex } = options;
+  const baseDir = path.join(cwd, resolveAgentOutputDir(config));
   const promptsDir = path.join(baseDir, 'prompts');
 
   await ensureDir(promptsDir);

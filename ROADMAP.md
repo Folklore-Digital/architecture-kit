@@ -221,15 +221,15 @@ WordPress deploys often sync **the whole theme** or use **All-in-One WP Migratio
 
 ---
 
-## Phase 15 — Configurable paths & mount (planned)
+## Phase 15 — Configurable paths & mount ✅ (v0.5.5)
 
 Unify host-side hardcoding into `architecture.config.json`:
 
-- [ ] `site.mountPath`, `site.outputDir` (Next.js + future WordPress embed)
-- [ ] Optional `paths.agentOutput` (default `.architecture-kit`)
-- [ ] `init --embed` writes gitignore entries for output + agent dirs
-- [ ] `validate` warns when built output is git-tracked
-- [ ] Embed scripts read mount/output from config or generated manifest
+- [x] `site.mountPath`, `site.outputDir` (Next.js embed scripts read config + embed manifest)
+- [x] `paths.agentOutput` (default `.architecture-kit`)
+- [x] `init --embed` writes gitignore entries for output + agent dirs
+- [x] `validate` warns when built output is git-tracked
+- [x] Kit `build` writes `.architecture-kit/embed-manifest.json` for embed scripts
 
 ## Phase 16 — Deploy safety & production exposure (planned)
 

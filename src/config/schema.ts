@@ -24,6 +24,10 @@ export const siteSchema = z.object({
   showDates: z.boolean().default(true),
   /** Prefer git commit date for "last updated"; fall back to file mtime. */
   dateSource: z.enum(['git', 'file']).default('git'),
+  /** Public URL path when embedded in a host app (Next.js redirect + link rewrite). */
+  mountPath: z.string().default('/architecture/'),
+  /** Host-app directory for built static HTML (relative to repo root). */
+  outputDir: z.string().default('public/architecture'),
   /** Override architecture sidebar groups (optional). */
   navGroups: z
     .array(
@@ -87,6 +91,8 @@ export const architectureConfigSchema = z.object({
       adr: z.string().default('docs/adr'),
       diagrams: z.string().default('docs/diagrams'),
       aiContext: z.string().default('docs/architecture/ai-context.md'),
+      /** Generated agent artifacts (agent-pack, prompts, embed manifest). */
+      agentOutput: z.string().default('.architecture-kit'),
     })
     .default({}),
   /** Optional — set when the project uses Storybook for UI documentation. */
@@ -148,6 +154,13 @@ export function createDefaultConfig(
       adr: 'docs/adr',
       diagrams: 'docs/diagrams',
       aiContext: 'docs/architecture/ai-context.md',
+      agentOutput: '.architecture-kit',
+    },
+    site: {
+      showDates: true,
+      dateSource: 'git',
+      mountPath: '/architecture/',
+      outputDir: 'public/architecture',
     },
   };
 
