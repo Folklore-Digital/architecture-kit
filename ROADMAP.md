@@ -56,7 +56,7 @@ flowchart LR
   MCP --> Agent[Claude Code / ChatGPT / Cursor]
 ```
 
-### Phase 10 — Agent pack (kit) 🚧 in progress
+### Phase 10 — Agent pack (kit) ✅ (v0.5.2)
 **Emit a versioned bundle** on `scan` and/or `build`:
 
 | Artifact | Purpose |

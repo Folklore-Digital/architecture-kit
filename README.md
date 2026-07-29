@@ -354,7 +354,8 @@ See **[ROADMAP.md](./ROADMAP.md)** for the full plan (agent MCP, Claude/Cursor a
 - [x] Phase 7b — Scaffold mode, CI guards, greenfield prompt (v0.5.x)
 - [ ] Phase 8 — Convention checks (component registry, custom lint rules)
 - [ ] Phase 9 — `--embed wordpress-custom` (Sage/Bud static embed)
-- [ ] Phase 10–14 — Agent pack, tool adapters, MCP, coverage report (see ROADMAP.md)
+- [x] Phase 10 — Agent pack on scan/build (v0.5.2, see ROADMAP.md)
+- [ ] Phase 11–14 — Tool adapters, MCP, coverage report (see ROADMAP.md)
 
 ---
 
