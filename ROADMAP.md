@@ -80,7 +80,7 @@ Thin, tool-specific layers — **not** duplicated prompts:
 
 Skills encode: reading order (`ai-context` → relevant page → code), when to run `validate`, brownfield vs greenfield flows.
 
-### Phase 12 — MCP server (kit)
+### Phase 12 — MCP server (kit) ✅ (v0.5.3)
 Optional package: `@folklore/architecture-kit/mcp` or `architecture-kit mcp`.
 
 **Design:** reads **repo on disk** (not a hosted wiki). Works in Claude Code, Cursor, any MCP client.

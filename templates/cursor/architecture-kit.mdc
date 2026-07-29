@@ -22,6 +22,7 @@ npx architecture-kit scan              # AI bootstrap context → .architecture-
 npx architecture-kit bootstrap --apply # scaffold missing docs + merge detected config
 npx architecture-kit validate          # links, mermaid, placeholders, integrations
 npx architecture-kit doctor
+npx architecture-kit mcp                 # MCP stdio server (Claude Code / Cursor)
 npx architecture-kit dev                 # local docs site with search + dates
 ```
 

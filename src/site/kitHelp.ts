@@ -131,6 +131,7 @@ reviewed: 2026-07-28
   <ul>
     <li>Agents should read <a href="ai-context.html">ai-context.md</a> first.</li>
     <li>Run <code>scan</code> on brownfield repos to produce bootstrap context for Cursor or other agents.</li>
+    <li><strong>MCP:</strong> <code>npx architecture-kit mcp</code> — stdio server with search, get page, list gaps, validate (see <code>templates/mcp/cursor-mcp.json.example</code>).</li>
     <li>Cursor rule template: <code>.cursor/rules/architecture-kit.mdc</code> (created by <code>init</code>).</li>
   </ul>
 

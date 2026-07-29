@@ -174,6 +174,17 @@ program
     process.exit(code);
   });
 
+program
+  .command('mcp')
+  .description(
+    'Start MCP server on stdio — architecture docs tools for Claude Code / Cursor',
+  )
+  .action(async () => {
+    const { runMcp } = await import('./commands/mcp.js');
+    const code = await runMcp();
+    process.exit(code);
+  });
+
 program.parseAsync(process.argv).catch((error: unknown) => {
   console.error(error instanceof Error ? error.message : String(error));
   process.exit(1);

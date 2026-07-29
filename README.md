@@ -352,10 +352,12 @@ See **[ROADMAP.md](./ROADMAP.md)** for the full plan (agent MCP, Claude/Cursor a
 - [x] Phase 6 — AI tooling sync (`AGENTS.md`, Cursor rules templates)
 - [x] Phase 7 — Link + Mermaid validation, docs search, dates, `scan` / `bootstrap`
 - [x] Phase 7b — Scaffold mode, CI guards, greenfield prompt (v0.5.x)
+- [x] Phase 10 — Agent pack (`.architecture-kit/`, prompts, search index) (v0.5.2)
 - [ ] Phase 8 — Convention checks (component registry, custom lint rules)
 - [ ] Phase 9 — `--embed wordpress-custom` (Sage/Bud static embed)
-- [x] Phase 10 — Agent pack on scan/build (v0.5.2, see ROADMAP.md)
-- [ ] Phase 11–14 — Tool adapters, MCP, coverage report (see ROADMAP.md)
+- [ ] Phase 11 — Claude Code skill + `CLAUDE.md` templates (see ROADMAP.md)
+- [x] Phase 12 — MCP stdio server (`architecture-kit mcp`) (v0.5.3)
+- [ ] Phase 13–14 — Coverage report, semantic search (see ROADMAP.md)
 
 ---
 
