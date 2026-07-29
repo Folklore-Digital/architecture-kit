@@ -169,8 +169,9 @@ program
 program
   .command('doctor')
   .description('Print architecture docs health summary')
-  .action(async () => {
-    const code = await runDoctor();
+  .option('--json', 'Output structured coverage report as JSON')
+  .action(async (options: { json?: boolean }) => {
+    const code = await runDoctor(process.cwd(), { json: options.json });
     process.exit(code);
   });
 

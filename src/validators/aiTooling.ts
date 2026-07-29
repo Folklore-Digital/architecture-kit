@@ -12,6 +12,10 @@ export async function validateAiTooling(
   const cursorRulePath = path.join(cwd, '.cursor/rules/architecture-kit.mdc');
   const agentsPath = path.join(cwd, 'AGENTS.md');
   const claudePath = path.join(cwd, 'CLAUDE.md');
+  const claudeSkillPath = path.join(
+    cwd,
+    '.claude/skills/architecture-kit/SKILL.md',
+  );
 
   if (!(await pathExists(cursorRulePath))) {
     issues.push({
@@ -61,6 +65,15 @@ export async function validateAiTooling(
       code: 'missing-agents-md',
       message:
         'AGENTS.md missing — create one or append templates/AGENTS.snippet.md from architecture-kit',
+    });
+  }
+
+  if (hasClaude && !(await pathExists(claudeSkillPath))) {
+    issues.push({
+      level: 'warn',
+      code: 'missing-claude-skill',
+      message:
+        'CLAUDE.md present but .claude/skills/architecture-kit/SKILL.md missing — run init or copy from architecture-kit templates/claude/',
     });
   }
 

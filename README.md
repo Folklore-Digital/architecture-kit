@@ -355,11 +355,13 @@ See **[ROADMAP.md](./ROADMAP.md)** for the full plan (agent MCP, Claude/Cursor a
 - [x] Phase 10 — Agent pack (`.architecture-kit/`, prompts, search index) (v0.5.2)
 - [ ] Phase 8 — Convention checks (component registry, custom lint rules)
 - [ ] Phase 9 — `--embed wordpress-custom` (Sage/Bud static embed)
-- [ ] Phase 11 — Claude Code skill + `CLAUDE.md` templates (see ROADMAP.md)
+- [x] Phase 11 — Claude Code skill + `CLAUDE.md` templates (v0.5.4)
 - [x] Phase 12 — MCP stdio server (`architecture-kit mcp`) (v0.5.3)
-- [ ] Phase 13–14 — Coverage report, semantic search (see ROADMAP.md)
+- [x] Phase 13 — Coverage report (`doctor --json`) (v0.5.4)
+- [ ] Phase 15 — Configurable docs paths, mount URL, gitignore on init (see ROADMAP.md FAQ)
+- [ ] Phase 16 — Deploy safety & production exposure (WordPress exclusions, CI artifact checks)
 
----
+Host-repo FAQ (`.architecture-kit` vs `node_modules`, custom `paths`, `/architecture/` mount, gitignore, prod safety): **[ROADMAP.md](./ROADMAP.md#developer-faq-host-repos)**.
 
 ## Publishing (GitHub Packages)
 

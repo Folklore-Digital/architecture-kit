@@ -282,6 +282,40 @@ export async function scaffoldProject(
     }
   }
 
+  const claudeSource = path.join(getTemplatesDir(), 'claude/CLAUDE.md');
+  const claudeTarget = path.join(cwd, 'CLAUDE.md');
+  if (await pathExists(claudeSource)) {
+    if (await pathExists(claudeTarget)) {
+      skipped.push('CLAUDE.md');
+    } else {
+      const claudeTemplate = await readFile(claudeSource, 'utf-8');
+      await writeFile(
+        claudeTarget,
+        claudeTemplate.replaceAll('{{projectName}}', name),
+        'utf-8',
+      );
+      created.push('CLAUDE.md');
+    }
+  }
+
+  const claudeSkillSource = path.join(
+    getTemplatesDir(),
+    'claude/skills/architecture-kit/SKILL.md',
+  );
+  const claudeSkillTarget = path.join(
+    cwd,
+    '.claude/skills/architecture-kit/SKILL.md',
+  );
+  if (await pathExists(claudeSkillSource)) {
+    if (await pathExists(claudeSkillTarget)) {
+      skipped.push('.claude/skills/architecture-kit/SKILL.md');
+    } else {
+      await ensureDir(path.dirname(claudeSkillTarget));
+      await cp(claudeSkillSource, claudeSkillTarget);
+      created.push('.claude/skills/architecture-kit/SKILL.md');
+    }
+  }
+
   if (options?.embed) {
     const embedCreated = await scaffoldEmbed(cwd, options.embed);
     created.push(...embedCreated);

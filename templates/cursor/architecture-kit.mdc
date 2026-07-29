@@ -14,6 +14,7 @@ This repo uses **@folklore/architecture-kit** (private, versioned git dependency
 - Docs source: `docs/architecture/`, `docs/adr/`, `docs/diagrams/`
 - Docs site (built): `public/architecture/` → served at `/architecture/` (Next.js embed)
 - AI entrypoint: `docs/architecture/ai-context.md`
+- Agent pack (after `scan` or site build): `.architecture-kit/agent-pack.json`
 
 ## Commands
 
