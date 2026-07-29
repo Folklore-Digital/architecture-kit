@@ -342,6 +342,8 @@ Roadmap: optional ESLint or custom rules wired through config.
 
 ## Roadmap
 
+See **[ROADMAP.md](./ROADMAP.md)** for the full plan (agent MCP, Claude/Cursor adapters, tela comparison).
+
 - [x] Phase 1 — Scaffold (`init`)
 - [x] Phase 2 — Docs site (`dev`, `build`, Markdown sources)
 - [x] Phase 3 — Validation (`validate`, `doctor`, placeholder detection)
@@ -349,8 +351,10 @@ Roadmap: optional ESLint or custom rules wired through config.
 - [x] Phase 5 — PR change awareness (`validate --since`)
 - [x] Phase 6 — AI tooling sync (`AGENTS.md`, Cursor rules templates)
 - [x] Phase 7 — Link + Mermaid validation, docs search, dates, `scan` / `bootstrap`
+- [x] Phase 7b — Scaffold mode, CI guards, greenfield prompt (v0.5.x)
 - [ ] Phase 8 — Convention checks (component registry, custom lint rules)
 - [ ] Phase 9 — `--embed wordpress-custom` (Sage/Bud static embed)
+- [ ] Phase 10–14 — Agent pack, tool adapters, MCP, coverage report (see ROADMAP.md)
 
 ---
 
