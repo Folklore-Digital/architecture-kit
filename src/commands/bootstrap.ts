@@ -9,6 +9,7 @@ import {
 } from '../scan/projectScan.js';
 import { ensureDir, writeJson } from '../utils/fileSystem.js';
 import { SCAFFOLD_NEXT_STEPS } from '../utils/scaffoldFrontmatter.js';
+import { emitAgentPack } from '../agent/emitAgentPack.js';
 
 export type RunScanOptions = {
   cwd?: string;
@@ -38,6 +39,9 @@ export async function runScan(options: RunScanOptions = {}): Promise<number> {
   await ensureDir(path.dirname(outPath));
   await writeFile(outPath, formatAgentContext(scan, cwd), 'utf-8');
   console.log(`\nAgent context written to ${path.relative(cwd, outPath)}`);
+
+  const packPath = await emitAgentPack({ cwd, config, scan });
+  console.log(`Agent pack written to ${path.relative(cwd, packPath)}`);
 
   return 0;
 }
@@ -99,6 +103,14 @@ export async function runBootstrap(
   await writeJson(jsonPath, scan);
   console.log(`\nWrote ${path.relative(cwd, contextPath)}`);
   console.log(`Wrote ${path.relative(cwd, jsonPath)}`);
+
+  const loadedAfter = await tryLoadConfig(cwd);
+  const packPath = await emitAgentPack({
+    cwd,
+    config: loadedAfter?.config ?? config,
+    scan,
+  });
+  console.log(`Wrote ${path.relative(cwd, packPath)}`);
 
   if (!options.apply) {
     console.log('\nDry run. Re-run with --apply to scaffold missing docs and update config.');

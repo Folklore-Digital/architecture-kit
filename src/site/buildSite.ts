@@ -1,29 +1,15 @@
-import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { writeAgentPack } from '../agent/writeAgentPack.js';
 import type { ArchitectureConfig } from '../config/schema.js';
 import { projectTypeLabels } from '../config/schema.js';
+import { readKitVersion } from '../utils/fileSystem.js';
 import { collectPages } from './collectPages.js';
 import { renderHelpPage, renderHomePage, renderPageShell } from './layout.js';
 import { KIT_HELP_OUTPUT, kitHelpSearchText } from './kitHelp.js';
 import { renderMarkdownPage, renderMermaidPage } from './markdown.js';
 import { buildSearchIndex } from './search.js';
 import type { BuildSiteResult } from './types.js';
-
-const PACKAGE_ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../..',
-);
-
-async function readKitVersion(): Promise<string> {
-  try {
-    const raw = await readFile(path.join(PACKAGE_ROOT, 'package.json'), 'utf-8');
-    const pkg = JSON.parse(raw) as { version?: string };
-    return pkg.version ?? 'unknown';
-  } catch {
-    return 'unknown';
-  }
-}
 
 export const DEFAULT_SITE_DIR = '.architecture-kit/site';
 
@@ -100,5 +86,13 @@ export async function buildSite(
     'utf-8',
   );
 
-  return { outDir, pages };
+  const packPath = await writeAgentPack({
+    cwd,
+    config,
+    kitVersion,
+    pages,
+    searchIndex,
+  });
+
+  return { outDir, pages, agentPackPath: packPath };
 }

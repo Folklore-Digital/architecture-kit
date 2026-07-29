@@ -16,7 +16,7 @@ import { wrapScaffoldFrontmatter } from './scaffoldFrontmatter.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = path.resolve(__dirname, '../..');
 
-async function readKitVersion(): Promise<string> {
+export async function readKitVersion(): Promise<string> {
   try {
     const raw = await readFile(path.join(PACKAGE_ROOT, 'package.json'), 'utf-8');
     const pkg = JSON.parse(raw) as { version?: string };
