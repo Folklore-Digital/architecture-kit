@@ -5,9 +5,9 @@ alwaysApply: true
 
 # Architecture Kit ({{projectName}})
 
-This repo uses **@folklore/architecture-kit** (private, versioned git dependency).
+This repo uses **@folklore-digital/architecture-kit** (private, versioned git dependency).
 
-- **Default:** `node_modules/@folklore/architecture-kit` — updated on `npm run dev` / `build-dev`
+- **Default:** `node_modules/@folklore-digital/architecture-kit` — updated on `npm run dev` / `build-dev`
 - **Local kit dev:** `export ARCHITECTURE_KIT_LOCAL=1` → uses `../architecture-kit` first
 
 - Config: `architecture.config.json`

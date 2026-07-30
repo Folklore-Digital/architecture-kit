@@ -1,6 +1,6 @@
 ## Architecture documentation
 
-This project uses [@folklore/architecture-kit](https://github.com/Folklore-Digital/architecture-kit).
+This project uses [@folklore-digital/architecture-kit](https://github.com/Folklore-Digital/architecture-kit).
 
 - Read `docs/architecture/ai-context.md` before making structural changes
 - After `scan` or site build: `.architecture-kit/agent-pack.json` (doc index + prompts)

@@ -20,22 +20,22 @@ Repo-native system architecture docs for any project. This file extends the chec
 - [x] **Phase 13** — Coverage report / `doctor --json` (v0.5.4)
 - [x] **Phase 15** — Configurable paths & mount (v0.5.5)
 - [x] **Phase 16** — Deploy safety (v0.5.6)
-- [x] **Phase 17** — npm registry publish + v1.0.0 reset (in progress — publish pending)
+- [x] **Phase 17** — npm registry publish + v1.0.0 (`@folklore-digital/architecture-kit`)
 
 ---
 
 ## In progress / next
 
-### Phase 17 — npm registry & v1.0.0 baseline 🔄
+### Phase 17 — npm registry & v1.0.0 baseline ✅
 
 Move from git SSH branch pins to **GitHub Packages** as the default install path. Reset version line: `0.5.x` was pre-release agent-pack work; **1.0.0** is the first stable registry release.
 
 - [x] Bump `package.json` to **1.0.0**
-- [x] Embed template: `"@folklore/architecture-kit": "^1.0.0"` (not `git+ssh://...`)
+- [x] Embed template: `"@folklore-digital/architecture-kit": "^1.0.0"` (not `git+ssh://...`)
 - [x] [PUBLISHING.md](./PUBLISHING.md) + [VERSIONING.md](./VERSIONING.md) — registry auth, migration checklist
-- [ ] **`npm publish`** to GitHub Packages (maintainer PAT)
-- [ ] Merge `feature/agent-pack` → `main`, tag `v1.0.0`
-- [ ] Host repos: add `.npmrc`, replace `#feature/agent-pack` git pin with `^1.0.0`
+- [x] **`npm publish`** to GitHub Packages — `@folklore-digital/architecture-kit@1.0.0`
+- [x] Merge `feature/agent-pack` → `main`, tag `v1.0.0`
+- [ ] Host repos: add `.npmrc`, replace git pin with `^1.0.0` (rock-em in progress)
 
 See [.npmrc.example](./.npmrc.example).
 
@@ -101,7 +101,7 @@ Thin, tool-specific layers — **not** duplicated prompts:
 Skills encode: reading order (`ai-context` → relevant page → code), when to run `validate`, brownfield vs greenfield flows.
 
 ### Phase 12 — MCP server (kit) ✅ (v0.5.3)
-Optional package: `@folklore/architecture-kit/mcp` or `architecture-kit mcp`.
+Optional package: `@folklore-digital/architecture-kit/mcp` or `architecture-kit mcp`.
 
 **Design:** reads **repo on disk** (not a hosted wiki). Works in Claude Code, Cursor, any MCP client.
 
@@ -143,7 +143,7 @@ Two different things:
 
 | Location | What it is |
 |----------|------------|
-| `node_modules/@folklore/architecture-kit` | The **npm/git package** — CLI, validators, site builder, MCP server (same as any dependency). |
+| `node_modules/@folklore-digital/architecture-kit` | The **npm/git package** — CLI, validators, site builder, MCP server (same as any dependency). |
 | `.architecture-kit/` | **Generated output in the host repo** — `agent-context.md`, `agent-pack.json`, prompts, optional `search-index.json`. Written by `scan`, `bootstrap`, and site build. |
 
 We use `.architecture-kit/` (like `.next/` or `dist/`) so agent artifacts are **project-local, git-optional, and readable without digging into `node_modules`**. MCP and IDE tools point at repo paths, not package internals.
@@ -262,13 +262,12 @@ Unify host-side hardcoding into `architecture.config.json`:
 - [x] Validate: gitignore/deploy exclusions, secret patterns in architecture docs
 - [ ] WordPress `--embed` (Phase 9 — separate)
 
-## Phase 17 — npm registry & v1.0.0 baseline 🔄
+## Phase 17 — npm registry & v1.0.0 baseline ✅
 
 - [x] Version reset: `0.5.x` → **1.0.0** (first stable registry release)
+- [x] Scope `@folklore-digital` (matches GitHub org `Folklore-Digital`)
 - [x] `templates/embed/nextjs/package.merge.json` — npm semver default
-- [x] `publish:github` script; `prepublishOnly` via publish script
-- [x] Host migration docs in [PUBLISHING.md](./PUBLISHING.md)
-- [ ] Publish `@folklore/architecture-kit@1.0.0` to GitHub Packages
+- [x] Published `@folklore-digital/architecture-kit@1.0.0` to GitHub Packages
 - [ ] Migrate host repos from git branch pins
 
 ---

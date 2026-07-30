@@ -1,6 +1,6 @@
 # Versioning and releases
 
-Every **published change** to `@folklore/architecture-kit` must bump `package.json` version and push a matching git tag. Host repos use **`@folklore/architecture-kit@^X.Y.Z`** from GitHub Packages (preferred) or git semver tags (fallback).
+Every **published change** to `@folklore-digital/architecture-kit` must bump `package.json` version and push a matching git tag. Host repos use **`@folklore-digital/architecture-kit@^X.Y.Z`** from GitHub Packages (preferred) or git semver tags (fallback).
 
 ## Version lines
 
@@ -29,7 +29,7 @@ git push origin main --tags
 npm publish         # GitHub Packages — see PUBLISHING.md
 ```
 
-Host projects with `"@folklore/architecture-kit": "^1.0.0"` pick up compatible releases on `npm update` / `npm install` (embed scripts run update on dev/build).
+Host projects with `"@folklore-digital/architecture-kit": "^1.0.0"` pick up compatible releases on `npm update` / `npm install` (embed scripts run update on dev/build).
 
 ## Git-tag fallback
 

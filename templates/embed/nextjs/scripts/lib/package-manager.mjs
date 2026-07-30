@@ -46,22 +46,22 @@ export async function kitUpdateCommand(cwd, pm) {
       if (await isYarnBerry(cwd)) {
         return {
           command: "yarn",
-          args: ["up", "@folklore/architecture-kit"],
+          args: ["up", "@folklore-digital/architecture-kit"],
         };
       }
       return {
         command: "yarn",
-        args: ["upgrade", "@folklore/architecture-kit", "--latest"],
+        args: ["upgrade", "@folklore-digital/architecture-kit", "--latest"],
       };
     case "pnpm":
       return {
         command: "pnpm",
-        args: ["update", "@folklore/architecture-kit"],
+        args: ["update", "@folklore-digital/architecture-kit"],
       };
     default:
       return {
         command: "npm",
-        args: ["update", "@folklore/architecture-kit"],
+        args: ["update", "@folklore-digital/architecture-kit"],
       };
   }
 }

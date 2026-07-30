@@ -11,8 +11,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function hasKitDependency(pkg) {
   return (
-    pkg.devDependencies?.["@folklore/architecture-kit"] ??
-    pkg.optionalDependencies?.["@folklore/architecture-kit"]
+    pkg.devDependencies?.["@folklore-digital/architecture-kit"] ??
+    pkg.optionalDependencies?.["@folklore-digital/architecture-kit"]
   );
 }
 
@@ -33,7 +33,7 @@ export async function ensureKitDependency() {
   const { command, args } = await kitUpdateCommand(root, pm);
 
   console.log(
-    `Updating @folklore/architecture-kit (${pm}, latest matching semver)...`,
+    `Updating @folklore-digital/architecture-kit (${pm}, latest matching semver)...`,
   );
   const result = spawnSync(command, args, {
     cwd: root,
@@ -43,7 +43,7 @@ export async function ensureKitDependency() {
 
   if (result.status !== 0) {
     console.warn(
-      `Warning: could not update @folklore/architecture-kit via ${pm}. Using installed copy.`,
+      `Warning: could not update @folklore-digital/architecture-kit via ${pm}. Using installed copy.`,
     );
   }
 }

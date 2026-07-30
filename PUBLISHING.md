@@ -1,10 +1,10 @@
-# Publishing @folklore/architecture-kit
+# Publishing @folklore-digital/architecture-kit
 
 **v1.0.0** is the first stable release on **GitHub Packages** (npm registry). The `0.5.x` line on `feature/agent-pack` was pre-release development; host repos should migrate from `git+ssh://...#feature/agent-pack` to registry semver.
 
 ## GitHub Packages (recommended)
 
-Registry: `https://npm.pkg.github.com` · scope: `@folklore`
+Registry: `https://npm.pkg.github.com` · scope: `@folklore-digital`
 
 ### One-time setup (maintainer)
 
@@ -34,19 +34,19 @@ npm publish         # or: npm run publish:github
 **1. Registry auth** — copy `.npmrc.example` to `.npmrc` (host repo or user home):
 
 ```
-@folklore:registry=https://npm.pkg.github.com
+@folklore-digital:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
 ```
 
 **2. Install** (preferred — no git SSH, no `npm update` git quirks):
 
 ```bash
-npm install -D @folklore/architecture-kit@^1.0.0
+npm install -D @folklore-digital/architecture-kit@^1.0.0
 ```
 
-New projects from `init --embed nextjs` get `"@folklore/architecture-kit": "^1.0.0"` in `package.json` automatically.
+New projects from `init --embed nextjs` get `"@folklore-digital/architecture-kit": "^1.0.0"` in `package.json` automatically.
 
-**3. Embed scripts** — `ensure-kit-install.mjs` runs `npm update @folklore/architecture-kit` on dev/build; works with registry semver.
+**3. Embed scripts** — `ensure-kit-install.mjs` runs `npm update @folklore-digital/architecture-kit` on dev/build; works with registry semver.
 
 ### CI (GitHub Actions)
 
@@ -87,8 +87,8 @@ Do not set `ARCHITECTURE_KIT_LOCAL` on CI or production servers.
 
 ## Migration checklist (host repos)
 
-- [ ] Merge kit `feature/agent-pack` → `main`, publish `@folklore/architecture-kit@1.0.0`
-- [ ] Add `.npmrc` with `@folklore:registry` (or org-level auth)
+- [ ] Merge kit `feature/agent-pack` → `main`, publish `@folklore-digital/architecture-kit@1.0.0`
+- [ ] Add `.npmrc` with `@folklore-digital:registry` (or org-level auth)
 - [ ] Replace `git+ssh://...#feature/agent-pack` with `^1.0.0` in `package.json`
 - [ ] `npm install` && `npm run architecture:validate -- --ci`
 - [ ] Remove `ARCHITECTURE_KIT_LOCAL` from server deploy scripts

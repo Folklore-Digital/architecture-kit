@@ -10,6 +10,6 @@
     "architecture:detect": "node scripts/run-architecture-kit.mjs detect"
   },
   "devDependencies": {
-    "@folklore/architecture-kit": "{{kitVersionRange}}"
+    "@folklore-digital/architecture-kit": "{{kitVersionRange}}"
   }
 }

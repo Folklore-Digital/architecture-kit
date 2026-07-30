@@ -1,4 +1,4 @@
-# @folklore/architecture-kit
+# @folklore-digital/architecture-kit
 
 Repo-native **system architecture** documentation and governance for Folklore projects.
 
@@ -26,7 +26,7 @@ Use it to give developers, designers, and clients one consistent place to unders
 
 ```bash
 # GitHub Packages — copy .npmrc.example → .npmrc with a read:packages PAT
-npm install -D @folklore/architecture-kit@^1.0.0
+npm install -D @folklore-digital/architecture-kit@^1.0.0
 npx architecture-kit detect                    # optional: suggest project type
 npx architecture-kit init --type nextjs --embed nextjs
 npm install
@@ -75,10 +75,10 @@ Install the kit with your package manager:
 
 ```bash
 # Yarn Classic (Sage/Bud projects)
-yarn add -D @folklore/architecture-kit@^1.0.0
+yarn add -D @folklore-digital/architecture-kit@^1.0.0
 
 # Yarn Berry (v2+)
-yarn add -D @folklore/architecture-kit@^1.0.0
+yarn add -D @folklore-digital/architecture-kit@^1.0.0
 
 npx architecture-kit init --type wordpress-custom
 yarn install
@@ -97,7 +97,7 @@ If install fails with `ENOVERSIONS` or "No versions available", the git tag is m
 ## Quick start (standalone docs, no app embed)
 
 ```bash
-npm install -D @folklore/architecture-kit
+npm install -D @folklore-digital/architecture-kit
 npx architecture-kit init --type nextjs
 npx architecture-kit validate
 npx architecture-kit dev               # http://127.0.0.1:4321
@@ -402,7 +402,7 @@ npm publish
 3. In host repos:
 
 ```bash
-npm install -D @folklore/architecture-kit
+npm install -D @folklore-digital/architecture-kit
 ```
 
 Or keep using `vendor/architecture-kit` / `../architecture-kit` (recommended for monorepo-style local dev).

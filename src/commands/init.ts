@@ -21,7 +21,7 @@ export async function runInit(options: InitOptions): Promise<void> {
   );
 
   console.log(
-    `Initialized @folklore/architecture-kit (${projectTypeLabels[options.type]})`,
+    `Initialized @folklore-digital/architecture-kit (${projectTypeLabels[options.type]})`,
   );
   if (options.embed) {
     console.log(`Embed: ${options.embed}`);

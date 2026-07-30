@@ -1,6 +1,6 @@
 # Architecture documentation
 
-This folder is managed with **@folklore/architecture-kit**. It is the source of truth for **system architecture** — how this project is structured, deployed, and governed.
+This folder is managed with **@folklore-digital/architecture-kit**. It is the source of truth for **system architecture** — how this project is structured, deployed, and governed.
 
 Feature specs, tickets, and API references live elsewhere. See [architecture/documentation-map.md](./architecture/documentation-map.md) for the full documentation stack.
 

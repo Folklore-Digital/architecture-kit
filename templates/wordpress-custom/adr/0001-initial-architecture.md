@@ -10,7 +10,7 @@ What problem are we solving? Why does this project need an architecture document
 
 ## Decision
 
-We adopted `@folklore/architecture-kit` to keep architecture documentation close to the code, with Markdown docs, Mermaid diagrams, and ADRs.
+We adopted `@folklore-digital/architecture-kit` to keep architecture documentation close to the code, with Markdown docs, Mermaid diagrams, and ADRs.
 
 ## Consequences
 

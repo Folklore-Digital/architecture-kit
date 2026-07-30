@@ -1,6 +1,6 @@
 # {{projectName}} — Claude Code
 
-This repo uses [@folklore/architecture-kit](https://github.com/Folklore-Digital/architecture-kit) for repo-native architecture docs.
+This repo uses [@folklore-digital/architecture-kit](https://github.com/Folklore-Digital/architecture-kit) for repo-native architecture docs.
 
 ## Entrypoints
 

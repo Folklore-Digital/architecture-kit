@@ -19,7 +19,7 @@ const siblingKit = {
 };
 
 const installedKit = {
-  root: path.join(root, "node_modules/@folklore/architecture-kit"),
+  root: path.join(root, "node_modules/@folklore-digital/architecture-kit"),
   label: "node_modules (npm install)",
 };
 
@@ -67,7 +67,7 @@ export function isInstalledKitPackage(kitRoot) {
 
 export function printKitSetupHelp() {
   console.error("");
-  console.error("@folklore/architecture-kit is not available.");
+  console.error("@folklore-digital/architecture-kit is not available.");
   console.error("");
   console.error("Install the version pinned in package.json:");
   console.error("");

@@ -23,7 +23,7 @@ function run(command, args, cwd) {
 }
 
 async function buildKitAt(kitRoot, label) {
-  console.log(`Building @folklore/architecture-kit (${label})...`);
+  console.log(`Building @folklore-digital/architecture-kit (${label})...`);
   const install = await kitInstallInKitRoot(kitRoot);
   if (run(install.command, install.args, kitRoot) !== 0) return false;
   const build = await kitRunBuildInKitRoot(kitRoot);
@@ -31,7 +31,7 @@ async function buildKitAt(kitRoot, label) {
 }
 
 async function recompileKitAt(kitRoot, label) {
-  console.log(`Recompiling @folklore/architecture-kit (${label})...`);
+  console.log(`Recompiling @folklore-digital/architecture-kit (${label})...`);
   const build = await kitRunBuildInKitRoot(kitRoot);
   return run(build.command, build.args, kitRoot) === 0;
 }
