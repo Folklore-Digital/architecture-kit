@@ -142,5 +142,14 @@ describe('init + validate + doctor', () => {
     const gitignore = await readFile(path.join(cwd, '.gitignore'), 'utf-8');
     expect(gitignore).toContain('/public/architecture/');
     expect(gitignore).toContain('/.architecture-kit/');
+
+    await readFile(
+      path.join(cwd, 'middleware.architecture-docs.example.ts'),
+      'utf-8',
+    );
+    await readFile(
+      path.join(cwd, 'docs/architecture/deploy-safety/README.md'),
+      'utf-8',
+    );
   });
 });

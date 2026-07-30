@@ -1,0 +1,9 @@
+# Paths to exclude from All-in-One WP Migration packages (relative to WordPress root or theme).
+# Import or paste into the plugin's exclude list when migrating staging → production.
+
+docs
+docs/architecture
+docs/adr
+docs/diagrams
+.architecture-kit
+public/architecture

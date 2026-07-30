@@ -3,6 +3,43 @@ import type { ArchitectureConfig } from './schema.js';
 export const DEFAULT_AGENT_OUTPUT = '.architecture-kit';
 export const DEFAULT_SITE_OUTPUT_DIR = 'public/architecture';
 export const DEFAULT_SITE_MOUNT_PATH = '/architecture/';
+export type SiteExposure = 'local' | 'dev-staging' | 'production';
+
+export function resolveSiteExposure(
+  config: ArchitectureConfig | null | undefined,
+): SiteExposure {
+  return config?.site?.exposure ?? 'dev-staging';
+}
+
+export function resolveDocsProductionExposure(
+  config: ArchitectureConfig | null | undefined,
+): 'none' | 'dev-only' | 'public' {
+  return config?.governance?.docsProductionExposure ?? 'dev-only';
+}
+
+/** Paths that must not appear in production deploy artifacts when exposure is restricted. */
+export function getRestrictedDeployPaths(
+  config: ArchitectureConfig,
+): string[] {
+  const outputDir = resolveSiteOutputDir(config);
+  const paths = [outputDir, resolveAgentOutputDir(config)];
+
+  const exposure = resolveSiteExposure(config);
+  const docsExposure = resolveDocsProductionExposure(config);
+
+  if (
+    docsExposure === 'none' ||
+    config.project.type.startsWith('wordpress')
+  ) {
+    paths.push(config.paths.docs);
+  }
+
+  if (exposure !== 'production') {
+    paths.push(outputDir);
+  }
+
+  return [...new Set(paths.map((p) => p.replace(/\\/g, '/')))].filter(Boolean);
+}
 
 /** Normalize mount path: leading slash, trailing slash. */
 export function normalizeMountPath(mountPath: string): string {
@@ -42,6 +79,7 @@ export type EmbedManifest = {
   mountPath: string;
   outputDir: string;
   agentOutput: string;
+  exposure: SiteExposure;
 };
 
 export function buildEmbedManifest(
@@ -55,5 +93,6 @@ export function buildEmbedManifest(
     mountPath: resolveSiteMountPath(config),
     outputDir: resolveSiteOutputDir(config),
     agentOutput: resolveAgentOutputDir(config),
+    exposure: resolveSiteExposure(config),
   };
 }

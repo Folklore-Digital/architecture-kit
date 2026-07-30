@@ -50,11 +50,21 @@ Override in config when needed:
 
 Built output is regenerated on `npm run dev` / `build-dev`. Run `validate` to warn if built HTML is still tracked in git.
 
-## 3. Deploy command
+## 3. Production exposure (dev/staging only by default)
+
+`architecture.config.json` → `site.exposure` defaults to `dev-staging`. Built docs should **not** appear on public production unless you set `production` intentionally.
+
+**Next.js:** merge `middleware.architecture-docs.example.ts` into your app middleware to return 404 for `/architecture/` in production. See `docs/architecture/deploy-safety/` for WordPress rsync and migration excludes.
+
+```bash
+npx architecture-kit validate --deploy-artifact ./path-to-build-output
+```
+
+## 4. Deploy command
 
 Use `npm run build-dev` (not plain `next build`) so docs are embedded at `/architecture/`.
 
-## 4. Kit updates
+## 5. Kit updates
 
 Bump version in **architecture-kit** and push tag `vX.Y.Z`. This project picks up matching semver on `npm run dev` / `build-dev` automatically.
 

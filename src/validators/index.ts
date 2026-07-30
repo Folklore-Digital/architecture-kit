@@ -1,4 +1,4 @@
-import { validateDeployPaths } from './deployPaths.js';
+import { validateDeploySafety } from './deploySafety.js';
 import type { ArchitectureConfig } from '../config/schema.js';
 import { validateBase } from './base.js';
 import { validateDiffAwareness } from './diffAwareness.js';
@@ -12,6 +12,7 @@ import { createResult, mergeResults, type ValidationResult } from './types.js';
 export type ValidateOptions = {
   since?: string;
   ci?: boolean;
+  deployArtifact?: string;
 };
 
 export async function runValidation(
@@ -35,7 +36,9 @@ export async function validateProject(
   const linkIssues = await validateLinks(cwd, config);
   const mermaidIssues = await validateMermaid(cwd, config);
   const storybookIssues = await validateStorybook(cwd, config);
-  const deployPathIssues = await validateDeployPaths(cwd, config);
+  const deployIssues = await validateDeploySafety(cwd, config, {
+    deployArtifact: options.deployArtifact,
+  });
   const diffIssues = options.since
     ? await validateDiffAwareness(cwd, config, options.since)
     : [];
@@ -47,7 +50,7 @@ export async function validateProject(
     createResult(linkIssues),
     createResult(mermaidIssues),
     createResult(storybookIssues),
-    createResult(deployPathIssues),
+    createResult(deployIssues),
     createResult(diffIssues),
   );
 }

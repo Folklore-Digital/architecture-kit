@@ -28,6 +28,15 @@ export const siteSchema = z.object({
   mountPath: z.string().default('/architecture/'),
   /** Host-app directory for built static HTML (relative to repo root). */
   outputDir: z.string().default('public/architecture'),
+  /**
+   * Where built architecture docs may be exposed:
+   * - local: dev machine only (standalone `architecture-kit dev`)
+   * - dev-staging: internal dev/staging hosts (default for Next.js embed)
+   * - production: intentionally public on production deploys
+   */
+  exposure: z
+    .enum(['local', 'dev-staging', 'production'])
+    .default('dev-staging'),
   /** Override architecture sidebar groups (optional). */
   navGroups: z
     .array(
@@ -82,6 +91,13 @@ export const architectureConfigSchema = z.object({
       newPackageRequiresReview: z.boolean().default(false),
       /** When true, validate --ci fails on scaffold frontmatter / placeholder content */
       scaffoldBlocksCi: z.boolean().default(true),
+      /**
+       * Whether markdown sources may ship to production (built HTML uses site.exposure).
+       * none = keep docs out of production deploy artifacts; dev-only = internal hosts; public = ok on prod.
+       */
+      docsProductionExposure: z
+        .enum(['none', 'dev-only', 'public'])
+        .default('dev-only'),
     })
     .default({}),
   paths: z
@@ -147,6 +163,7 @@ export function createDefaultConfig(
       newClientComponentRequiresReason: false,
       newPackageRequiresReview: false,
       scaffoldBlocksCi: true,
+      docsProductionExposure: 'dev-only',
     },
     paths: {
       docs: 'docs',
@@ -161,6 +178,7 @@ export function createDefaultConfig(
       dateSource: 'git',
       mountPath: '/architecture/',
       outputDir: 'public/architecture',
+      exposure: 'dev-staging',
     },
   };
 

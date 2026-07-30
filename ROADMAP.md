@@ -231,12 +231,13 @@ Unify host-side hardcoding into `architecture.config.json`:
 - [x] `validate` warns when built output is git-tracked
 - [x] Kit `build` writes `.architecture-kit/embed-manifest.json` for embed scripts
 
-## Phase 16 — Deploy safety & production exposure (planned)
+## Phase 16 — Deploy safety & production exposure ✅ (v0.5.6)
 
-- [ ] WordPress embed + `.distignore` / migration exclude templates
-- [ ] `governance.docsProductionExposure` + validate rules
-- [ ] Optional prod middleware / deny templates (Next.js, Apache)
-- [ ] Optional `validate --deploy-artifact` for CI pipelines
+- [x] `site.exposure` + `governance.docsProductionExposure` config
+- [x] Next.js `middleware.architecture-docs.example.ts` + deploy-safety templates (WordPress `.distignore`, AIOWM excludes, Apache deny)
+- [x] `validate --deploy-artifact` for CI pipelines
+- [x] Validate: gitignore/deploy exclusions, secret patterns in architecture docs
+- [ ] WordPress `--embed` (Phase 9 — separate)
 
 ---
 

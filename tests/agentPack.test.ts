@@ -60,6 +60,7 @@ describe('agent pack', () => {
     ) as { mountPath: string; outputDir: string };
     expect(manifest.mountPath).toBe('/architecture/');
     expect(manifest.outputDir).toBe('public/architecture');
+    expect(manifest.exposure).toBe('dev-staging');
   });
 
   it('writeAgentPack works without config using scan fallback', async () => {

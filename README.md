@@ -359,7 +359,7 @@ See **[ROADMAP.md](./ROADMAP.md)** for the full plan (agent MCP, Claude/Cursor a
 - [x] Phase 12 — MCP stdio server (`architecture-kit mcp`) (v0.5.3)
 - [x] Phase 13 — Coverage report (`doctor --json`) (v0.5.4)
 - [x] Phase 15 — Configurable docs paths, mount URL, gitignore on init (v0.5.5)
-- [ ] Phase 16 — Deploy safety & production exposure (WordPress exclusions, CI artifact checks)
+- [x] Phase 16 — Deploy safety & production exposure (v0.5.6)
 
 Host-repo FAQ (`.architecture-kit` vs `node_modules`, custom `paths`, `/architecture/` mount, gitignore, prod safety): **[ROADMAP.md](./ROADMAP.md#developer-faq-host-repos)**.
 

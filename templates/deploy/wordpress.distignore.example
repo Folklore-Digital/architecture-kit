@@ -1,0 +1,8 @@
+# WordPress theme deploy — exclude architecture docs from production sync.
+# Copy to theme root as .distignore (rsync/deploy scripts) or merge into your deploy exclude list.
+#
+# All-in-One WP Migration: also see docs/architecture/deploy-safety/all-in-one-wp-migration-excludes.txt
+
+docs/
+.architecture-kit/
+public/architecture/

@@ -258,6 +258,39 @@ export async function scaffoldEmbed(
     created.push('docs/architecture/_embed-host-setup.md');
   }
 
+  const middlewareExample = path.join(
+    embedDir,
+    'middleware.architecture-docs.example.ts',
+  );
+  const middlewareTarget = path.join(
+    cwd,
+    'middleware.architecture-docs.example.ts',
+  );
+  if (
+    (await pathExists(middlewareExample)) &&
+    !(await pathExists(middlewareTarget))
+  ) {
+    await cp(middlewareExample, middlewareTarget);
+    created.push('middleware.architecture-docs.example.ts');
+  }
+
+  created.push(...(await copyDeploySafetyTemplates(cwd)));
+
+  return created;
+}
+
+export async function copyDeploySafetyTemplates(
+  cwd: string,
+): Promise<string[]> {
+  const created: string[] = [];
+  const deploySource = path.join(getTemplatesDir(), 'deploy');
+  const deployTarget = path.join(cwd, 'docs/architecture/deploy-safety');
+
+  if (!(await pathExists(deploySource))) {
+    return created;
+  }
+
+  await copyTreeSkipExisting(deploySource, deployTarget, created, 'docs/architecture/deploy-safety');
   return created;
 }
 
@@ -388,6 +421,8 @@ export async function scaffoldProject(
         'Add /architecture redirect to next.config — see docs/architecture/_embed-host-setup.md',
       );
     }
+  } else if (type.startsWith('wordpress')) {
+    created.push(...(await copyDeploySafetyTemplates(cwd)));
   }
 
   const prChecklistSource = path.join(getTemplatesDir(), 'PR-CHECKLIST.md');

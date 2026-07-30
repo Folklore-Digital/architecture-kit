@@ -133,6 +133,7 @@ reviewed: 2026-07-28
     <li>Run <code>scan</code> on brownfield repos to produce bootstrap context for Cursor or other agents.</li>
     <li><strong>MCP:</strong> <code>npx architecture-kit mcp</code> — stdio server with search, get page, list gaps, validate (see <code>templates/mcp/cursor-mcp.json.example</code>).</li>
     <li><strong>Coverage JSON:</strong> <code>npx architecture-kit doctor --json</code> — structured gaps by category (integrations, env, diagrams, scaffold).</li>
+    <li><strong>Deploy safety:</strong> <code>site.exposure</code>, <code>validate --deploy-artifact</code>, templates in <code>docs/architecture/deploy-safety/</code>.</li>
     <li>Cursor rule template: <code>.cursor/rules/architecture-kit.mdc</code> (created by <code>init</code>).</li>
     <li>Claude Code: <code>CLAUDE.md</code> + <code>.claude/skills/architecture-kit/SKILL.md</code> (created by <code>init</code>).</li>
   </ul>
