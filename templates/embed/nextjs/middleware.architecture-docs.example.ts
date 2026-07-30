@@ -1,7 +1,7 @@
 /**
  * Example Next.js middleware — block architecture docs in production.
  *
- * 1. Copy relevant parts into `src/middleware.ts` (or root `middleware.ts`).
+ * 1. Copy relevant parts into `src/middleware.ts` or `src/proxy.ts` (Next.js 16+).
  * 2. Set `site.exposure` in architecture.config.json:
  *    - dev-staging (default): docs on dev/staging only
  *    - production: remove this guard if docs should be public in prod
@@ -29,5 +29,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [`${ARCHITECTURE_DOCS_PATH}`, `${ARCHITECTURE_DOCS_PATH}/:path*`],
+  // Static strings only — Next.js cannot parse dynamic matcher values at compile time.
+  matcher: ['/architecture', '/architecture/:path*'],
 };

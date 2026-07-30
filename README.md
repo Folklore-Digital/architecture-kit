@@ -121,14 +121,33 @@ npx architecture-kit validate
 | `init --embed nextjs` | Also copy host scripts + merge `package.json` for Next.js at `/architecture/` |
 | `scan` | Detect stack, integrations, doc gaps; write `.architecture-kit/agent-context.md` for AI agents |
 | `bootstrap [--apply]` | Scan + write JSON context; `--apply` scaffolds missing docs and merges config |
-| `validate` | Config, docs, **broken links**, **Mermaid syntax**, placeholders, integrations, optional Storybook |
+| `validate` | Config, docs, **broken links**, **Mermaid syntax**, placeholders, integrations, deploy safety, optional Storybook |
 | `validate --ci` | CI mode — fail on errors |
+| `validate --deploy-artifact <dir>` | Fail if build output contains forbidden doc paths (production safety) |
 | `doctor` | Human-readable docs health summary |
+| `doctor --json` | Structured coverage report by category (integrations, scaffold, deploy, …) |
+| `mcp` | Stdio MCP server — six read tools for Cursor / Claude Code ([templates/mcp/README.md](./templates/mcp/README.md)) |
 | `detect` | Infer project type from repo signals |
 | `build` | Static HTML site with **search** and **last-updated dates** + copied Markdown sources |
 | `dev` | Build and serve docs locally |
 
 Project types: `nextjs`, `wordpress-custom`, `wordpress-builder`, `craft`, `generic`
+
+---
+
+## MCP server (agents)
+
+Run from the host repo root:
+
+```bash
+npx architecture-kit mcp
+```
+
+**Tools:** `architecture_get_context`, `architecture_search`, `architecture_get_page`, `architecture_list_pages`, `architecture_list_gaps`, `architecture_validate`.
+
+Setup for Cursor, Claude Code, workflow, and smoke tests: **[templates/mcp/README.md](./templates/mcp/README.md)**.
+
+After `scan` or site build, agents can search `.architecture-kit/search-index.json` and read pages without rebuilding the static site.
 
 ---
 

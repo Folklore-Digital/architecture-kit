@@ -68,8 +68,11 @@ export function renderKitHelpBody(options: KitHelpOptions): string {
   <table>
     <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
     <tbody>
-      <tr><td><code>npx architecture-kit validate</code></td><td>Check config, broken links, Mermaid, placeholders, integrations</td></tr>
+      <tr><td><code>npx architecture-kit validate</code></td><td>Check config, broken links, Mermaid, placeholders, integrations, deploy safety</td></tr>
+      <tr><td><code>npx architecture-kit validate --deploy-artifact &lt;dir&gt;</code></td><td>CI check: forbidden doc paths in deploy output</td></tr>
       <tr><td><code>npx architecture-kit doctor</code></td><td>Human-readable docs health summary</td></tr>
+      <tr><td><code>npx architecture-kit doctor --json</code></td><td>Structured coverage report (integrations, scaffold, deploy, …)</td></tr>
+      <tr><td><code>npx architecture-kit mcp</code></td><td>Stdio MCP server for Cursor / Claude Code (see below)</td></tr>
       <tr><td><code>npx architecture-kit scan</code></td><td>Detect stack &amp; gaps; write <code>.architecture-kit/agent-context.md</code> for AI agents</td></tr>
       <tr><td><code>npx architecture-kit bootstrap --apply</code></td><td>Scaffold missing docs on existing repos (non-destructive)</td></tr>
       <tr><td><code>npx architecture-kit build</code></td><td>Rebuild this static HTML site</td></tr>
@@ -127,11 +130,40 @@ navOrder: 1
 reviewed: 2026-07-28
 ---</code></pre>
 
+  <h2>MCP server (Cursor / Claude Code)</h2>
+  <p>
+    Run <code>npx architecture-kit mcp</code> from the repo root. The server reads
+    <code>architecture.config.json</code>, <code>docs/</code>, and
+    <code>.architecture-kit/</code> on disk — no hosted wiki.
+  </p>
+  <p><strong>Cursor config</strong> (see <code>templates/mcp/cursor-mcp.json.example</code> in the kit repo):</p>
+  <pre><code>{
+  "mcpServers": {
+    "architecture-kit": {
+      "command": "npx",
+      "args": ["architecture-kit", "mcp"],
+      "cwd": "\${workspaceFolder}"
+    }
+  }
+}</code></pre>
+  <table>
+    <thead><tr><th>Tool</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td><code>architecture_get_context</code></td><td>Start of task — ai-context, agent-pack, config summary</td></tr>
+      <tr><td><code>architecture_search</code></td><td>Find pages by keyword (uses search-index after build)</td></tr>
+      <tr><td><code>architecture_get_page</code></td><td>Read one markdown file by path</td></tr>
+      <tr><td><code>architecture_list_pages</code></td><td>List all docs; check scaffold flags</td></tr>
+      <tr><td><code>architecture_list_gaps</code></td><td>Quick health: scaffold count, warnings</td></tr>
+      <tr><td><code>architecture_validate</code></td><td>Full validate; pass <code>ci: true</code> before merge</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Suggested flow:</strong> get_context → search or list_pages → get_page → list_gaps or validate before finishing.</p>
+
   <h2>AI-assisted work</h2>
   <ul>
-    <li>Agents should read <a href="ai-context.html">ai-context.md</a> first.</li>
+    <li>Agents should read <a href="ai-context.html">ai-context.md</a> first (or use MCP <code>architecture_get_context</code>).</li>
     <li>Run <code>scan</code> on brownfield repos to produce bootstrap context for Cursor or other agents.</li>
-    <li><strong>MCP:</strong> <code>npx architecture-kit mcp</code> — stdio server with search, get page, list gaps, validate (see <code>templates/mcp/cursor-mcp.json.example</code>).</li>
+    <li>Agent pack: <code>.architecture-kit/agent-pack.json</code> after <code>scan</code> or site build.</li>
     <li><strong>Coverage JSON:</strong> <code>npx architecture-kit doctor --json</code> — structured gaps by category (integrations, env, diagrams, scaffold).</li>
     <li><strong>Deploy safety:</strong> <code>site.exposure</code>, <code>validate --deploy-artifact</code>, templates in <code>docs/architecture/deploy-safety/</code>.</li>
     <li>Cursor rule template: <code>.cursor/rules/architecture-kit.mdc</code> (created by <code>init</code>).</li>
@@ -150,7 +182,8 @@ reviewed: 2026-07-28
 /** Plain text for search index. */
 export function kitHelpSearchText(): string {
   return [
-    'Help Architecture Kit validate doctor scan bootstrap build dev',
+    'Help Architecture Kit validate doctor scan bootstrap build dev mcp',
+    'MCP architecture_get_context architecture_search architecture_validate',
     'editing documentation markdown ADR mermaid folders paths architecture.config',
     'commands CLI how to use documentation layers add pages',
   ].join(' ');

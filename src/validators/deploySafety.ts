@@ -144,8 +144,12 @@ export async function validateDeployExclusions(
     const middlewareCandidates = [
       'middleware.ts',
       'middleware.js',
+      'proxy.ts',
+      'proxy.js',
       'src/middleware.ts',
       'src/middleware.js',
+      'src/proxy.ts',
+      'src/proxy.js',
     ];
     let hasMiddlewareGuard = false;
     for (const candidate of middlewareCandidates) {
@@ -168,13 +172,13 @@ export async function validateDeployExclusions(
       issues.push({
         level: 'warn',
         code: 'deploy-missing-prod-guard',
-        message: `No Next.js middleware guard for ${mountPath} while site.exposure is "${exposure}" — copy middleware.architecture-docs.example.ts from init --embed`,
+        message: `No Next.js middleware/proxy guard for ${mountPath} while site.exposure is "${exposure}" — copy middleware.architecture-docs.example.ts from init --embed`,
       });
     } else if (!hasMiddlewareGuard && (await pathExists(examplePath))) {
       issues.push({
         level: 'warn',
         code: 'deploy-middleware-not-wired',
-        message: `middleware.architecture-docs.example.ts exists but is not wired — merge into middleware.ts to block ${mountPath} in production`,
+        message: `middleware.architecture-docs.example.ts exists but is not wired — merge into middleware.ts or proxy.ts to block ${mountPath} in production`,
       });
     }
   }

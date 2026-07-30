@@ -14,6 +14,12 @@ Repo-native system architecture docs for any project. This file extends the chec
 - [x] **Phase 6** — AI tooling sync (Cursor rule, `AGENTS.md` template)
 - [x] **Phase 7** — Link + Mermaid validation, site search, dates, `scan` / `bootstrap`
 - [x] **Phase 7b** — Scaffold mode (frontmatter on `.md` / `.mmd`, nav markers, `--ci` guards, greenfield prompt)
+- [x] **Phase 10** — Agent pack (v0.5.2)
+- [x] **Phase 11** — Claude/Cursor tool adapters (v0.5.4)
+- [x] **Phase 12** — MCP stdio server (v0.5.3) — [templates/mcp/README.md](./templates/mcp/README.md)
+- [x] **Phase 13** — Coverage report / `doctor --json` (v0.5.4)
+- [x] **Phase 15** — Configurable paths & mount (v0.5.5)
+- [x] **Phase 16** — Deploy safety (v0.5.6)
 
 ---
 
@@ -85,13 +91,16 @@ Optional package: `@folklore/architecture-kit/mcp` or `architecture-kit mcp`.
 
 **Design:** reads **repo on disk** (not a hosted wiki). Works in Claude Code, Cursor, any MCP client.
 
-| Tool (proposed) | Behavior |
-|-----------------|----------|
-| `architecture_get_context` | `ai-context.md` + parsed `architecture.config.json` |
+| Tool | Behavior |
+|------|----------|
+| `architecture_get_context` | `ai-context.md` + parsed `architecture.config.json` + agent-pack |
 | `architecture_search` | Query `search-index.json` or scan `docs/` |
 | `architecture_get_page` | Return one page by relative path |
-| `architecture_list_gaps` | Wrapper around `doctor` / validate summary (integrations, scaffold, placeholders) |
-| `architecture_validate` | Run validate; return structured issues (optional, powerful) |
+| `architecture_list_pages` | Doc index with scaffold flags |
+| `architecture_list_gaps` | Wrapper around gaps report (scaffold, warnings) |
+| `architecture_validate` | Run validate; return structured issues |
+
+Full setup and smoke tests: **[templates/mcp/README.md](./templates/mcp/README.md)**.
 
 **Non-goals for MCP:** write docs autonomously without human review; replace git as source of truth.
 
