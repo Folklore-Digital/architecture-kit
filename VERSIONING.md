@@ -1,34 +1,47 @@
 # Versioning and releases
 
-Every **published change** to `@folklore/architecture-kit` must bump `package.json` version and push a matching git tag. Host repos depend on `#semver:^X.Y.Z` and refresh on `npm install` / `npm update` — no manual sibling-clone pulls.
+Every **published change** to `@folklore/architecture-kit` must bump `package.json` version and push a matching git tag. Host repos use **`@folklore/architecture-kit@^X.Y.Z`** from GitHub Packages (preferred) or git semver tags (fallback).
+
+## Version lines
+
+| Line | Meaning |
+| --- | --- |
+| **0.5.x** | Pre-release agent-pack track (`feature/agent-pack`); superseded by **1.0.0** |
+| **1.0.0+** | Stable npm registry releases (GitHub Packages) |
 
 ## When to bump
 
 | Change | Bump |
 | --- | --- |
-| Site UI, validators, templates, CLI behavior | **minor** (`0.2.0` → `0.3.0`) |
-| Bug fixes, link/build fixes | **patch** (`0.2.0` → `0.2.1`) |
-| Breaking config schema or CLI flags | **major** (`1.0.0`) |
+| Site UI, validators, templates, CLI, MCP | **minor** (`1.0.0` → `1.1.0`) |
+| Bug fixes | **patch** (`1.0.0` → `1.0.1`) |
+| Breaking config schema or CLI flags | **major** (`2.0.0`) |
 
-## Release steps
+## Release steps (registry)
 
 ```bash
-# From architecture-kit repo on main
+# From architecture-kit on main
 npm run build
 npm test
 
 npm version patch   # or minor / major — updates package.json, commits, tags vX.Y.Z
 git push origin main --tags
-
-# Optional: GitHub Packages
-npm publish
+npm publish         # GitHub Packages — see PUBLISHING.md
 ```
 
-Host projects with `"@folklore/architecture-kit": "git+ssh://...#semver:^0.2.0"` pick up the new tag on the next `npm run build-dev` or `npm run dev` (scripts run `npm update @folklore/architecture-kit`).
+Host projects with `"@folklore/architecture-kit": "^1.0.0"` pick up compatible releases on `npm update` / `npm install` (embed scripts run update on dev/build).
+
+## Git-tag fallback
+
+```bash
+npm install -D "git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^1.0.0"
+```
+
+Tags must match registry versions. Use registry for Folklore repos when possible.
 
 ## Local kit development
 
-When editing **architecture-kit** and **rock-em-sock-em** side by side, use the sibling clone without publishing:
+When editing **architecture-kit** and a host repo side by side:
 
 ```bash
 export ARCHITECTURE_KIT_LOCAL=1

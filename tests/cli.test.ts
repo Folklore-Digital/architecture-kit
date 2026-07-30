@@ -134,8 +134,8 @@ describe('init + validate + doctor', () => {
       'build-architecture-site.mjs',
     );
     expect(pkg.scripts['predev']).toBe('node scripts/build-architecture-site.mjs');
-    expect(pkg.devDependencies['@folklore/architecture-kit']).toContain(
-      'semver:',
+    expect(pkg.devDependencies['@folklore/architecture-kit']).toMatch(
+      /^\^1\.\d+\.\d+$/,
     );
     expect(pkg.scripts.dev).toBe('next dev');
 

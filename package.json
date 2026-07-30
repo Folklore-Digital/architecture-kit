@@ -1,6 +1,6 @@
 {
   "name": "@folklore/architecture-kit",
-  "version": "0.5.7",
+  "version": "1.0.0",
   "description": "Repo-native architecture documentation and governance layer for any project",
   "type": "module",
   "bin": {
@@ -18,7 +18,7 @@
     "dev": "tsx src/cli.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "pnpm build"
+    "publish:github": "npm run build && npm test && npm publish"
   },
   "keywords": [
     "architecture",

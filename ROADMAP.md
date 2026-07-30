@@ -20,10 +20,24 @@ Repo-native system architecture docs for any project. This file extends the chec
 - [x] **Phase 13** — Coverage report / `doctor --json` (v0.5.4)
 - [x] **Phase 15** — Configurable paths & mount (v0.5.5)
 - [x] **Phase 16** — Deploy safety (v0.5.6)
+- [x] **Phase 17** — npm registry publish + v1.0.0 reset (in progress — publish pending)
 
 ---
 
 ## In progress / next
+
+### Phase 17 — npm registry & v1.0.0 baseline 🔄
+
+Move from git SSH branch pins to **GitHub Packages** as the default install path. Reset version line: `0.5.x` was pre-release agent-pack work; **1.0.0** is the first stable registry release.
+
+- [x] Bump `package.json` to **1.0.0**
+- [x] Embed template: `"@folklore/architecture-kit": "^1.0.0"` (not `git+ssh://...`)
+- [x] [PUBLISHING.md](./PUBLISHING.md) + [VERSIONING.md](./VERSIONING.md) — registry auth, migration checklist
+- [ ] **`npm publish`** to GitHub Packages (maintainer PAT)
+- [ ] Merge `feature/agent-pack` → `main`, tag `v1.0.0`
+- [ ] Host repos: add `.npmrc`, replace `#feature/agent-pack` git pin with `^1.0.0`
+
+See [.npmrc.example](./.npmrc.example).
 
 ### Phase 8 — Convention checks
 Optional ESLint or custom rules wired through `architecture.config.json` (component registry, import boundaries). Complements manual `component-conventions.md`.
@@ -248,6 +262,15 @@ Unify host-side hardcoding into `architecture.config.json`:
 - [x] Validate: gitignore/deploy exclusions, secret patterns in architecture docs
 - [ ] WordPress `--embed` (Phase 9 — separate)
 
+## Phase 17 — npm registry & v1.0.0 baseline 🔄
+
+- [x] Version reset: `0.5.x` → **1.0.0** (first stable registry release)
+- [x] `templates/embed/nextjs/package.merge.json` — npm semver default
+- [x] `publish:github` script; `prepublishOnly` via publish script
+- [x] Host migration docs in [PUBLISHING.md](./PUBLISHING.md)
+- [ ] Publish `@folklore/architecture-kit@1.0.0` to GitHub Packages
+- [ ] Migrate host repos from git branch pins
+
 ---
 
 ## Comparison: Architecture Kit vs [tela (telawiki.com)](https://telawiki.com/)
@@ -308,6 +331,7 @@ Complementary, not competitive — a team could use tela for runbooks and Archit
 5. Phase 8, 9, 14 as capacity allows
 6. **Phase 15** — configurable mount/output paths + gitignore on init
 7. **Phase 16** — deploy safety (WordPress exclusions, prod exposure governance)
+8. **Phase 17** — npm registry publish + v1.0.0 baseline
 
 ---
 

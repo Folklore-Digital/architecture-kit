@@ -25,7 +25,8 @@ Use it to give developers, designers, and clients one consistent place to unders
 ## Quick start (new Next.js project)
 
 ```bash
-npm install -D "git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^0.3.0"
+# GitHub Packages — copy .npmrc.example → .npmrc with a read:packages PAT
+npm install -D @folklore/architecture-kit@^1.0.0
 npx architecture-kit detect                    # optional: suggest project type
 npx architecture-kit init --type nextjs --embed nextjs
 npm install
@@ -33,6 +34,8 @@ npm install
 npm run architecture:validate
 npm run dev                                    # game/app + docs at /architecture/
 ```
+
+Git install fallback (no registry auth): see [PUBLISHING.md](./PUBLISHING.md).
 
 **`init` never overwrites existing docs** — safe to re-run; it only adds missing scaffold files.
 
@@ -55,8 +58,10 @@ One manual step: add `/architecture` redirect — see `docs/architecture/_embed-
 In **architecture-kit** only:
 
 ```bash
-npm version patch && git push origin main --tags
+npm version patch && git push origin main --tags && npm publish
 ```
+
+See [PUBLISHING.md](./PUBLISHING.md) for GitHub Packages auth.
 
 In host projects: `npm install` / `yarn install` / `pnpm install`, or `npm run build-dev` — no repo changes needed while semver range matches.
 
@@ -70,10 +75,10 @@ Install the kit with your package manager:
 
 ```bash
 # Yarn Classic (Sage/Bud projects)
-yarn add -D "@folklore/architecture-kit@git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^0.3.0"
+yarn add -D @folklore/architecture-kit@^1.0.0
 
 # Yarn Berry (v2+)
-yarn add -D "@folklore/architecture-kit@git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^0.3.0"
+yarn add -D @folklore/architecture-kit@^1.0.0
 
 npx architecture-kit init --type wordpress-custom
 yarn install
