@@ -1,0 +1,11 @@
+# Deny direct HTTP access to built architecture HTML under a theme public folder.
+# Place in the directory that contains architecture HTML, or merge into theme .htaccess.
+#
+# Prefer keeping docs outside the web root; use this only when built HTML must live under the theme.
+
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Deny from all
+</IfModule>

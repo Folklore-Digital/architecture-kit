@@ -5,13 +5,11 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readEmbedManifest } from "./lib/read-architecture-config.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-
-/** Must match ARCHITECTURE_DOCS_PATH in next.config.ts (with trailing slash). */
-export const ARCHITECTURE_MOUNT = "/architecture/";
-
-const siteDir = path.join(root, "public/architecture");
+const embed = await readEmbedManifest(root);
+const siteDir = path.join(root, embed.outputDir);
 
 function isAbsoluteHref(href) {
   return /^(?:[a-z][a-z0-9+.-]*:|\/|#|mailto:)/i.test(href);
@@ -58,10 +56,10 @@ const htmlFiles = await walkHtml(siteDir, siteDir);
 for (const relativePath of htmlFiles) {
   const fullPath = path.join(siteDir, relativePath);
   const html = await readFile(fullPath, "utf-8");
-  const rewritten = rewriteHtmlLinks(html, relativePath, ARCHITECTURE_MOUNT);
+  const rewritten = rewriteHtmlLinks(html, relativePath, embed.mountPath);
   await writeFile(fullPath, rewritten, "utf-8");
 }
 
 console.log(
-  `Embedded ${htmlFiles.length} pages with mount path ${ARCHITECTURE_MOUNT}`,
+  `Embedded ${htmlFiles.length} pages with mount path ${embed.mountPath}`,
 );

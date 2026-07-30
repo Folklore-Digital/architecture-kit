@@ -151,7 +151,16 @@ program
     '--since <ref>',
     'Git ref for diff-aware checks (e.g. origin/develop)',
   )
-  .action(async (options: { ci?: boolean; level?: string; since?: string }) => {
+  .option(
+    '--deploy-artifact <dir>',
+    'Check a build/deploy output directory for forbidden architecture paths',
+  )
+  .action(async (options: {
+    ci?: boolean;
+    level?: string;
+    since?: string;
+    deployArtifact?: string;
+  }) => {
     const level =
       options.level === 'error' || options.level === 'warn'
         ? options.level
@@ -162,6 +171,7 @@ program
       ci: options.ci,
       level,
       since: options.since,
+      deployArtifact: options.deployArtifact,
     });
     process.exit(code);
   });
@@ -169,8 +179,20 @@ program
 program
   .command('doctor')
   .description('Print architecture docs health summary')
+  .option('--json', 'Output structured coverage report as JSON')
+  .action(async (options: { json?: boolean }) => {
+    const code = await runDoctor(process.cwd(), { json: options.json });
+    process.exit(code);
+  });
+
+program
+  .command('mcp')
+  .description(
+    'Start MCP server on stdio — architecture docs tools for Claude Code / Cursor',
+  )
   .action(async () => {
-    const code = await runDoctor();
+    const { runMcp } = await import('./commands/mcp.js');
+    const code = await runMcp();
     process.exit(code);
   });
 

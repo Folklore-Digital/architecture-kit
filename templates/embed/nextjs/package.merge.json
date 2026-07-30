@@ -10,6 +10,6 @@
     "architecture:detect": "node scripts/run-architecture-kit.mjs detect"
   },
   "devDependencies": {
-    "@folklore/architecture-kit": "git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:{{kitVersionRange}}"
+    "@folklore/architecture-kit": "{{kitVersionRange}}"
   }
 }

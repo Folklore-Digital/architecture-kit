@@ -48,6 +48,15 @@ describe('init + validate + doctor', () => {
     expect(config.project.name).toBe('Demo Project');
     expect(config.project.type).toBe('generic');
 
+    const claudeMd = await readFile(path.join(cwd, 'CLAUDE.md'), 'utf-8');
+    expect(claudeMd).toContain('architecture-kit');
+
+    const claudeSkill = await readFile(
+      path.join(cwd, '.claude/skills/architecture-kit/SKILL.md'),
+      'utf-8',
+    );
+    expect(claudeSkill).toContain('Reading order');
+
     const validateCode = await runValidate({ cwd, level: 'error' });
     expect(validateCode).toBe(0);
 
@@ -125,9 +134,22 @@ describe('init + validate + doctor', () => {
       'build-architecture-site.mjs',
     );
     expect(pkg.scripts['predev']).toBe('node scripts/build-architecture-site.mjs');
-    expect(pkg.devDependencies['@folklore/architecture-kit']).toContain(
-      'semver:',
+    expect(pkg.devDependencies['@folklore/architecture-kit']).toMatch(
+      /^\^1\.\d+\.\d+$/,
     );
     expect(pkg.scripts.dev).toBe('next dev');
+
+    const gitignore = await readFile(path.join(cwd, '.gitignore'), 'utf-8');
+    expect(gitignore).toContain('/public/architecture/');
+    expect(gitignore).toContain('/.architecture-kit/');
+
+    await readFile(
+      path.join(cwd, 'middleware.architecture-docs.example.ts'),
+      'utf-8',
+    );
+    await readFile(
+      path.join(cwd, 'docs/architecture/deploy-safety/README.md'),
+      'utf-8',
+    );
   });
 });

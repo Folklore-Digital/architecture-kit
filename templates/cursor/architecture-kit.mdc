@@ -14,6 +14,7 @@ This repo uses **@folklore/architecture-kit** (private, versioned git dependency
 - Docs source: `docs/architecture/`, `docs/adr/`, `docs/diagrams/`
 - Docs site (built): `public/architecture/` → served at `/architecture/` (Next.js embed)
 - AI entrypoint: `docs/architecture/ai-context.md`
+- Agent pack (after `scan` or site build): `.architecture-kit/agent-pack.json`
 
 ## Commands
 
@@ -22,6 +23,7 @@ npx architecture-kit scan              # AI bootstrap context → .architecture-
 npx architecture-kit bootstrap --apply # scaffold missing docs + merge detected config
 npx architecture-kit validate          # links, mermaid, placeholders, integrations
 npx architecture-kit doctor
+npx architecture-kit mcp                 # MCP stdio server — see templates/mcp/README.md
 npx architecture-kit dev                 # local docs site with search + dates
 ```
 

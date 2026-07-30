@@ -1,5 +1,9 @@
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
+import {
+  buildCoverageReport,
+  formatCoverageSummary,
+} from '../coverage/buildCoverageReport.js';
 import { loadConfig } from '../config/loadConfig.js';
 import { projectTypeLabels } from '../config/schema.js';
 import { runValidation } from '../validators/index.js';
@@ -20,13 +24,27 @@ function calculateDocsHealth(
   return Math.max(0, Math.min(100, score));
 }
 
-export async function runDoctor(cwd: string = process.cwd()): Promise<number> {
+export async function runDoctor(
+  cwd: string = process.cwd(),
+  options: { json?: boolean } = {},
+): Promise<number> {
   let config;
   try {
     ({ config } = await loadConfig(cwd));
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     return 1;
+  }
+
+  if (options.json) {
+    try {
+      const report = await buildCoverageReport(cwd);
+      console.log(JSON.stringify(report, null, 2));
+      return report.summary.passed ? 0 : 1;
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      return 1;
+    }
   }
 
   const result = await runValidation(cwd, config);
@@ -76,9 +94,12 @@ export async function runDoctor(cwd: string = process.cwd()): Promise<number> {
   console.log('');
 
   const aiToolingIssues = result.issues.filter((issue) =>
-    ['missing-cursor-rule', 'missing-agents-md', 'agents-missing-architecture-section'].includes(
-      issue.code,
-    ),
+    [
+      'missing-cursor-rule',
+      'missing-agents-md',
+      'agents-missing-architecture-section',
+      'missing-claude-skill',
+    ].includes(issue.code),
   );
 
   console.log('AI tooling');
@@ -86,8 +107,17 @@ export async function runDoctor(cwd: string = process.cwd()): Promise<number> {
     `  Cursor rule: ${aiToolingIssues.some((i) => i.code === 'missing-cursor-rule') ? 'missing' : 'present'}`,
   );
   console.log(
+    `  Claude skill: ${aiToolingIssues.some((i) => i.code === 'missing-claude-skill') ? 'missing' : 'present'}`,
+  );
+  console.log(
     `  Agent docs: ${aiToolingIssues.some((i) => i.code === 'missing-agents-md' || i.code === 'agents-missing-architecture-section') ? 'needs update' : 'ok'}`,
   );
+  console.log('');
+
+  const coverageReport = await buildCoverageReport(cwd);
+  for (const line of formatCoverageSummary(coverageReport, config)) {
+    console.log(line);
+  }
   console.log('');
 
   const missing = [...errors, ...warnings].map((issue) => issue.message);

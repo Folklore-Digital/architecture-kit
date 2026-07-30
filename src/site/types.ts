@@ -39,4 +39,5 @@ export type BuildSiteOptions = {
 export type BuildSiteResult = {
   outDir: string;
   pages: DocPage[];
+  agentPackPath?: string;
 };

@@ -3,8 +3,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   createDefaultConfig,
+  type ArchitectureConfig,
   type ProjectType,
 } from '../config/schema.js';
+import {
+  resolveAgentOutputDir,
+  resolveSiteOutputDir,
+} from '../config/sitePaths.js';
 import {
   getEmbedDir,
   nextConfigNeedsEmbedReminder,
@@ -16,7 +21,7 @@ import { wrapScaffoldFrontmatter } from './scaffoldFrontmatter.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = path.resolve(__dirname, '../..');
 
-async function readKitVersion(): Promise<string> {
+export async function readKitVersion(): Promise<string> {
   try {
     const raw = await readFile(path.join(PACKAGE_ROOT, 'package.json'), 'utf-8');
     const pkg = JSON.parse(raw) as { version?: string };
@@ -165,6 +170,57 @@ async function mergePackageJsonFromEmbed(
   }
 }
 
+/** Append gitignore patterns for generated architecture-kit output (idempotent). */
+export async function appendGitignoreEntries(
+  cwd: string,
+  entries: string[],
+): Promise<string[]> {
+  if (entries.length === 0) {
+    return [];
+  }
+
+  const gitignorePath = path.join(cwd, '.gitignore');
+  let existing = '';
+  if (await pathExists(gitignorePath)) {
+    existing = await readFile(gitignorePath, 'utf-8');
+  }
+
+  const patterns = entries.map((entry) => {
+    const trimmed = entry.replace(/\\/g, '/').replace(/^\.\//, '');
+    const withLeading = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+    return withLeading.endsWith('/') ? withLeading : `${withLeading}/`;
+  });
+
+  const toAdd = patterns.filter(
+    (pattern) =>
+      !existing.includes(pattern) &&
+      !existing.includes(pattern.replace(/\/$/, '')),
+  );
+
+  if (toAdd.length === 0) {
+    return [];
+  }
+
+  const block = `\n# architecture-kit generated output (do not commit)\n${toAdd.join('\n')}\n`;
+  await writeFile(gitignorePath, `${existing.trimEnd()}${block}`, 'utf-8');
+  return toAdd;
+}
+
+async function loadConfigFromCwd(
+  cwd: string,
+): Promise<ArchitectureConfig | null> {
+  const configPath = path.join(cwd, 'architecture.config.json');
+  if (!(await pathExists(configPath))) {
+    return null;
+  }
+  try {
+    const raw = await readFile(configPath, 'utf-8');
+    return JSON.parse(raw) as ArchitectureConfig;
+  } catch {
+    return null;
+  }
+}
+
 export async function scaffoldEmbed(
   cwd: string,
   target: EmbedTarget,
@@ -202,6 +258,39 @@ export async function scaffoldEmbed(
     created.push('docs/architecture/_embed-host-setup.md');
   }
 
+  const middlewareExample = path.join(
+    embedDir,
+    'middleware.architecture-docs.example.ts',
+  );
+  const middlewareTarget = path.join(
+    cwd,
+    'middleware.architecture-docs.example.ts',
+  );
+  if (
+    (await pathExists(middlewareExample)) &&
+    !(await pathExists(middlewareTarget))
+  ) {
+    await cp(middlewareExample, middlewareTarget);
+    created.push('middleware.architecture-docs.example.ts');
+  }
+
+  created.push(...(await copyDeploySafetyTemplates(cwd)));
+
+  return created;
+}
+
+export async function copyDeploySafetyTemplates(
+  cwd: string,
+): Promise<string[]> {
+  const created: string[] = [];
+  const deploySource = path.join(getTemplatesDir(), 'deploy');
+  const deployTarget = path.join(cwd, 'docs/architecture/deploy-safety');
+
+  if (!(await pathExists(deploySource))) {
+    return created;
+  }
+
+  await copyTreeSkipExisting(deploySource, deployTarget, created, 'docs/architecture/deploy-safety');
   return created;
 }
 
@@ -282,14 +371,58 @@ export async function scaffoldProject(
     }
   }
 
+  const claudeSource = path.join(getTemplatesDir(), 'claude/CLAUDE.md');
+  const claudeTarget = path.join(cwd, 'CLAUDE.md');
+  if (await pathExists(claudeSource)) {
+    if (await pathExists(claudeTarget)) {
+      skipped.push('CLAUDE.md');
+    } else {
+      const claudeTemplate = await readFile(claudeSource, 'utf-8');
+      await writeFile(
+        claudeTarget,
+        claudeTemplate.replaceAll('{{projectName}}', name),
+        'utf-8',
+      );
+      created.push('CLAUDE.md');
+    }
+  }
+
+  const claudeSkillSource = path.join(
+    getTemplatesDir(),
+    'claude/skills/architecture-kit/SKILL.md',
+  );
+  const claudeSkillTarget = path.join(
+    cwd,
+    '.claude/skills/architecture-kit/SKILL.md',
+  );
+  if (await pathExists(claudeSkillSource)) {
+    if (await pathExists(claudeSkillTarget)) {
+      skipped.push('.claude/skills/architecture-kit/SKILL.md');
+    } else {
+      await ensureDir(path.dirname(claudeSkillTarget));
+      await cp(claudeSkillSource, claudeSkillTarget);
+      created.push('.claude/skills/architecture-kit/SKILL.md');
+    }
+  }
+
   if (options?.embed) {
     const embedCreated = await scaffoldEmbed(cwd, options.embed);
     created.push(...embedCreated);
+    const configForIgnore = await loadConfigFromCwd(cwd);
+    const gitignoreAdded = await appendGitignoreEntries(cwd, [
+      resolveSiteOutputDir(configForIgnore),
+      resolveAgentOutputDir(configForIgnore),
+    ]);
+    for (const pattern of gitignoreAdded) {
+      created.push(`.gitignore (${pattern})`);
+    }
     if (options.embed === 'nextjs' && (await nextConfigNeedsEmbedReminder(cwd))) {
       warnings.push(
         'Add /architecture redirect to next.config — see docs/architecture/_embed-host-setup.md',
       );
     }
+  } else if (type.startsWith('wordpress')) {
+    created.push(...(await copyDeploySafetyTemplates(cwd)));
   }
 
   const prChecklistSource = path.join(getTemplatesDir(), 'PR-CHECKLIST.md');

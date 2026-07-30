@@ -26,6 +26,9 @@ export async function runBuild(options: BuildOptions = {}): Promise<number> {
     const result = await buildSite(cwd, config, outDir);
     console.log(`Built architecture docs site (${result.pages.length} pages)`);
     console.log(`  Output: ${result.outDir}`);
+    if (result.agentPackPath) {
+      console.log(`  Agent pack: ${result.agentPackPath}`);
+    }
     console.log('');
     console.log('Open index.html locally or run: npx architecture-kit dev');
     return 0;

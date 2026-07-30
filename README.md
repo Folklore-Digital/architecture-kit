@@ -25,7 +25,8 @@ Use it to give developers, designers, and clients one consistent place to unders
 ## Quick start (new Next.js project)
 
 ```bash
-npm install -D "git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^0.3.0"
+# GitHub Packages — copy .npmrc.example → .npmrc with a read:packages PAT
+npm install -D @folklore/architecture-kit@^1.0.0
 npx architecture-kit detect                    # optional: suggest project type
 npx architecture-kit init --type nextjs --embed nextjs
 npm install
@@ -33,6 +34,8 @@ npm install
 npm run architecture:validate
 npm run dev                                    # game/app + docs at /architecture/
 ```
+
+Git install fallback (no registry auth): see [PUBLISHING.md](./PUBLISHING.md).
 
 **`init` never overwrites existing docs** — safe to re-run; it only adds missing scaffold files.
 
@@ -55,8 +58,10 @@ One manual step: add `/architecture` redirect — see `docs/architecture/_embed-
 In **architecture-kit** only:
 
 ```bash
-npm version patch && git push origin main --tags
+npm version patch && git push origin main --tags && npm publish
 ```
+
+See [PUBLISHING.md](./PUBLISHING.md) for GitHub Packages auth.
 
 In host projects: `npm install` / `yarn install` / `pnpm install`, or `npm run build-dev` — no repo changes needed while semver range matches.
 
@@ -70,10 +75,10 @@ Install the kit with your package manager:
 
 ```bash
 # Yarn Classic (Sage/Bud projects)
-yarn add -D "@folklore/architecture-kit@git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^0.3.0"
+yarn add -D @folklore/architecture-kit@^1.0.0
 
 # Yarn Berry (v2+)
-yarn add -D "@folklore/architecture-kit@git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^0.3.0"
+yarn add -D @folklore/architecture-kit@^1.0.0
 
 npx architecture-kit init --type wordpress-custom
 yarn install
@@ -121,14 +126,33 @@ npx architecture-kit validate
 | `init --embed nextjs` | Also copy host scripts + merge `package.json` for Next.js at `/architecture/` |
 | `scan` | Detect stack, integrations, doc gaps; write `.architecture-kit/agent-context.md` for AI agents |
 | `bootstrap [--apply]` | Scan + write JSON context; `--apply` scaffolds missing docs and merges config |
-| `validate` | Config, docs, **broken links**, **Mermaid syntax**, placeholders, integrations, optional Storybook |
+| `validate` | Config, docs, **broken links**, **Mermaid syntax**, placeholders, integrations, deploy safety, optional Storybook |
 | `validate --ci` | CI mode — fail on errors |
+| `validate --deploy-artifact <dir>` | Fail if build output contains forbidden doc paths (production safety) |
 | `doctor` | Human-readable docs health summary |
+| `doctor --json` | Structured coverage report by category (integrations, scaffold, deploy, …) |
+| `mcp` | Stdio MCP server — six read tools for Cursor / Claude Code ([templates/mcp/README.md](./templates/mcp/README.md)) |
 | `detect` | Infer project type from repo signals |
 | `build` | Static HTML site with **search** and **last-updated dates** + copied Markdown sources |
 | `dev` | Build and serve docs locally |
 
 Project types: `nextjs`, `wordpress-custom`, `wordpress-builder`, `craft`, `generic`
+
+---
+
+## MCP server (agents)
+
+Run from the host repo root:
+
+```bash
+npx architecture-kit mcp
+```
+
+**Tools:** `architecture_get_context`, `architecture_search`, `architecture_get_page`, `architecture_list_pages`, `architecture_list_gaps`, `architecture_validate`.
+
+Setup for Cursor, Claude Code, workflow, and smoke tests: **[templates/mcp/README.md](./templates/mcp/README.md)**.
+
+After `scan` or site build, agents can search `.architecture-kit/search-index.json` and read pages without rebuilding the static site.
 
 ---
 
@@ -342,6 +366,8 @@ Roadmap: optional ESLint or custom rules wired through config.
 
 ## Roadmap
 
+See **[ROADMAP.md](./ROADMAP.md)** for the full plan (agent MCP, Claude/Cursor adapters, tela comparison).
+
 - [x] Phase 1 — Scaffold (`init`)
 - [x] Phase 2 — Docs site (`dev`, `build`, Markdown sources)
 - [x] Phase 3 — Validation (`validate`, `doctor`, placeholder detection)
@@ -349,10 +375,17 @@ Roadmap: optional ESLint or custom rules wired through config.
 - [x] Phase 5 — PR change awareness (`validate --since`)
 - [x] Phase 6 — AI tooling sync (`AGENTS.md`, Cursor rules templates)
 - [x] Phase 7 — Link + Mermaid validation, docs search, dates, `scan` / `bootstrap`
+- [x] Phase 7b — Scaffold mode, CI guards, greenfield prompt (v0.5.x)
+- [x] Phase 10 — Agent pack (`.architecture-kit/`, prompts, search index) (v0.5.2)
 - [ ] Phase 8 — Convention checks (component registry, custom lint rules)
 - [ ] Phase 9 — `--embed wordpress-custom` (Sage/Bud static embed)
+- [x] Phase 11 — Claude Code skill + `CLAUDE.md` templates (v0.5.4)
+- [x] Phase 12 — MCP stdio server (`architecture-kit mcp`) (v0.5.3)
+- [x] Phase 13 — Coverage report (`doctor --json`) (v0.5.4)
+- [x] Phase 15 — Configurable docs paths, mount URL, gitignore on init (v0.5.5)
+- [x] Phase 16 — Deploy safety & production exposure (v0.5.6)
 
----
+Host-repo FAQ (`.architecture-kit` vs `node_modules`, custom `paths`, `/architecture/` mount, gitignore, prod safety): **[ROADMAP.md](./ROADMAP.md#developer-faq-host-repos)**.
 
 ## Publishing (GitHub Packages)
 

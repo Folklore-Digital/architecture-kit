@@ -24,6 +24,19 @@ export const siteSchema = z.object({
   showDates: z.boolean().default(true),
   /** Prefer git commit date for "last updated"; fall back to file mtime. */
   dateSource: z.enum(['git', 'file']).default('git'),
+  /** Public URL path when embedded in a host app (Next.js redirect + link rewrite). */
+  mountPath: z.string().default('/architecture/'),
+  /** Host-app directory for built static HTML (relative to repo root). */
+  outputDir: z.string().default('public/architecture'),
+  /**
+   * Where built architecture docs may be exposed:
+   * - local: dev machine only (standalone `architecture-kit dev`)
+   * - dev-staging: internal dev/staging hosts (default for Next.js embed)
+   * - production: intentionally public on production deploys
+   */
+  exposure: z
+    .enum(['local', 'dev-staging', 'production'])
+    .default('dev-staging'),
   /** Override architecture sidebar groups (optional). */
   navGroups: z
     .array(
@@ -78,6 +91,13 @@ export const architectureConfigSchema = z.object({
       newPackageRequiresReview: z.boolean().default(false),
       /** When true, validate --ci fails on scaffold frontmatter / placeholder content */
       scaffoldBlocksCi: z.boolean().default(true),
+      /**
+       * Whether markdown sources may ship to production (built HTML uses site.exposure).
+       * none = keep docs out of production deploy artifacts; dev-only = internal hosts; public = ok on prod.
+       */
+      docsProductionExposure: z
+        .enum(['none', 'dev-only', 'public'])
+        .default('dev-only'),
     })
     .default({}),
   paths: z
@@ -87,6 +107,8 @@ export const architectureConfigSchema = z.object({
       adr: z.string().default('docs/adr'),
       diagrams: z.string().default('docs/diagrams'),
       aiContext: z.string().default('docs/architecture/ai-context.md'),
+      /** Generated agent artifacts (agent-pack, prompts, embed manifest). */
+      agentOutput: z.string().default('.architecture-kit'),
     })
     .default({}),
   /** Optional — set when the project uses Storybook for UI documentation. */
@@ -141,6 +163,7 @@ export function createDefaultConfig(
       newClientComponentRequiresReason: false,
       newPackageRequiresReview: false,
       scaffoldBlocksCi: true,
+      docsProductionExposure: 'dev-only',
     },
     paths: {
       docs: 'docs',
@@ -148,6 +171,14 @@ export function createDefaultConfig(
       adr: 'docs/adr',
       diagrams: 'docs/diagrams',
       aiContext: 'docs/architecture/ai-context.md',
+      agentOutput: '.architecture-kit',
+    },
+    site: {
+      showDates: true,
+      dateSource: 'git',
+      mountPath: '/architecture/',
+      outputDir: 'public/architecture',
+      exposure: 'dev-staging',
     },
   };
 

@@ -69,6 +69,20 @@ describe('validateAiTooling', () => {
     const issues = await validateAiTooling(cwd, config);
     expect(issues).toHaveLength(0);
   });
+
+  it('warns when CLAUDE.md exists without architecture-kit skill', async () => {
+    const cwd = await makeTempDir();
+    const config = createDefaultConfig('nextjs', 'Demo');
+
+    await writeFile(
+      path.join(cwd, 'CLAUDE.md'),
+      'Use architecture-kit and docs/architecture/ai-context.md\n',
+      'utf-8',
+    );
+
+    const issues = await validateAiTooling(cwd, config);
+    expect(issues.some((i) => i.code === 'missing-claude-skill')).toBe(true);
+  });
 });
 
 describe('validateDiffAwareness', () => {
