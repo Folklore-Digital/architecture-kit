@@ -35,7 +35,7 @@ Move from git SSH branch pins to **GitHub Packages** as the default install path
 - [x] [PUBLISHING.md](./PUBLISHING.md) + [VERSIONING.md](./VERSIONING.md) — registry auth, migration checklist
 - [x] **`npm publish`** to GitHub Packages — `@folklore-digital/architecture-kit@1.0.0`
 - [x] Merge `feature/agent-pack` → `main`, tag `v1.0.0`
-- [ ] Host repos: add `.npmrc`, replace git pin with `^1.0.0` (rock-em in progress)
+- [x] Host repos: add `.npmrc`, replace git pin with `^1.0.0` (rock-em migrated)
 
 See [.npmrc.example](./.npmrc.example).
 
@@ -268,7 +268,7 @@ Unify host-side hardcoding into `architecture.config.json`:
 - [x] Scope `@folklore-digital` (matches GitHub org `Folklore-Digital`)
 - [x] `templates/embed/nextjs/package.merge.json` — npm semver default
 - [x] Published `@folklore-digital/architecture-kit@1.0.0` to GitHub Packages
-- [ ] Migrate host repos from git branch pins
+- [x] Migrate host repos from git branch pins (rock-em on `feature/arch-docs-build`)
 
 ---
 
