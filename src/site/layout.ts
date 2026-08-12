@@ -177,6 +177,10 @@ export function renderPageShell(options: {
       min-height: 100vh;
     }
     aside {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      max-height: 100vh;
       background: var(--panel);
       border-right: 1px solid var(--border);
       padding: 1.25rem;
@@ -271,11 +275,12 @@ export function renderPageShell(options: {
       }
     }
     main {
-      padding: 2rem 2.5rem;
-      max-width: 52rem;
+      padding: 2rem 2.5rem 3rem;
+      min-width: 0;
     }
     main.main--diagram {
-      max-width: min(96vw, 120rem);
+      /* diagrams already use full main width; keep toolbar/stage comfortable on ultrawide */
+      padding-inline: 2rem;
     }
     main h1 { margin-top: 0; }
     pre, code {
@@ -434,7 +439,6 @@ export function renderPageShell(options: {
     }
     .home-kit-blurb {
       color: var(--muted);
-      max-width: 42rem;
       line-height: 1.55;
       margin: 0 0 0.75rem;
     }
@@ -461,7 +465,7 @@ export function renderPageShell(options: {
       font-size: 0.9rem;
       line-height: 1.45;
     }
-    .home-lede { color: var(--muted); font-size: 1.05rem; max-width: 42rem; }
+    .home-lede { color: var(--muted); font-size: 1.05rem; }
     .home-meta {
       display: flex;
       flex-wrap: wrap;
