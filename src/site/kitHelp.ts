@@ -105,6 +105,18 @@ export function renderKitHelpBody(options: KitHelpOptions): string {
     <li>Pages copied into the site output include a <em>View Markdown source</em> link next to the HTML.</li>
   </ul>
 
+  <h2>Diagrams: files vs inline</h2>
+  <p>
+    <strong>Prefer <code>docs/diagrams/*.mmd</code></strong> for architecture and process diagrams that matter long-term.
+    Each <code>.mmd</code> file becomes its own HTML page (Diagrams section, zoom toolbar, validate syntax checks).
+  </p>
+  <p>
+    <strong>Inline fenced <code>mermaid</code> code blocks</strong> in a <code>.md</code> page are fine for small, local flows
+    (e.g. a 5-node branch diagram next to a table). They render on that page only — not listed under Diagrams.
+    If a diagram grows or gets linked from elsewhere, move it to a <code>.mmd</code> file and link with a
+    <code>.mmd</code> path (built site rewrites to <code>.html</code>).
+  </p>
+
   <h2>Scaffold vs reviewed docs</h2>
   <p>
     Files created by <code>init</code> or <code>bootstrap --apply</code> include

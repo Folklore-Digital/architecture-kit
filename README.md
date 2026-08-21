@@ -244,9 +244,24 @@ Use `docs/adr/` for decisions that change structure, integrations, or convention
 
 ### Diagrams
 
-Keep `system-overview.mmd` (components + infra) and `data-flow.mmd` (request/data path) updated. Mermaid renders on the docs site.
+**Default: own files in `docs/diagrams/`** (`.mmd`). These are first-class site pages — sidebar under **Diagrams**, search, zoom controls, and Mermaid syntax validation on `validate`.
 
-You can also embed diagrams inline in any `.md` page with a fenced ` ```mermaid ` block. Link to diagram pages with `.mmd` paths in Markdown — the built site rewrites those to `.html` (avoid linking to raw `.mmd` in the published site).
+| Use a **`.mmd` file** when | Use **inline** ` ```mermaid ` in a `.md` page when |
+| --- | --- |
+| Diagram is reused or linked from several pages | Small flow beside the paragraph it explains (roughly ≤10 nodes) |
+| System overview, data flow, or other canonical architecture views | One-off illustration for that page only (e.g. git branch flow next to a table) |
+| Diagram is large or will grow over time | You want reader context and diagram on one scroll |
+| You want `validate` to check Mermaid syntax | Quick sketch — extract to `.mmd` if it grows |
+
+Link to diagram **files** in Markdown with `.mmd` paths — the built site rewrites them to `.html`:
+
+```markdown
+See [system overview](../diagrams/system-overview.mmd).
+```
+
+From nested folders, count `../` carefully (e.g. `../../diagrams/foo.mmd` from `docs/handbook/operations/page.md`).
+
+Inline blocks render on the same page but do not appear under **Diagrams** and are not syntax-checked by `validate` yet — prefer `.mmd` when the diagram is important or shared.
 
 ---
 
