@@ -40,7 +40,10 @@ export function resolveDocLink(
   const filePart = hashIndex === -1 ? trimmed : trimmed.slice(0, hashIndex);
   const hash = hashIndex === -1 ? '' : trimmed.slice(hashIndex);
 
-  if (!filePart.toLowerCase().endsWith('.md')) {
+  if (
+    !filePart.toLowerCase().endsWith('.md') &&
+    !filePart.toLowerCase().endsWith('.mmd')
+  ) {
     return null;
   }
 

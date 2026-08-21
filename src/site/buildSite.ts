@@ -8,7 +8,7 @@ import { ensureDir, writeJson, readKitVersion } from '../utils/fileSystem.js';
 import { collectPages } from './collectPages.js';
 import { renderHelpPage, renderHomePage, renderPageShell } from './layout.js';
 import { KIT_HELP_OUTPUT, kitHelpSearchText } from './kitHelp.js';
-import { renderMarkdownPage, renderMermaidPage } from './markdown.js';
+import { renderMarkdownPage, renderMermaidPage, pageNeedsMermaid } from './markdown.js';
 import { buildSearchIndex } from './search.js';
 import type { BuildSiteResult } from './types.js';
 
@@ -36,7 +36,7 @@ export async function buildSite(
       page,
       bodyHtml,
       pages,
-      includeMermaid: isMermaid,
+      includeMermaid: await pageNeedsMermaid(page),
       config,
     });
 

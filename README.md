@@ -246,6 +246,8 @@ Use `docs/adr/` for decisions that change structure, integrations, or convention
 
 Keep `system-overview.mmd` (components + infra) and `data-flow.mmd` (request/data path) updated. Mermaid renders on the docs site.
 
+You can also embed diagrams inline in any `.md` page with a fenced ` ```mermaid ` block. Link to diagram pages with `.mmd` paths in Markdown — the built site rewrites those to `.html` (avoid linking to raw `.mmd` in the published site).
+
 ---
 
 ## Validation

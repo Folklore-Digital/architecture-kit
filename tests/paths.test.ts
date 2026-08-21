@@ -37,4 +37,19 @@ describe('resolveDocLink', () => {
       )?.docPath,
     ).toBe('architecture/overview.md');
   });
+
+  it('resolves link to mermaid diagram', () => {
+    expect(
+      resolveDocLink(
+        'handbook/operations/contributing.md',
+        '../../diagrams/branch-flow.mmd',
+      )?.docPath,
+    ).toBe('diagrams/branch-flow.mmd');
+  });
+
+  it('links from flattened handbook page to diagram html', () => {
+    expect(
+      navHref('operations/contributing.html', 'diagrams/branch-flow.html'),
+    ).toBe('../diagrams/branch-flow.html');
+  });
 });
