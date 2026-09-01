@@ -33,6 +33,47 @@ describe('buildNavBlocks', () => {
     ]);
   });
 
+  it('pins non-architecture pages with navGroup Start here', () => {
+    const config = createDefaultConfig('nextjs', 'Demo');
+    const pages: DocPage[] = [
+      { ...archPage('overview.md', 'Project Overview'), navOrder: 10 },
+      { ...archPage('documentation-map.md', 'Documentation Map'), navOrder: 11 },
+      { ...archPage('ai-context.md', 'AI Context'), navOrder: 12 },
+      {
+        section: 'other',
+        relativePath: 'DOCUMENTATION_BACKLOG.md',
+        sourcePath: '',
+        title: 'Documentation backlog',
+        outputPath: 'DOCUMENTATION_BACKLOG.html',
+        navGroup: 'Start here',
+        navOrder: 1,
+        isDraft: true,
+      },
+      {
+        section: 'other',
+        relativePath: 'ARCHITECTURE_ROADMAP.md',
+        sourcePath: '',
+        title: 'Architecture Roadmap',
+        outputPath: 'ARCHITECTURE_ROADMAP.html',
+        navGroup: 'Start here',
+        navOrder: 2,
+        isDraft: true,
+      },
+    ];
+
+    const blocks = buildNavBlocks(pages, config);
+    const start = blocks.find((b) => b.id === 'start');
+    expect(start?.pages.map((p) => p.outputPath)).toEqual([
+      'DOCUMENTATION_BACKLOG.html',
+      'ARCHITECTURE_ROADMAP.html',
+      'overview.html',
+      'documentation-map.html',
+      'ai-context.html',
+    ]);
+    const other = blocks.find((b) => b.id === 'other');
+    expect(other).toBeUndefined();
+  });
+
   it('sorts ADRs by numeric prefix', () => {
     const config = createDefaultConfig('nextjs', 'Demo');
     const pages: DocPage[] = [

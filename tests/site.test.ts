@@ -1,4 +1,4 @@
-import { access, readFile } from 'node:fs/promises';
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -65,6 +65,38 @@ describe('build site', () => {
     expect(readmeHtml).toContain('href="overview.html"');
     expect(readmeHtml).not.toContain('architecture/architecture');
     expect(readmeHtml).not.toContain('href="architecture/overview.html"');
+  });
+
+  it('skips docs/_archive and marks in-progress pages', async () => {
+    const cwd = await makeTempDir();
+    await runInit({ type: 'nextjs', cwd });
+    await mkdir(path.join(cwd, 'docs/_archive'), { recursive: true });
+    await writeFile(
+      path.join(cwd, 'docs/_archive/old-note.md'),
+      '# Archived note that should not appear\n',
+      'utf-8',
+    );
+    await writeFile(
+      path.join(cwd, 'docs/WIP.md'),
+      '---\nstatus: in-progress\n---\n\n# Work in progress\n\nNot done.\n',
+      'utf-8',
+    );
+
+    const outDir = path.join(cwd, 'site-out');
+    const code = await runBuild({ cwd, out: 'site-out' });
+    expect(code).toBe(0);
+
+    const indexHtml = await readFile(path.join(outDir, 'index.html'), 'utf-8');
+    expect(indexHtml).toContain('nav-draft');
+    expect(indexHtml).toContain('in progress');
+    expect(indexHtml).not.toContain('Archived note that should not appear');
+
+    const wipHtml = await readFile(path.join(outDir, 'WIP.html'), 'utf-8');
+    expect(wipHtml).toContain('In progress');
+
+    await expect(
+      access(path.join(outDir, '_archive/old-note.html')),
+    ).rejects.toThrow();
   });
 });
 

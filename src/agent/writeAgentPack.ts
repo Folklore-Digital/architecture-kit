@@ -17,6 +17,7 @@ export type AgentPackDocEntry = {
   section: string;
   outputPath: string;
   isScaffold: boolean;
+  isDraft?: boolean;
 };
 
 export type AgentPack = {
@@ -64,6 +65,7 @@ function docEntriesFromPages(pages: DocPage[]): AgentPackDocEntry[] {
     section: page.section,
     outputPath: page.outputPath,
     isScaffold: page.isScaffold ?? false,
+    isDraft: page.isDraft ?? false,
   }));
 }
 

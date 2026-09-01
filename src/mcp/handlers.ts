@@ -197,7 +197,15 @@ export async function getArchitecturePage(
 
 export async function listArchitecturePages(
   cwd: string,
-): Promise<Array<{ relativePath: string; title: string; section: string; isScaffold: boolean }>> {
+): Promise<
+  Array<{
+    relativePath: string;
+    title: string;
+    section: string;
+    isScaffold: boolean;
+    isDraft: boolean;
+  }>
+> {
   const pack = await readAgentPack(cwd);
   if (pack?.docs?.length) {
     return pack.docs.map((doc) => ({
@@ -205,6 +213,7 @@ export async function listArchitecturePages(
       title: doc.title,
       section: doc.section,
       isScaffold: doc.isScaffold,
+      isDraft: doc.isDraft ?? false,
     }));
   }
 
@@ -219,5 +228,6 @@ export async function listArchitecturePages(
     title: page.title,
     section: page.section,
     isScaffold: page.isScaffold ?? false,
+    isDraft: page.isDraft ?? false,
   }));
 }

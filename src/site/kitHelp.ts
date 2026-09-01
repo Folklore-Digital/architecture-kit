@@ -117,13 +117,23 @@ export function renderKitHelpBody(options: KitHelpOptions): string {
     <code>.mmd</code> path (built site rewrites to <code>.html</code>).
   </p>
 
-  <h2>Scaffold vs reviewed docs</h2>
+  <h2>Scaffold vs reviewed vs in progress</h2>
   <p>
     Files created by <code>init</code> or <code>bootstrap --apply</code> include
     <code>status: scaffold</code> in frontmatter until you review them. The docs site shows a
     banner on those pages and marks them in the sidebar with a gold <span class="nav-scaffold-demo">◦</span> tint.
     Run <code>validate --ci</code> to block merges while scaffold content
     remains (when <code>governance.scaffoldBlocksCi</code> is true, the default).
+  </p>
+  <p>
+    For pages that are project-specific but <strong>not finished</strong>, use
+    <code>status: draft</code>, <code>in-progress</code>, or <code>stale</code>.
+    Those get an “in progress” banner and sidebar marker. They do <em>not</em> fail
+    validate the way scaffold templates do — use them for work-in-progress and old snapshots.
+  </p>
+  <p>
+    Folders named <code>_archive</code> under <code>docs/</code> are skipped by the site
+    (frozen files, not listed in the sidebar).
   </p>
   <p>When docs are project-specific: remove scaffold frontmatter from every <code>.md</code> and
     <code>.mmd</code> file, then set
@@ -140,7 +150,13 @@ export function renderKitHelpBody(options: KitHelpOptions): string {
 navGroup: Start here
 navOrder: 1
 reviewed: 2026-07-28
+status: in-progress
 ---</code></pre>
+  <p>
+    <code>navGroup: Start here</code> works on any markdown under <code>docs/</code>
+    (not only <code>docs/architecture/</code>). Use it to pin backlogs, drafts, and
+    roadmaps to the home page. <code>navOrder</code> sorts within that group (lower first).
+  </p>
 
   <h2>MCP server (Cursor / Claude Code)</h2>
   <p>

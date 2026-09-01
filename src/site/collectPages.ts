@@ -3,10 +3,13 @@ import path from 'node:path';
 import type { ArchitectureConfig } from '../config/schema.js';
 import { getGitLastModified, getFileModifiedIso } from '../scan/projectScan.js';
 import { parseFrontmatter } from './frontmatter.js';
-import { hasScaffoldFrontmatter } from '../utils/scaffoldFrontmatter.js';
+import { normalizeDocStatus } from '../utils/docStatus.js';
 import { pathExists } from '../utils/fileSystem.js';
 import { plainTextFromMarkdown } from './search.js';
 import type { DocPage, DocSection } from './types.js';
+
+/** Not listed on the docs site (frozen snapshots, deps). */
+const SKIP_DOC_DIRS = new Set(['_archive', 'node_modules']);
 
 function titleFromMarkdown(content: string, fallback: string): string {
   const match = content.match(/^#\s+(.+)$/m);
@@ -99,6 +102,9 @@ async function walkMarkdown(
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
+      if (SKIP_DOC_DIRS.has(entry.name) || entry.name.startsWith('.')) {
+        continue;
+      }
       await walkMarkdown(fullPath, docsRoot, config, pages, cwd, dateSource);
       continue;
     }
@@ -117,6 +123,8 @@ async function walkMarkdown(
 
     const dates = await resolveDocDates(cwd, fullPath, raw, dateSource);
 
+    const status = normalizeDocStatus(fm.status);
+
     const page: DocPage = {
       section: sectionForRelativePath(relativePath, config),
       relativePath: relativePath.replace(/\\/g, '/'),
@@ -127,7 +135,8 @@ async function walkMarkdown(
       lastReviewed: dates.lastReviewed,
       navGroup: fm.navGroup,
       navOrder: fm.navOrder,
-      isScaffold: fm.status === 'scaffold' || hasScaffoldFrontmatter(raw),
+      isScaffold: status === 'scaffold',
+      isDraft: status === 'draft',
     };
 
     if (entry.name.endsWith('.md')) {

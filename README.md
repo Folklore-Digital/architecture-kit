@@ -280,6 +280,7 @@ Inline blocks render on the same page but do not appear under **Diagrams** and a
 - **AI tooling**: `.cursor/rules/architecture-kit.mdc`, `AGENTS.md` or `CLAUDE.md`
 - **Diff awareness** (`--since origin/develop`): code changes without matching doc updates
 - **Scaffold mode** — `init` tags new markdown with `status: scaffold` frontmatter; site shows a banner; `validate --ci` fails until docs are reviewed and `project.documentationStatus` is `"active"`
+- **In progress / stale pages** — `status: draft`, `in-progress`, or `stale` get an “in progress” banner and sidebar marker, but do **not** fail validate like leftover scaffolds. Folders named `_archive` under `docs/` are skipped by the site.
 - **Placeholder content** in docs (`_TBD_`, `_Example_`, unfilled scaffold text) — warns (errors in CI when `governance.scaffoldBlocksCi` is true)
 
 ```bash

@@ -20,6 +20,8 @@ export type DocPage = {
   navOrder?: number;
   /** True when frontmatter status: scaffold */
   isScaffold?: boolean;
+  /** True when frontmatter status: draft, in-progress, or stale */
+  isDraft?: boolean;
 };
 
 export type SearchIndexEntry = {

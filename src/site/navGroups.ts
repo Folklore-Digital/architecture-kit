@@ -66,7 +66,19 @@ function defaultGroupIdForFile(basename: string): string {
   return 'reference';
 }
 
+/** Frontmatter `navGroup: Start here` (or `start`) pins any doc into the Start here sidebar. */
+export function isStartHereNavGroup(navGroup?: string): boolean {
+  if (!navGroup) {
+    return false;
+  }
+  const normalized = navGroup.trim().toLowerCase();
+  return normalized === 'start' || normalized === 'start here';
+}
+
 export function resolveArchitectureGroupId(page: DocPage): string {
+  if (isStartHereNavGroup(page.navGroup)) {
+    return 'start';
+  }
   if (page.navGroup) {
     const builtIn = DEFAULT_ARCHITECTURE_GROUPS.find(
       (g) => g.label === page.navGroup || g.id === page.navGroup,
@@ -152,6 +164,17 @@ export function buildNavBlocks(
     byGroup.set(gid, list);
   }
 
+  for (const page of pages) {
+    if (page.section === 'architecture' || !isStartHereNavGroup(page.navGroup)) {
+      continue;
+    }
+    const list = byGroup.get('start') ?? [];
+    if (!list.some((existing) => existing.outputPath === page.outputPath)) {
+      list.push(page);
+      byGroup.set('start', list);
+    }
+  }
+
   const emitted = new Set<string>();
   for (const groupId of groupOrder) {
     const groupPages = byGroup.get(groupId);
@@ -177,7 +200,9 @@ export function buildNavBlocks(
     });
   }
 
-  const adrPages = pages.filter((p) => p.section === 'adr');
+  const adrPages = pages.filter(
+    (p) => p.section === 'adr' && !isStartHereNavGroup(p.navGroup),
+  );
   if (adrPages.length > 0) {
     blocks.push({
       id: 'adr',
@@ -188,7 +213,9 @@ export function buildNavBlocks(
     });
   }
 
-  const diagramPages = pages.filter((p) => p.section === 'diagram');
+  const diagramPages = pages.filter(
+    (p) => p.section === 'diagram' && !isStartHereNavGroup(p.navGroup),
+  );
   if (diagramPages.length > 0) {
     blocks.push({
       id: 'diagram',
@@ -200,7 +227,9 @@ export function buildNavBlocks(
     });
   }
 
-  const otherPages = pages.filter((p) => p.section === 'other');
+  const otherPages = pages.filter(
+    (p) => p.section === 'other' && !isStartHereNavGroup(p.navGroup),
+  );
   if (otherPages.length > 0) {
     const sorted = [...otherPages].sort((a, b) => {
       if (a.relativePath === 'README.md') {

@@ -1,5 +1,8 @@
+import { SCAFFOLD_STATUS } from './docStatus.js';
+
+export { SCAFFOLD_STATUS, hasScaffoldFrontmatter } from './docStatus.js';
+
 /** Frontmatter applied to markdown and Mermaid files created by init/bootstrap scaffold. */
-export const SCAFFOLD_STATUS = 'scaffold';
 
 /** Copy-paste prompt for greenfield / brownfield AI documentation fill. */
 export const GREENFIELD_AGENT_PROMPT = `Read \`.architecture-kit/agent-context.md\` and explore this codebase.
@@ -33,18 +36,6 @@ export function wrapScaffoldFrontmatter(
     return content;
   }
   return `---\nstatus: ${SCAFFOLD_STATUS}\nscaffoldVersion: "${kitVersion}"\n---\n\n${content}`;
-}
-
-export function hasScaffoldFrontmatter(content: string): boolean {
-  if (!content.startsWith('---\n')) {
-    return false;
-  }
-  const end = content.indexOf('\n---\n', 4);
-  if (end === -1) {
-    return false;
-  }
-  const fm = content.slice(4, end);
-  return /^status:\s*scaffold\s*$/im.test(fm);
 }
 
 export const SCAFFOLD_NEXT_STEPS = `

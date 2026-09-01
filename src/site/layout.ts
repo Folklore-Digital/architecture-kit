@@ -41,6 +41,8 @@ function renderNav(
         const classes: string[] = [];
         if (page.isScaffold) {
           classes.push('nav-scaffold');
+        } else if (page.isDraft) {
+          classes.push('nav-draft');
         }
         if (page.outputPath === current.outputPath) {
           classes.push('active');
@@ -49,7 +51,9 @@ function renderNav(
           classes.length > 0 ? ` class="${classes.join(' ')}"` : '';
         const titleAttr = page.isScaffold
           ? ' title="Scaffold — not yet reviewed"'
-          : '';
+          : page.isDraft
+            ? ' title="In progress — not complete"'
+            : '';
         return `<li><a href="${href}"${classAttr}${titleAttr}>${escapeHtml(page.title)}</a></li>`;
       })
       .join('\n');
@@ -86,6 +90,36 @@ function renderStorybookLink(config: ArchitectureConfig): string {
 
 function renderScaffoldBanner(): string {
   return `<p class="scaffold-banner" role="status"><strong>Scaffold template</strong> — this page has not been reviewed for this project. Edit the source file and remove <code>status: scaffold</code> from frontmatter.</p>`;
+}
+
+function startHereBlurb(page: DocPage): string {
+  const path = page.relativePath.replace(/\\/g, '/');
+  if (path.endsWith('DOCUMENTATION_BACKLOG.md')) {
+    return 'Unchecked docs work — pick up an item';
+  }
+  if (path.endsWith('ARCHITECTURE_ROADMAP.md')) {
+    return 'Historical roadmap — not the live inventory';
+  }
+  if (path.endsWith('branching-and-release.md')) {
+    return 'Git / PR / release draft';
+  }
+  if (path.endsWith('overview.md')) {
+    return 'Purpose, stack, and boundaries';
+  }
+  if (path.endsWith('documentation-map.md')) {
+    return 'Where specs and docs live';
+  }
+  if (path.endsWith('ai-context.md')) {
+    return 'Rules for AI-assisted work';
+  }
+  if (page.isDraft) {
+    return 'In progress — not complete';
+  }
+  return 'Architecture documentation';
+}
+
+function renderDraftBanner(): string {
+  return `<p class="draft-banner" role="status"><strong>In progress</strong> — this page is not complete (or is a historical snapshot). Prefer Start here and current architecture pages until this is reviewed. Frontmatter: <code>status: draft</code>, <code>in-progress</code>, or <code>stale</code>.</p>`;
 }
 
 function renderDateMeta(
@@ -125,7 +159,11 @@ export function renderPageShell(options: {
   const storybook = renderStorybookLink(config);
   const showDates = config.site?.showDates !== false;
   const dateMeta = renderDateMeta(page, showDates);
-  const scaffoldBanner = page.isScaffold ? renderScaffoldBanner() : '';
+  const scaffoldBanner = page.isScaffold
+    ? renderScaffoldBanner()
+    : page.isDraft
+      ? renderDraftBanner()
+      : '';
   const mainClass = page.section === 'diagram' ? ' class="main--diagram"' : '';
   const sourceLink =
     page.sourcePath && page.relativePath.endsWith('.md')
@@ -262,12 +300,28 @@ export function renderPageShell(options: {
       font-weight: 600;
       border-left-color: var(--accent);
     }
+    .nav-accordion a.nav-draft {
+      color: #c9a227;
+      font-style: italic;
+    }
+    .nav-accordion a.nav-draft::after {
+      content: ' · in progress';
+      font-size: 0.65rem;
+      opacity: 0.85;
+      font-style: normal;
+    }
+    .nav-accordion a.nav-draft.active {
+      color: var(--accent);
+      font-weight: 600;
+      border-left-color: var(--accent);
+    }
     .nav-scaffold-demo {
       color: #c9a227;
       font-style: italic;
     }
     @media (prefers-color-scheme: light) {
-      .nav-accordion a.nav-scaffold {
+      .nav-accordion a.nav-scaffold,
+      .nav-accordion a.nav-draft {
         color: #9a7b0a;
       }
       .nav-scaffold-demo {
@@ -456,7 +510,8 @@ export function renderPageShell(options: {
       border: 1px solid var(--border);
       background: var(--panel);
     }
-    .scaffold-banner {
+    .scaffold-banner,
+    .draft-banner {
       margin: 0 0 1.25rem;
       padding: 0.65rem 0.85rem;
       border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
@@ -606,14 +661,7 @@ export function renderHomePage(options: {
   const startCards = startPages
     .map((page) => {
       const href = navHref('index.html', page.outputPath);
-      const blurb =
-        page.relativePath.endsWith('overview.md')
-          ? 'Purpose, stack, and boundaries'
-          : page.relativePath.endsWith('documentation-map.md')
-            ? 'Where specs and docs live'
-            : page.relativePath.endsWith('ai-context.md')
-              ? 'Rules for AI-assisted work'
-              : 'Architecture documentation';
+      const blurb = startHereBlurb(page);
       return `<a class="home-card" href="${href}"><strong>${escapeHtml(page.title)}</strong><span>${escapeHtml(blurb)}</span></a>`;
     })
     .join('\n');
@@ -646,7 +694,7 @@ export function renderHomePage(options: {
     .join('\n');
 
   const docsIndexLink = docsReadme
-    ? `<p><a href="${navHref('index.html', docsReadme.outputPath)}">Full documentation index (roles &amp; maintenance) →</a></p>`
+    ? `<p><a href="${navHref('index.html', docsReadme.outputPath)}">Documentation index →</a></p>`
     : '';
 
   const helpSummary = renderKitHelpSummary(
@@ -655,6 +703,10 @@ export function renderHomePage(options: {
 
   const hasScaffoldPages = pages.some((p) => p.isScaffold);
   const greenfieldPrompt = hasScaffoldPages ? renderGreenfieldPromptBlock() : '';
+  const hasDraftPages = pages.some((p) => p.isDraft);
+  const draftNotice = hasDraftPages
+    ? `<p class="home-kit-blurb">Sidebar links marked <em>in progress</em> are incomplete or historical — not current policy.</p>`
+    : '';
 
   const body = `<h1>${escapeHtml(projectName)}</h1>
 <p class="home-lede">${escapeHtml(description || `System architecture documentation (${projectTypeLabel}).`)}</p>
@@ -696,6 +748,8 @@ ${
 }
 
 ${docsIndexLink}
+
+${draftNotice}
 
 ${greenfieldPrompt}
 
