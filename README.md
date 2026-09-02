@@ -10,6 +10,33 @@ Use it to give developers, designers, and clients one consistent place to unders
 
 ---
 
+## Markdown first — the kit is optional tooling
+
+**You do not need scan, bootstrap, the greenfield AI prompt, MCP, or CI hooks to get value.**
+
+At the core, a host repo is just:
+
+- Markdown under `docs/` (architecture pages, ADRs, guides)
+- Optional Mermaid (`.mmd`) and a small `architecture.config.json`
+- Whatever frontmatter / headings you already use
+
+The package adds a **visual docs site**, **validate/doctor**, and **agent helpers**. None of that is required to read or edit the docs in git, GitHub, or your IDE.
+
+If you **removed the architecture-kit package** tomorrow, you would still have plain Markdown (and diagrams) with light YAML frontmatter — readable forever. That is intentional. The kit is a lens and a set of tools on top of durable files, not a proprietary content store.
+
+| You can… | Without… |
+| --- | --- |
+| Write and review architecture in `docs/**/*.md` | Installing the package |
+| Link ADRs and diagrams from PRs | Running `scan` / `bootstrap` |
+| Keep docs in git as the source of truth | Embedding HTML in the app |
+| Use Cursor/agents on the markdown directly | MCP or the greenfield prompt |
+
+`scan`, `bootstrap`, and the greenfield prompt are **accelerators** for empty or brownfield repos. Skip them anytime and author (or migrate) Markdown by hand.
+
+**Kit maintainers:** see [docs/](./docs/) for how this repo is structured, status color coding, [CHANGELOG](./CHANGELOG.md), and [removal](./docs/removal.md).
+
+---
+
 ## Goals
 
 1. **Consistent documentation** across Next.js, WordPress, Craft, and other stacks
@@ -17,6 +44,7 @@ Use it to give developers, designers, and clients one consistent place to unders
 3. **Governance** — scripts flag missing docs, placeholder content, and undocumented integrations
 4. **Browseable site** — HTML for stakeholders; Markdown sources available alongside
 5. **Package boundary** — the kit installs as a dev dependency; host-app embedding (mount path, redirects) stays in each repo
+6. **Exit safety** — removing the package leaves documentation intact as Markdown
 
 > If the architecture changes, the repo should say so.
 
@@ -61,7 +89,7 @@ In **architecture-kit** only:
 npm version patch && git push origin main --tags && npm publish
 ```
 
-See [PUBLISHING.md](./PUBLISHING.md) for GitHub Packages auth.
+See [PUBLISHING.md](./PUBLISHING.md) for GitHub Packages auth. Record user-facing notes in [CHANGELOG.md](./CHANGELOG.md) when you release.
 
 In host projects: `npm install` / `yarn install` / `pnpm install`, or `npm run build-dev` — no repo changes needed while semver range matches.
 
@@ -107,14 +135,18 @@ npx architecture-kit dev               # http://127.0.0.1:4321
 
 ## Quick start (existing project — bootstrap for AI)
 
-Already have code but no architecture docs? Scan the repo and hand context to your AI agent:
+Already have code but no architecture docs? You can **hand-write** `docs/architecture/*.md` and `architecture.config.json` — no scripts required.
+
+Optional accelerators if you want AI-assisted fill:
 
 ```bash
-npx architecture-kit scan                    # → .architecture-kit/agent-context.md
-npx architecture-kit bootstrap --apply       # scaffold missing docs + merge detected stack
-# Give agent-context.md to Cursor / your agent to fill docs/architecture/*.md
-npx architecture-kit validate
+npx architecture-kit scan                    # → .architecture-kit/agent-context.md (optional)
+npx architecture-kit bootstrap --apply       # scaffold missing docs + merge detected stack (optional)
+# Give agent-context.md to Cursor / your agent to fill docs — or skip and edit Markdown yourself
+npx architecture-kit validate                # optional check
 ```
+
+`scan` / `bootstrap` / the greenfield prompt are conveniences, not prerequisites.
 
 ---
 

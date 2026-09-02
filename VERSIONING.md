@@ -24,10 +24,13 @@ Every **published change** to `@folklore-digital/architecture-kit` must bump `pa
 npm run build
 npm test
 
-npm version patch   # or minor / major — updates package.json, commits, tags vX.Y.Z
+# Update CHANGELOG.md [Unreleased] → version section, then:
+npm version minor   # or patch / major — updates package.json, commits, tags vX.Y.Z
 git push origin main --tags
 npm publish         # GitHub Packages — see PUBLISHING.md
 ```
+
+User-facing notes for each release live in [CHANGELOG.md](./CHANGELOG.md).
 
 Host projects with `"@folklore-digital/architecture-kit": "^1.0.0"` pick up compatible releases on `npm update` / `npm install` (embed scripts run update on dev/build).
 
