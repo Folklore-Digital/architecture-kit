@@ -103,6 +103,12 @@ function startHereBlurb(page: DocPage): string {
   if (path.endsWith('branching-and-release.md')) {
     return 'Git / PR / release draft';
   }
+  if (path.endsWith('apps-and-spaces.md')) {
+    return 'What differs per app, space, and host';
+  }
+  if (path.endsWith('glossary.md')) {
+    return 'Shared vocabulary for this repo';
+  }
   if (path.endsWith('overview.md')) {
     return 'Purpose, stack, and boundaries';
   }
