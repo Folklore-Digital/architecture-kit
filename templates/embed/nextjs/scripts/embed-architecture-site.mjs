@@ -26,7 +26,10 @@ function normalizeEmbeddedPath(resolved) {
   return resolved;
 }
 
-function rewriteHtmlLinks(html, fileRelativePath, mountPath) {
+const SKIP_REWRITE =
+  /(<script\b[^>]*>[\s\S]*?<\/script>|<style\b[^>]*>[\s\S]*?<\/style>)/gi;
+
+function rewriteHrefAttributes(html, fileRelativePath, mountPath) {
   const mount = mountPath.endsWith("/") ? mountPath : `${mountPath}/`;
   const fileDir = path.posix.dirname(fileRelativePath);
 
@@ -38,6 +41,19 @@ function rewriteHtmlLinks(html, fileRelativePath, mountPath) {
     const resolved = normalizeEmbeddedPath(path.posix.normalize(joined));
     return `href="${mount}${resolved}"`;
   });
+}
+
+/** Rewrite relative doc links only in HTML markup — not inline script/style. */
+function rewriteHtmlLinks(html, fileRelativePath, mountPath) {
+  const parts = html.split(SKIP_REWRITE);
+  return parts
+    .map((part, index) => {
+      if (index % 2 === 1) {
+        return part;
+      }
+      return rewriteHrefAttributes(part, fileRelativePath, mountPath);
+    })
+    .join("");
 }
 
 async function walkHtml(dir, baseDir, files = []) {

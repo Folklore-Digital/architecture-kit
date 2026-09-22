@@ -10,6 +10,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/)-inspired. Versioning: [V
 
 - (none yet)
 
+## [1.2.1] - 2026-09-22
+
+### Fixed
+
+- Next.js embed template: skip `<script>` / `<style>` when rewriting `href` so site search and other inline JS keep working after mount-path embedding
+
 ## [1.2.0] - 2026-09-02
 
 ### Added
