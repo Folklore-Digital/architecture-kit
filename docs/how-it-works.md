@@ -42,9 +42,9 @@ Architecture kit (optional tooling)
 | Repo | Role |
 | --- | --- |
 | **architecture-kit** (this) | CLI, templates, site renderer, validators — versioned npm package |
-| **Host** (rock-em, pontoons, inspire, …) | Real architecture content for that product |
+| **Host app repo** | Real architecture content for that product |
 
-Do not put product-specific Epicor/Contentful details in this kit repo — put them in the host’s `docs/architecture/`.
+Do not put product-specific CMS/ERP/client details in this kit repo — put them in the host’s `docs/architecture/`.
 
 ## Related
 

@@ -30,7 +30,7 @@ architecture-kit/
 ├── dist/                   Build output (published)
 ├── README.md               Consumer-facing overview
 ├── CHANGELOG.md            Released changes
-├── PUBLISHING.md           GitHub Packages publish
+├── PUBLISHING.md           Public npm publish
 ├── VERSIONING.md           Semver policy
 └── ROADMAP.md              Longer phases
 ```

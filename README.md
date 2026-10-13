@@ -53,17 +53,16 @@ If you **removed the architecture-kit package** tomorrow, you would still have p
 ## Quick start (new Next.js project)
 
 ```bash
-# GitHub Packages — copy .npmrc.example → .npmrc with a read:packages PAT
-npm install -D @folklore-digital/architecture-kit@^1.0.0
+npm install -D @folklore-digital/architecture-kit@^1.3.0
 npx architecture-kit detect                    # optional: suggest project type
 npx architecture-kit init --type nextjs --embed nextjs
 npm install
 # Fill in architecture.config.json and docs/architecture/*.md
 npm run architecture:validate
-npm run dev                                    # game/app + docs at /architecture/
+npm run dev                                    # app + docs at /architecture/
 ```
 
-Git install fallback (no registry auth): see [PUBLISHING.md](./PUBLISHING.md).
+Public package on npm — **no PAT / `.npmrc` scope required**. See [PUBLISHING.md](./PUBLISHING.md).
 
 **`init` never overwrites existing docs** — safe to re-run; it only adds missing scaffold files.
 
@@ -89,7 +88,7 @@ In **architecture-kit** only:
 npm version patch && git push origin main --tags && npm publish
 ```
 
-See [PUBLISHING.md](./PUBLISHING.md) for GitHub Packages auth. Record user-facing notes in [CHANGELOG.md](./CHANGELOG.md) when you release.
+See [PUBLISHING.md](./PUBLISHING.md). Record user-facing notes in [CHANGELOG.md](./CHANGELOG.md) when you release.
 
 In host projects: `npm install` / `yarn install` / `pnpm install`, or `npm run build-dev` — no repo changes needed while semver range matches.
 
@@ -102,23 +101,14 @@ Embed scripts **auto-detect** the lockfile (`yarn.lock`, `pnpm-lock.yaml`, `pack
 Install the kit with your package manager:
 
 ```bash
-# Yarn Classic (Sage/Bud projects)
-yarn add -D @folklore-digital/architecture-kit@^1.0.0
-
-# Yarn Berry (v2+)
-yarn add -D @folklore-digital/architecture-kit@^1.0.0
+yarn add -D @folklore-digital/architecture-kit@^1.3.0
 
 npx architecture-kit init --type wordpress-custom
 yarn install
 yarn architecture:validate
 ```
 
-Requirements:
-- SSH deploy key with **read access to architecture-kit** (private git dependency)
-- Git tag `v0.3.x` published on the kit repo (semver resolution)
-- Do **not** mix `npm install` in a Yarn repo (creates `package-lock.json` and confuses detection)
-
-If install fails with `ENOVERSIONS` or "No versions available", the git tag is missing — verify `v0.3.0+` exists on GitHub.
+No private registry auth. Do **not** mix `npm install` in a Yarn-managed repo (creates `package-lock.json` and confuses detection).
 
 ---
 
@@ -330,7 +320,7 @@ Each host repo chooses whether and how to run validation. Example step for an ex
 - run: npm run architecture:validate -- --ci --since origin/develop
 ```
 
-If the kit is private, checkout it to `vendor/architecture-kit` in the same job (see rock-em-sock-em `scripts/lib/resolve-kit.mjs`). Tune governance in each repo's `architecture.config.json`.
+Tune governance in each repo's `architecture.config.json`. Optionally vendor a checkout for offline CI.
 
 ---
 
@@ -352,7 +342,7 @@ npx architecture-kit dev --port 4321
 The kit does **not** modify your app framework. In the host repo:
 
 1. `architecture-kit build --out public/your-mount/`
-2. Post-process links for your mount path (see rock-em-sock-em `scripts/embed-architecture-site.mjs`)
+2. Post-process links for your mount path (see `templates/embed/nextjs/scripts/embed-architecture-site.mjs` after `init --embed nextjs`)
 3. Add a redirect for `/your-mount` → `/your-mount/`
 
 This keeps the package reusable across WordPress, Next.js, static sites, etc.
@@ -437,25 +427,23 @@ See **[ROADMAP.md](./ROADMAP.md)** for the full plan (agent MCP, Claude/Cursor a
 
 Host-repo FAQ (`.architecture-kit` vs `node_modules`, custom `paths`, `/architecture/` mount, gitignore, prod safety): **[ROADMAP.md](./ROADMAP.md#developer-faq-host-repos)**.
 
-## Publishing (GitHub Packages)
+## Publishing (public npm)
 
-Private install without a sibling clone:
-
-1. Copy `.npmrc.example` to `.npmrc` and set a GitHub PAT with `read:packages` / `write:packages`
-2. Publish from maintainers:
+The GitHub repo and npm package are **public**. Maintainers:
 
 ```bash
 npm run build
-npm publish
+npm test
+npm publish --access public
 ```
 
-3. In host repos:
+Hosts:
 
 ```bash
 npm install -D @folklore-digital/architecture-kit
 ```
 
-Or keep using `vendor/architecture-kit` / `../architecture-kit` (recommended for monorepo-style local dev).
+No GitHub Packages token. Full steps: [PUBLISHING.md](./PUBLISHING.md). Local kit hacking: `vendor/architecture-kit` or `ARCHITECTURE_KIT_LOCAL=1` with a sibling clone.
 
 ---
 

@@ -1,6 +1,6 @@
 {
   "name": "@folklore-digital/architecture-kit",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Repo-native architecture documentation and governance layer for any project",
   "type": "module",
   "bin": {
@@ -10,7 +10,11 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "templates"
+    "templates",
+    "docs",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc",
@@ -18,7 +22,7 @@
     "dev": "tsx src/cli.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "publish:github": "npm run build && npm test && npm publish"
+    "publish:npm": "npm run build && npm test && npm publish --access public"
   },
   "keywords": [
     "architecture",
@@ -33,7 +37,8 @@
     "url": "git+https://github.com/Folklore-Digital/architecture-kit.git"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   },
   "engines": {
     "node": ">=20"

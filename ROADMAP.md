@@ -35,7 +35,7 @@ Move from git SSH branch pins to **GitHub Packages** as the default install path
 - [x] [PUBLISHING.md](./PUBLISHING.md) + [VERSIONING.md](./VERSIONING.md) — registry auth, migration checklist
 - [x] **`npm publish`** to GitHub Packages — `@folklore-digital/architecture-kit@1.0.0`
 - [x] Merge `feature/agent-pack` → `main`, tag `v1.0.0`
-- [x] Host repos: add `.npmrc`, replace git pin with `^1.0.0` (rock-em migrated)
+- [x] Host repos: replace git pin with registry semver (later: public npm in 1.3.0)
 
 See [.npmrc.example](./.npmrc.example).
 
@@ -199,7 +199,7 @@ Kit `build` emits a small manifest; embed scripts read it so mount path and outp
 
 **Recommended yes** — built HTML is generated on `dev` / `build-dev`, not source of truth.
 
-**Today:** `templates/embed/nextjs/EMBED.md` says to add `/public/architecture/` manually. Host example [rock-em-sock-em](https://github.com/Folklore-Digital/rock-em-sock-em) gitignores both `.architecture-kit/` and `/public/architecture/`.
+**Today:** `templates/embed/nextjs/EMBED.md` and `init --embed` gitignore generated `.architecture-kit/` and `public/architecture/` (or configured `site.outputDir`).
 
 **Roadmap (Phase 15):**
 
@@ -229,8 +229,8 @@ WordPress deploys often sync **the whole theme** or use **All-in-One WP Migratio
 
 **Today:**
 
-- Folklore Next.js hosts serve `/architecture/` on **dev** (e.g. fklr.dev) by choice; production exposure is a **host-app decision** (redirect, auth middleware, or omit from prod build).
-- No kit-enforced production block yet.
+- Hosts may serve `/architecture/` on **dev/staging** by choice; production exposure is a **host-app decision** (redirect, auth middleware, or omit from prod build).
+- Kit provides exposure config + validate helpers (Phase 16).
 
 **Roadmap (Phase 16 — deploy & exposure governance):**
 
@@ -267,8 +267,9 @@ Unify host-side hardcoding into `architecture.config.json`:
 - [x] Version reset: `0.5.x` → **1.0.0** (first stable registry release)
 - [x] Scope `@folklore-digital` (matches GitHub org `Folklore-Digital`)
 - [x] `templates/embed/nextjs/package.merge.json` — npm semver default
-- [x] Published `@folklore-digital/architecture-kit@1.0.0` to GitHub Packages
-- [x] Migrate host repos from git branch pins (rock-em on `feature/arch-docs-build`)
+- [x] Published `@folklore-digital/architecture-kit@1.0.0` (GitHub Packages era)
+- [x] Migrate host repos from git branch pins to registry semver
+- [x] **1.3.0** — public GitHub repo + public npmjs.org (no consumer PAT)
 
 ---
 
@@ -337,5 +338,4 @@ Complementary, not competitive — a team could use tela for runbooks and Archit
 ## References
 
 - [tela homepage](https://telawiki.com/) — agent-native wiki, Atlas, MCP connector
-- Host example: [rock-em-sock-em](https://github.com/Folklore-Digital/rock-em-sock-em) — `/architecture/` embed, `feature/arch-docs-build`
-- Kit releases: tag `vX.Y.Z` in this repo only ([VERSIONING.md](./VERSIONING.md))
+- Kit releases: tag `vX.Y.Z` in this repo only ([VERSIONING.md](./VERSIONING.md)); publish to public npm ([PUBLISHING.md](./PUBLISHING.md))

@@ -1,5 +1,11 @@
-# GitHub Packages (private install)
-# Copy to .npmrc and replace YOUR_GITHUB_TOKEN with a PAT that has read:packages
+# Optional — not required for public installs
 
-@folklore-digital:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
+`@folklore-digital/architecture-kit` is published to the **public npm registry**. Hosts should install with:
+
+```bash
+npm install -D @folklore-digital/architecture-kit
+```
+
+No `.npmrc` scope or GitHub token is needed for this package.
+
+Only add a GitHub Packages `.npmrc` if you still consume **other** private `@folklore-digital/*` packages from `npm.pkg.github.com`.

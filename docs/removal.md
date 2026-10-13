@@ -35,7 +35,7 @@ The kit is designed so removal does **not** destroy your documentation. You keep
    - `.claude/skills/architecture-kit/`
 7. **Config (optional):** keep `architecture.config.json` as team metadata, or delete if unused.
 8. **Gitignore:** you may remove `.architecture-kit/` and `public/architecture/` entries once those dirs are gone.
-9. **CI:** drop any `architecture:validate` / kit install steps and GitHub Packages auth that existed only for the kit.
+9. **CI:** drop any `architecture:validate` / kit install steps (and any leftover registry auth that existed only for this kit).
 10. **Run a normal install** (`npm ci` / `yarn` / etc.) and confirm app build/deploy still work.
 
 ## Minimal removal (docs stay, tooling gone)

@@ -10,6 +10,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/)-inspired. Versioning: [V
 
 - (none yet)
 
+## [1.3.0] - 2026-10-13
+
+### Changed
+
+- **Public release:** GitHub repository is public; package publishes to **npmjs.org** (`publishConfig.access: public`)
+- Install no longer requires GitHub Packages PAT / `.npmrc` scope mapping
+- Docs scrubbed of private-host-only install steps; [PUBLISHING.md](./PUBLISHING.md) rewritten for public npm
+
+### Migration
+
+Hosts that installed from `npm.pkg.github.com` should remove that registry mapping for this package and run a normal `npm install @folklore-digital/architecture-kit@^1.3.0`.
+
 ## [1.2.1] - 2026-09-22
 
 ### Fixed

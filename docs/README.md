@@ -11,7 +11,7 @@ Host-project architecture docs live in **each app repo** under `docs/architectur
 | [Status & color coding](./status-and-color-coding.md) | Authors using the docs site |
 | [Removal](./removal.md) | Teams that want to drop the package |
 | [CHANGELOG](../CHANGELOG.md) | What shipped when |
-| [PUBLISHING](../PUBLISHING.md) | How to release to GitHub Packages |
+| [PUBLISHING](../PUBLISHING.md) | How to release to the public npm registry |
 | [VERSIONING](../VERSIONING.md) | Semver rules |
 | [ROADMAP](../ROADMAP.md) | Longer-term phases |
 

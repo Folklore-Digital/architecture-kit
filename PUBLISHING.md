@@ -1,76 +1,48 @@
 # Publishing @folklore-digital/architecture-kit
 
-**v1.0.0** is the first stable release on **GitHub Packages** (npm registry). The `0.5.x` line on `feature/agent-pack` was pre-release development; host repos should migrate from `git+ssh://...#feature/agent-pack` to registry semver.
+The kit is a **public** GitHub repo and publishes to the **public npm registry** (`registry.npmjs.org`). Consumers do **not** need a GitHub PAT or `.npmrc` scope mapping.
 
-## GitHub Packages (recommended)
-
-Registry: `https://npm.pkg.github.com` · scope: `@folklore-digital`
-
-### One-time setup (maintainer)
-
-1. Create a GitHub PAT with `write:packages` and `read:packages`
-2. Authenticate:
+## Install (host repos)
 
 ```bash
-npm login --registry=https://npm.pkg.github.com
-# Username: your-github-username
-# Password: PAT
+npm install -D @folklore-digital/architecture-kit@^1.3.0
+# or: yarn add -D / pnpm add -D
 ```
 
-### Publish a release
+No auth files required for install.
 
-From `main` after merging `feature/agent-pack`:
+### Git install (optional)
+
+If you prefer pinning to the GitHub repo (also public, no PAT):
+
+```bash
+npm install -D "github:Folklore-Digital/architecture-kit#semver:^1.3.0"
+```
+
+---
+
+## Maintainer: publish a release
+
+### One-time
+
+1. Create or join the **`folklore-digital`** org on [npmjs.com](https://www.npmjs.com) (scoped packages need an org or user scope you own).
+2. `npm login` (registry defaults to `https://registry.npmjs.org`).
+3. Ensure you can publish under `@folklore-digital` with **public** access.
+
+### Each release
+
+From `main`:
 
 ```bash
 npm run build
 npm test
-npm version patch   # or minor/major — creates git tag vX.Y.Z
+# Move CHANGELOG [Unreleased] → version section
+npm version minor   # or patch / major — tags vX.Y.Z
 git push origin main --tags
-npm publish         # or: npm run publish:github
+npm publish --access public
 ```
 
-### Consume in host repos
-
-**1. Registry auth** — copy `.npmrc.example` to `.npmrc` (host repo or user home):
-
-```
-@folklore-digital:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
-```
-
-**2. Install** (preferred — no git SSH, no `npm update` git quirks):
-
-```bash
-npm install -D @folklore-digital/architecture-kit@^1.0.0
-```
-
-New projects from `init --embed nextjs` get `"@folklore-digital/architecture-kit": "^1.0.0"` in `package.json` automatically.
-
-**3. Embed scripts** — `ensure-kit-install.mjs` runs `npm update @folklore-digital/architecture-kit` on dev/build; works with registry semver.
-
-### CI (GitHub Actions)
-
-Use `GITHUB_TOKEN` with `packages: read` or a PAT in `.npmrc`:
-
-```yaml
-- run: npm ci
-  env:
-    NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
-
-Alternatively checkout the kit to `vendor/architecture-kit` for validate-only jobs (no registry needed).
-
----
-
-## Git install (fallback)
-
-When registry auth is not available (external contractors, air-gapped):
-
-```bash
-npm install -D "git+ssh://git@github.com/Folklore-Digital/architecture-kit.git#semver:^1.0.0"
-```
-
-Git tags must match published versions. Prefer registry for Folklore host repos.
+`package.json` `publishConfig` already targets the public registry.
 
 ---
 
@@ -85,12 +57,13 @@ Do not set `ARCHITECTURE_KIT_LOCAL` on CI or production servers.
 
 ---
 
-## Migration checklist (host repos)
+## Migration from GitHub Packages (private)
 
-- [ ] Merge kit `feature/agent-pack` → `main`, publish `@folklore-digital/architecture-kit@1.0.0`
-- [ ] Add `.npmrc` with `@folklore-digital:registry` (or org-level auth)
-- [ ] Replace `git+ssh://...#feature/agent-pack` with `^1.0.0` in `package.json`
-- [ ] `npm install` && `npm run architecture:validate -- --ci`
-- [ ] Remove `ARCHITECTURE_KIT_LOCAL` from server deploy scripts
+Host repos that used private GitHub Packages:
 
-See [VERSIONING.md](./VERSIONING.md).
+1. Remove `@folklore-digital:registry=…` and `//npm.pkg.github.com/:_authToken=…` from project/user `.npmrc` (unless still needed for other private packages).
+2. Set dependency to `"@folklore-digital/architecture-kit": "^1.3.0"` (npmjs) or the public git semver URL above.
+3. `npm install` / `yarn` / `pnpm install` — should work with no PAT.
+4. Drop CI secrets that existed only for this kit.
+
+See [VERSIONING.md](./VERSIONING.md) and [CHANGELOG.md](./CHANGELOG.md).
