@@ -16,6 +16,11 @@ import {
   readKitVersionRange,
   type EmbedTarget,
 } from './embed.js';
+import {
+  DEFAULT_AI_ADAPTERS,
+  hasAiAdapter,
+  type AiAdapter,
+} from '../agent/adapters.js';
 import { wrapScaffoldFrontmatter } from './scaffoldFrontmatter.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -312,7 +317,7 @@ export async function scaffoldProject(
   cwd: string,
   type: ProjectType,
   projectName?: string,
-  options?: { embed?: EmbedTarget },
+  options?: { embed?: EmbedTarget; adapters?: AiAdapter[] },
 ): Promise<{ created: string[]; skipped: string[]; warnings: string[] }> {
   const created: string[] = [];
   const skipped: string[] = [];
@@ -320,6 +325,9 @@ export async function scaffoldProject(
   const name = projectName ?? (await resolveProjectName(cwd));
   const docsDir = path.join(cwd, 'docs');
   const configPath = path.join(cwd, 'architecture.config.json');
+  const adapters = options?.adapters?.length
+    ? options.adapters
+    : [...DEFAULT_AI_ADAPTERS];
 
   const docsExisted = await pathExists(docsDir);
   if (!docsExisted) {
@@ -333,75 +341,85 @@ export async function scaffoldProject(
 
   if (!(await pathExists(configPath))) {
     const config = createDefaultConfig(type, name);
+    config.ai = { adapters: [...adapters] };
     await writeJson(configPath, config);
     created.push('architecture.config.json');
   } else {
     skipped.push('architecture.config.json');
   }
 
-  const cursorRuleSource = path.join(getTemplatesDir(), 'cursor/architecture-kit.mdc');
-  const cursorRuleTarget = path.join(cwd, '.cursor/rules/architecture-kit.mdc');
-  if (await pathExists(cursorRuleSource)) {
-    if (await pathExists(cursorRuleTarget)) {
-      skipped.push('.cursor/rules/architecture-kit.mdc');
-    } else {
-      await ensureDir(path.dirname(cursorRuleTarget));
-      const cursorTemplate = await readFile(cursorRuleSource, 'utf-8');
-      const cursorRule = cursorTemplate.replaceAll('{{projectName}}', name);
-      await writeFile(cursorRuleTarget, cursorRule, 'utf-8');
-      created.push('.cursor/rules/architecture-kit.mdc');
-    }
-  }
-
-  const agentsSnippetSource = path.join(getTemplatesDir(), 'AGENTS.snippet.md');
-  const agentsPath = path.join(cwd, 'AGENTS.md');
-  if (await pathExists(agentsSnippetSource)) {
-    const snippet = await readFile(agentsSnippetSource, 'utf-8');
-    if (await pathExists(agentsPath)) {
-      const existing = await readFile(agentsPath, 'utf-8');
-      if (!existing.includes('architecture-kit')) {
-        await appendFile(agentsPath, `\n${snippet}`, 'utf-8');
-        created.push('AGENTS.md (appended architecture section)');
+  if (hasAiAdapter(adapters, 'agents')) {
+    const agentsSnippetSource = path.join(getTemplatesDir(), 'AGENTS.snippet.md');
+    const agentsPath = path.join(cwd, 'AGENTS.md');
+    if (await pathExists(agentsSnippetSource)) {
+      const snippet = await readFile(agentsSnippetSource, 'utf-8');
+      if (await pathExists(agentsPath)) {
+        const existing = await readFile(agentsPath, 'utf-8');
+        if (!existing.includes('architecture-kit')) {
+          await appendFile(agentsPath, `\n${snippet}`, 'utf-8');
+          created.push('AGENTS.md (appended architecture section)');
+        } else {
+          skipped.push('AGENTS.md (already references architecture-kit)');
+        }
       } else {
-        skipped.push('AGENTS.md (already references architecture-kit)');
+        await writeFile(agentsPath, `${snippet.trim()}\n`, 'utf-8');
+        created.push('AGENTS.md');
       }
-    } else {
-      await writeFile(agentsPath, `${snippet.trim()}\n`, 'utf-8');
-      created.push('AGENTS.md');
     }
   }
 
-  const claudeSource = path.join(getTemplatesDir(), 'claude/CLAUDE.md');
-  const claudeTarget = path.join(cwd, 'CLAUDE.md');
-  if (await pathExists(claudeSource)) {
-    if (await pathExists(claudeTarget)) {
-      skipped.push('CLAUDE.md');
-    } else {
-      const claudeTemplate = await readFile(claudeSource, 'utf-8');
-      await writeFile(
-        claudeTarget,
-        claudeTemplate.replaceAll('{{projectName}}', name),
-        'utf-8',
-      );
-      created.push('CLAUDE.md');
+  if (hasAiAdapter(adapters, 'cursor')) {
+    const cursorRuleSource = path.join(
+      getTemplatesDir(),
+      'cursor/architecture-kit.mdc',
+    );
+    const cursorRuleTarget = path.join(cwd, '.cursor/rules/architecture-kit.mdc');
+    if (await pathExists(cursorRuleSource)) {
+      if (await pathExists(cursorRuleTarget)) {
+        skipped.push('.cursor/rules/architecture-kit.mdc');
+      } else {
+        await ensureDir(path.dirname(cursorRuleTarget));
+        const cursorTemplate = await readFile(cursorRuleSource, 'utf-8');
+        const cursorRule = cursorTemplate.replaceAll('{{projectName}}', name);
+        await writeFile(cursorRuleTarget, cursorRule, 'utf-8');
+        created.push('.cursor/rules/architecture-kit.mdc');
+      }
     }
   }
 
-  const claudeSkillSource = path.join(
-    getTemplatesDir(),
-    'claude/skills/architecture-kit/SKILL.md',
-  );
-  const claudeSkillTarget = path.join(
-    cwd,
-    '.claude/skills/architecture-kit/SKILL.md',
-  );
-  if (await pathExists(claudeSkillSource)) {
-    if (await pathExists(claudeSkillTarget)) {
-      skipped.push('.claude/skills/architecture-kit/SKILL.md');
-    } else {
-      await ensureDir(path.dirname(claudeSkillTarget));
-      await cp(claudeSkillSource, claudeSkillTarget);
-      created.push('.claude/skills/architecture-kit/SKILL.md');
+  if (hasAiAdapter(adapters, 'claude')) {
+    const claudeSource = path.join(getTemplatesDir(), 'claude/CLAUDE.md');
+    const claudeTarget = path.join(cwd, 'CLAUDE.md');
+    if (await pathExists(claudeSource)) {
+      if (await pathExists(claudeTarget)) {
+        skipped.push('CLAUDE.md');
+      } else {
+        const claudeTemplate = await readFile(claudeSource, 'utf-8');
+        await writeFile(
+          claudeTarget,
+          claudeTemplate.replaceAll('{{projectName}}', name),
+          'utf-8',
+        );
+        created.push('CLAUDE.md');
+      }
+    }
+
+    const claudeSkillSource = path.join(
+      getTemplatesDir(),
+      'claude/skills/architecture-kit/SKILL.md',
+    );
+    const claudeSkillTarget = path.join(
+      cwd,
+      '.claude/skills/architecture-kit/SKILL.md',
+    );
+    if (await pathExists(claudeSkillSource)) {
+      if (await pathExists(claudeSkillTarget)) {
+        skipped.push('.claude/skills/architecture-kit/SKILL.md');
+      } else {
+        await ensureDir(path.dirname(claudeSkillTarget));
+        await cp(claudeSkillSource, claudeSkillTarget);
+        created.push('.claude/skills/architecture-kit/SKILL.md');
+      }
     }
   }
 

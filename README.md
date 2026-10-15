@@ -66,6 +66,14 @@ Public package on npm — **no PAT / `.npmrc` scope required**. See [PUBLISHING.
 
 **`init` never overwrites existing docs** — safe to re-run; it only adds missing scaffold files.
 
+**AI entrypoints:** by default `init` only adds tool-agnostic `AGENTS.md`. Cursor (`.cursor/rules/…`) and Claude (`CLAUDE.md` + skill) are opt-in:
+
+```bash
+npx architecture-kit init --type nextjs --adapters agents,cursor,claude
+```
+
+Or set `"ai": { "adapters": ["agents", "cursor"] }` in `architecture.config.json`.
+
 ### What `--embed nextjs` adds
 
 | Item | Purpose |
@@ -76,7 +84,7 @@ Public package on npm — **no PAT / `.npmrc` scope required**. See [PUBLISHING.
 | `scripts/embed-architecture-site.mjs` | Rewrite links for `/architecture/` mount |
 | `scripts/run-architecture-kit.mjs` | Run validate/doctor/build via installed kit |
 | `package.json` scripts | `predev`, `build-dev`, `architecture:*` (merge only) |
-| `.cursor/rules/architecture-kit.mdc` | Agent entrypoint (skip-if-exists) |
+| `AGENTS.md` | Tool-agnostic agent entrypoint (skip-if-exists) |
 
 One manual step: add `/architecture` redirect — see `docs/architecture/_embed-host-setup.md`.
 
@@ -144,7 +152,8 @@ npx architecture-kit validate                # optional check
 
 | Command | Purpose |
 | --- | --- |
-| `init --type <type>` | Scaffold `docs/`, ADRs, diagrams, `architecture.config.json` (skip existing files) |
+| `init --type <type>` | Scaffold `docs/`, ADRs, diagrams, `architecture.config.json`, `AGENTS.md` (skip existing files) |
+| `init --adapters agents,cursor,claude` | Opt into vendor AI files (default is `agents` only — no Claude/Cursor files) |
 | `init --embed nextjs` | Also copy host scripts + merge `package.json` for Next.js at `/architecture/` |
 | `scan` | Detect stack, integrations, doc gaps; write `.architecture-kit/agent-context.md` for AI agents |
 | `bootstrap [--apply]` | Scan + write JSON context; `--apply` scaffolds missing docs and merges config |
@@ -299,7 +308,7 @@ Inline blocks render on the same page but do not appear under **Diagrams** and a
 - Integrations in config appear in `integrations.md`
 - **Optional Storybook** — when `storybook.enabled`, warns if URL or documentation-map link missing
 - **Governance**: integration ADR mentions, `.env.example` keys in `environments.md`
-- **AI tooling**: `.cursor/rules/architecture-kit.mdc`, `AGENTS.md` or `CLAUDE.md`
+- **AI tooling**: tool-agnostic `AGENTS.md` by default; optional Cursor/Claude adapters when `ai.adapters` includes them
 - **Diff awareness** (`--since origin/develop`): code changes without matching doc updates
 - **Scaffold mode** — `init` tags new markdown with `status: scaffold` frontmatter; site shows a banner; `validate --ci` fails until docs are reviewed and `project.documentationStatus` is `"active"`
 - **In progress / stale pages** — `status: draft`, `in-progress`, or `stale` get an “in progress” banner and sidebar marker, but do **not** fail validate like leftover scaffolds. Folders named `_archive` under `docs/` are skipped by the site.

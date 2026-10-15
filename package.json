@@ -1,6 +1,6 @@
 {
   "name": "@folklore-digital/architecture-kit",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Repo-native architecture documentation and governance layer for any project",
   "type": "module",
   "bin": {

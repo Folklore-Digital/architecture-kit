@@ -24,42 +24,22 @@ afterEach(async () => {
 });
 
 describe('validateAiTooling', () => {
-  it('warns when cursor rule and agent docs are missing', async () => {
+  it('warns when AGENTS.md is missing (default adapters)', async () => {
     const cwd = await makeTempDir();
     const config = createDefaultConfig('nextjs', 'Demo');
 
     const issues = await validateAiTooling(cwd, config);
     const codes = issues.map((issue) => issue.code);
 
-    expect(codes).toContain('missing-cursor-rule');
     expect(codes).toContain('missing-agents-md');
+    expect(codes).not.toContain('missing-cursor-rule');
+    expect(codes).not.toContain('missing-claude-skill');
   });
 
-  it('does not require AGENTS.md when cursor rule is present', async () => {
+  it('passes when AGENTS.md references architecture-kit', async () => {
     const cwd = await makeTempDir();
     const config = createDefaultConfig('nextjs', 'Demo');
 
-    await mkdir(path.join(cwd, '.cursor/rules'), { recursive: true });
-    await writeFile(
-      path.join(cwd, '.cursor/rules/architecture-kit.mdc'),
-      '# Architecture Kit\n',
-      'utf-8',
-    );
-
-    const issues = await validateAiTooling(cwd, config);
-    expect(issues).toHaveLength(0);
-  });
-
-  it('passes when cursor rule and AGENTS.md reference architecture-kit', async () => {
-    const cwd = await makeTempDir();
-    const config = createDefaultConfig('nextjs', 'Demo');
-
-    await mkdir(path.join(cwd, '.cursor/rules'), { recursive: true });
-    await writeFile(
-      path.join(cwd, '.cursor/rules/architecture-kit.mdc'),
-      '# Architecture Kit\n',
-      'utf-8',
-    );
     await writeFile(
       path.join(cwd, 'AGENTS.md'),
       'Use architecture-kit and docs/architecture/ai-context.md\n',
@@ -70,10 +50,46 @@ describe('validateAiTooling', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('warns when CLAUDE.md exists without architecture-kit skill', async () => {
+  it('does not require AGENTS.md when a cursor rule already exists', async () => {
     const cwd = await makeTempDir();
     const config = createDefaultConfig('nextjs', 'Demo');
 
+    await mkdir(path.join(cwd, '.cursor/rules'), { recursive: true });
+    await writeFile(
+      path.join(cwd, '.cursor/rules/architecture-kit.mdc'),
+      '# Architecture Kit\n',
+      'utf-8',
+    );
+
+    const issues = await validateAiTooling(cwd, config);
+    expect(issues).toHaveLength(0);
+  });
+
+  it('warns for missing cursor rule only when cursor adapter is enabled', async () => {
+    const cwd = await makeTempDir();
+    const config = createDefaultConfig('nextjs', 'Demo');
+    config.ai = { adapters: ['agents', 'cursor'] };
+
+    await writeFile(
+      path.join(cwd, 'AGENTS.md'),
+      'Use architecture-kit\n',
+      'utf-8',
+    );
+
+    const issues = await validateAiTooling(cwd, config);
+    expect(issues.some((i) => i.code === 'missing-cursor-rule')).toBe(true);
+  });
+
+  it('warns for missing claude skill only when claude adapter is enabled', async () => {
+    const cwd = await makeTempDir();
+    const config = createDefaultConfig('nextjs', 'Demo');
+    config.ai = { adapters: ['agents', 'claude'] };
+
+    await writeFile(
+      path.join(cwd, 'AGENTS.md'),
+      'Use architecture-kit\n',
+      'utf-8',
+    );
     await writeFile(
       path.join(cwd, 'CLAUDE.md'),
       'Use architecture-kit and docs/architecture/ai-context.md\n',
@@ -82,6 +98,21 @@ describe('validateAiTooling', () => {
 
     const issues = await validateAiTooling(cwd, config);
     expect(issues.some((i) => i.code === 'missing-claude-skill')).toBe(true);
+  });
+
+  it('ignores orphan CLAUDE.md when claude adapter is not enabled', async () => {
+    const cwd = await makeTempDir();
+    const config = createDefaultConfig('nextjs', 'Demo');
+
+    await writeFile(
+      path.join(cwd, 'AGENTS.md'),
+      'Use architecture-kit\n',
+      'utf-8',
+    );
+    await writeFile(path.join(cwd, 'CLAUDE.md'), 'Some other notes\n', 'utf-8');
+
+    const issues = await validateAiTooling(cwd, config);
+    expect(issues).toHaveLength(0);
   });
 });
 

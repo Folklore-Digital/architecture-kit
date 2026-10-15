@@ -5,6 +5,8 @@ alwaysApply: true
 
 # Architecture Kit ({{projectName}})
 
+Optional Cursor adapter (scaffolded only with `init --adapters agents,cursor`). Prefer tool-agnostic `AGENTS.md` when possible.
+
 This repo uses **@folklore-digital/architecture-kit** (public npm package).
 
 - **Default:** `node_modules/@folklore-digital/architecture-kit` — install with `npm i -D @folklore-digital/architecture-kit` (no PAT)

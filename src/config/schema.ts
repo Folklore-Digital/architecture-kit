@@ -1,6 +1,21 @@
 import { z } from 'zod';
+import {
+  AI_ADAPTERS,
+  DEFAULT_AI_ADAPTERS,
+} from '../agent/adapters.js';
 
 export const SCHEMA_VERSION = '0.1.0';
+
+export const aiAdapterSchema = z.enum(AI_ADAPTERS);
+
+export const aiSchema = z.object({
+  /**
+   * Which AI entrypoint adapters to scaffold / validate.
+   * Default `["agents"]` — tool-agnostic AGENTS.md only.
+   * Add `cursor` and/or `claude` to opt into vendor-specific files.
+   */
+  adapters: z.array(aiAdapterSchema).default([...DEFAULT_AI_ADAPTERS]),
+});
 
 export const integrationSchema = z.object({
   name: z.string().min(1),
@@ -113,6 +128,11 @@ export const architectureConfigSchema = z.object({
     .default({}),
   /** Optional — set when the project uses Storybook for UI documentation. */
   storybook: storybookSchema.optional(),
+  /**
+   * AI entrypoints. Default is tool-agnostic (`agents` → AGENTS.md).
+   * Opt into Cursor/Claude files via adapters or `init --adapters …`.
+   */
+  ai: aiSchema.optional(),
   /** Docs site presentation options. */
   site: siteSchema.optional(),
 });
@@ -172,6 +192,9 @@ export function createDefaultConfig(
       diagrams: 'docs/diagrams',
       aiContext: 'docs/architecture/ai-context.md',
       agentOutput: '.architecture-kit',
+    },
+    ai: {
+      adapters: [...DEFAULT_AI_ADAPTERS],
     },
     site: {
       showDates: true,

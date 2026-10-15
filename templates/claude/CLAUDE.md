@@ -1,5 +1,7 @@
 # {{projectName}} — Claude Code
 
+Optional Claude adapter (scaffolded only with `init --adapters agents,claude`). Prefer tool-agnostic `AGENTS.md` when possible.
+
 This repo uses [@folklore-digital/architecture-kit](https://github.com/Folklore-Digital/architecture-kit) for repo-native architecture docs.
 
 ## Entrypoints

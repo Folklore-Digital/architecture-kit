@@ -1,3 +1,4 @@
+import type { AiAdapter } from '../agent/adapters.js';
 import type { EmbedTarget } from '../utils/embed.js';
 import type { ProjectType } from '../config/schema.js';
 import { projectTypeLabels } from '../config/schema.js';
@@ -9,6 +10,8 @@ export type InitOptions = {
   name?: string;
   cwd?: string;
   embed?: EmbedTarget;
+  /** Default: agents only (AGENTS.md). Opt into cursor / claude. */
+  adapters?: AiAdapter[];
 };
 
 export async function runInit(options: InitOptions): Promise<void> {
@@ -17,7 +20,7 @@ export async function runInit(options: InitOptions): Promise<void> {
     cwd,
     options.type,
     options.name,
-    { embed: options.embed },
+    { embed: options.embed, adapters: options.adapters },
   );
 
   console.log(
@@ -25,6 +28,11 @@ export async function runInit(options: InitOptions): Promise<void> {
   );
   if (options.embed) {
     console.log(`Embed: ${options.embed}`);
+  }
+  if (options.adapters?.length) {
+    console.log(`AI adapters: ${options.adapters.join(', ')}`);
+  } else {
+    console.log('AI adapters: agents (tool-agnostic AGENTS.md)');
   }
   console.log('');
 

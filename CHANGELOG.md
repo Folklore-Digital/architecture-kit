@@ -10,6 +10,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/)-inspired. Versioning: [V
 
 - (none yet)
 
+## [1.4.0] - 2026-10-15
+
+### Changed
+
+- **Agent-agnostic defaults:** `init` only scaffolds tool-neutral `AGENTS.md` (no `.cursor/rules/…`, `CLAUDE.md`, or Claude skills unless opted in)
+- New `init --adapters agents,cursor,claude` and `ai.adapters` in `architecture.config.json` (default `["agents"]`)
+- Validate/doctor only enforce Cursor/Claude files when those adapters are enabled
+
+### Migration
+
+Existing repos that already have Cursor/Claude files can keep them. To stop validate warnings about missing vendor files, leave `ai.adapters` at the default `["agents"]` (or omit it). To keep scaffolding those files on re-init: `npx architecture-kit init --type <type> --adapters agents,cursor,claude`.
+
 ## [1.3.0] - 2026-10-13
 
 ### Changed

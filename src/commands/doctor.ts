@@ -102,16 +102,24 @@ export async function runDoctor(
     ].includes(issue.code),
   );
 
+  const adapters = config.ai?.adapters?.length
+    ? config.ai.adapters.join(', ')
+    : 'agents';
   console.log('AI tooling');
+  console.log(`  Adapters: ${adapters}`);
   console.log(
-    `  Cursor rule: ${aiToolingIssues.some((i) => i.code === 'missing-cursor-rule') ? 'missing' : 'present'}`,
+    `  AGENTS.md: ${aiToolingIssues.some((i) => i.code === 'missing-agents-md' || i.code === 'agents-missing-architecture-section') ? 'needs update' : 'ok'}`,
   );
-  console.log(
-    `  Claude skill: ${aiToolingIssues.some((i) => i.code === 'missing-claude-skill') ? 'missing' : 'present'}`,
-  );
-  console.log(
-    `  Agent docs: ${aiToolingIssues.some((i) => i.code === 'missing-agents-md' || i.code === 'agents-missing-architecture-section') ? 'needs update' : 'ok'}`,
-  );
+  if (adapters.includes('cursor')) {
+    console.log(
+      `  Cursor rule: ${aiToolingIssues.some((i) => i.code === 'missing-cursor-rule') ? 'missing' : 'present'}`,
+    );
+  }
+  if (adapters.includes('claude')) {
+    console.log(
+      `  Claude skill: ${aiToolingIssues.some((i) => i.code === 'missing-claude-skill') ? 'missing' : 'present'}`,
+    );
+  }
   console.log('');
 
   const coverageReport = await buildCoverageReport(cwd);

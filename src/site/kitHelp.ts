@@ -194,8 +194,8 @@ status: in-progress
     <li>Agent pack: <code>.architecture-kit/agent-pack.json</code> after <code>scan</code> or site build.</li>
     <li><strong>Coverage JSON:</strong> <code>npx architecture-kit doctor --json</code> — structured gaps by category (integrations, env, diagrams, scaffold).</li>
     <li><strong>Deploy safety:</strong> <code>site.exposure</code>, <code>validate --deploy-artifact</code>, templates in <code>docs/architecture/deploy-safety/</code>.</li>
-    <li>Cursor rule template: <code>.cursor/rules/architecture-kit.mdc</code> (created by <code>init</code>).</li>
-    <li>Claude Code: <code>CLAUDE.md</code> + <code>.claude/skills/architecture-kit/SKILL.md</code> (created by <code>init</code>).</li>
+    <li>Default AI entrypoint: tool-agnostic <code>AGENTS.md</code> (created by <code>init</code>).</li>
+    <li>Optional adapters: <code>init --adapters agents,cursor,claude</code> for Cursor rules / Claude skill files.</li>
   </ul>
 
   <h2>Repository</h2>

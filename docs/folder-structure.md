@@ -21,9 +21,10 @@ architecture-kit/
 │   ├── craft/
 │   ├── generic/
 │   ├── embed/nextjs/       Host scripts + package.merge.json
-│   ├── cursor/             architecture-kit.mdc
-│   ├── claude/             CLAUDE.md + skill
-│   ├── mcp/                Cursor MCP example
+│   ├── AGENTS.snippet.md   Default tool-agnostic agent entrypoint
+│   ├── cursor/             Optional Cursor .mdc (init --adapters …,cursor)
+│   ├── claude/             Optional CLAUDE.md + skill (--adapters …,claude)
+│   ├── mcp/                Optional MCP config examples
 │   └── deploy/             distignore / AI1WM / htaccess examples
 ├── docs/                   Handbook for *this* package (you are here)
 ├── tests/                  Vitest

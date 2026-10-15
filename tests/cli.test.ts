@@ -48,6 +48,39 @@ describe('init + validate + doctor', () => {
     expect(config.project.name).toBe('Demo Project');
     expect(config.project.type).toBe('generic');
 
+    const agentsMd = await readFile(path.join(cwd, 'AGENTS.md'), 'utf-8');
+    expect(agentsMd).toContain('architecture-kit');
+
+    await expect(
+      readFile(path.join(cwd, 'CLAUDE.md'), 'utf-8'),
+    ).rejects.toThrow();
+    await expect(
+      readFile(path.join(cwd, '.cursor/rules/architecture-kit.mdc'), 'utf-8'),
+    ).rejects.toThrow();
+
+    const validateCode = await runValidate({ cwd, level: 'error' });
+    expect(validateCode).toBe(0);
+
+    const doctorCode = await runDoctor(cwd);
+    expect(doctorCode).toBe(0);
+  });
+
+  it('scaffolds cursor and claude adapters when requested', async () => {
+    const cwd = await makeTempDir();
+
+    await runInit({
+      type: 'generic',
+      name: 'Adapter Demo',
+      cwd,
+      adapters: ['agents', 'cursor', 'claude'],
+    });
+
+    const cursorRule = await readFile(
+      path.join(cwd, '.cursor/rules/architecture-kit.mdc'),
+      'utf-8',
+    );
+    expect(cursorRule).toContain('Architecture Kit');
+
     const claudeMd = await readFile(path.join(cwd, 'CLAUDE.md'), 'utf-8');
     expect(claudeMd).toContain('architecture-kit');
 
@@ -57,11 +90,14 @@ describe('init + validate + doctor', () => {
     );
     expect(claudeSkill).toContain('Reading order');
 
-    const validateCode = await runValidate({ cwd, level: 'error' });
-    expect(validateCode).toBe(0);
-
-    const doctorCode = await runDoctor(cwd);
-    expect(doctorCode).toBe(0);
+    const configRaw = await readFile(
+      path.join(cwd, 'architecture.config.json'),
+      'utf-8',
+    );
+    const config = JSON.parse(configRaw) as {
+      ai?: { adapters?: string[] };
+    };
+    expect(config.ai?.adapters).toEqual(['agents', 'cursor', 'claude']);
   });
 
   it('scaffolds nextjs template files', async () => {

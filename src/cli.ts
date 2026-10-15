@@ -7,6 +7,7 @@ import { runBuild } from './commands/build.js';
 import { runDetect } from './commands/detect.js';
 import { runDev } from './commands/dev.js';
 import { runDoctor } from './commands/doctor.js';
+import { parseAiAdapters } from './agent/adapters.js';
 import { runInit } from './commands/init.js';
 import { runBootstrap, runScan } from './commands/bootstrap.js';
 import { runValidate } from './commands/validate.js';
@@ -49,7 +50,18 @@ program
     '--embed <target>',
     'Copy host embed scripts (nextjs: public/architecture/ at /architecture/)',
   )
-  .action(async (options: { type: string; name?: string; embed?: string }) => {
+  .option(
+    '--adapters <list>',
+    'AI entrypoints to scaffold (comma-separated: agents,cursor,claude). Default: agents',
+    'agents',
+  )
+  .action(
+    async (options: {
+      type: string;
+      name?: string;
+      embed?: string;
+      adapters?: string;
+    }) => {
     if (!PROJECT_TYPES.includes(options.type as ProjectType)) {
       console.error(`Invalid project type: ${options.type}`);
       console.error(`Valid types: ${PROJECT_TYPES.join(', ')}`);
@@ -62,11 +74,20 @@ program
       process.exit(1);
     }
 
+    let adapters;
+    try {
+      adapters = parseAiAdapters(options.adapters);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+
     try {
       await runInit({
         type: options.type as ProjectType,
         name: options.name,
         embed: options.embed as 'nextjs' | undefined,
+        adapters,
       });
     } catch (error) {
       console.error(error instanceof Error ? error.message : String(error));

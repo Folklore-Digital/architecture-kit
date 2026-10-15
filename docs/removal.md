@@ -30,9 +30,8 @@ The kit is designed so removal does **not** destroy your documentation. You keep
    - `scripts/ensure-kit-*.mjs` / `scripts/lib/resolve-kit.mjs` (kit-only)
 5. **Stop mounting docs in the app** — remove `/architecture` redirects, middleware allowlists, or static `public/architecture/` from deploy artifacts if you no longer want HTML there.
 6. **Agent hooks (optional cleanup):**
-   - `.cursor/rules/architecture-kit.mdc`
-   - Kit snippets in `AGENTS.md` / `CLAUDE.md`
-   - `.claude/skills/architecture-kit/`
+   - Kit section in `AGENTS.md` (default entrypoint)
+   - If you opted into adapters: `.cursor/rules/architecture-kit.mdc`, `CLAUDE.md`, `.claude/skills/architecture-kit/`
 7. **Config (optional):** keep `architecture.config.json` as team metadata, or delete if unused.
 8. **Gitignore:** you may remove `.architecture-kit/` and `public/architecture/` entries once those dirs are gone.
 9. **CI:** drop any `architecture:validate` / kit install steps (and any leftover registry auth that existed only for this kit).
